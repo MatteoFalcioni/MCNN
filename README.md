@@ -15,19 +15,6 @@ Scanner Data" (at https://www.mdpi.com/1424-8220/18/10/3347).
 
 To set up the environment and install the necessary dependencies, follow these steps:
 
-# Multi-Scale Convolutional Neural Network (MCNN) Training Project
-
-This project contains the implementation of a Multi-Scale Convolutional Neural Network (MCNN) for processing point cloud data and generating corresponding images, based on the methodologies described in recent research papers.
-
-## Table of Contents
-- Installation
-- Usage
-- Structure
-
-## Installation
-
-To set up the environment and install the necessary dependencies, follow these steps:
-
 1. **Clone this repository**:
 
    ```bash
