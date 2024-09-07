@@ -4,9 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="added basic testing for training + more edge case tests">
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="tests working">
+      <change beforePath="$PROJECT_DIR$/.gitattributes" beforeDir="false" afterPath="$PROJECT_DIR$/.gitattributes" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/train.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/test_training.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_training.py" afterDir="false" />
     </list>
@@ -34,17 +37,22 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "last_opened_file_path": "C:/Users/matte/PycharmProjects/MCNN/data/raw",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/matte/PycharmProjects/MCNN/data/raw&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\matte\PycharmProjects\MCNN\data\raw" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\matte\PycharmProjects\MCNN\tests\test_training_saved" />
+      <recent name="C:\Users\matte\PycharmProjects\MCNN\tests" />
+      <recent name="C:\Users\matte\PycharmProjects\MCNN\test_training_saved" />
     </key>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -287,7 +295,77 @@
       <option name="project" value="LOCAL" />
       <updated>1725716052598</updated>
     </task>
-    <option name="localTasksCounter" value="34" />
+    <task id="LOCAL-00034" summary="testing (still some errors) and updated readme file">
+      <created>1725719305048</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1725719305048</updated>
+    </task>
+    <task id="LOCAL-00035" summary="corrected functions documentation">
+      <created>1725722256005</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1725722256005</updated>
+    </task>
+    <task id="LOCAL-00036" summary="corrected readme file">
+      <created>1725722273130</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1725722273130</updated>
+    </task>
+    <task id="LOCAL-00037" summary="models and plots produced during testing are now saved in teh testing folder">
+      <created>1725722391003</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1725722391003</updated>
+    </task>
+    <task id="LOCAL-00038" summary="removed useless tests, added new ones">
+      <created>1725723093146</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1725723093146</updated>
+    </task>
+    <task id="LOCAL-00039" summary="corrected readme">
+      <created>1725725918176</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1725725918176</updated>
+    </task>
+    <task id="LOCAL-00040" summary="corrected readme">
+      <created>1725726678353</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1725726678353</updated>
+    </task>
+    <task id="LOCAL-00041" summary="tests working">
+      <created>1725727378899</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1725727378899</updated>
+    </task>
+    <task id="LOCAL-00042" summary="tests working">
+      <created>1725727889199</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1725727889199</updated>
+    </task>
+    <task id="LOCAL-00043" summary="tests working">
+      <created>1725730270162</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1725730270162</updated>
+    </task>
+    <option name="localTasksCounter" value="44" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -302,13 +380,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Implementing the actual MCNN. Check if forward is right, class definition should already match the paper" />
-    <MESSAGE value="renamed files for simplicity and checked models correct functioning through tests" />
-    <MESSAGE value="Adding other tests, in order to make testing more robust." />
-    <MESSAGE value="test for checking for overfitting needed only in MCNN" />
-    <MESSAGE value="Added a small initial readme (to be expanded)" />
-    <MESSAGE value="Uploading las data files to be processed + data readme" />
-    <MESSAGE value="configuring data loader and its tests" />
     <MESSAGE value="configuring data loader and its tests, feature file to heavy to upload?" />
     <MESSAGE value="configuring data loader and its tests, las files now tracked through git lsf" />
     <MESSAGE value="configuring data loader and its tests. uploading las and dtm files with git lsf" />
@@ -327,6 +398,13 @@
     <MESSAGE value="improved plotting, created results/plots folder" />
     <MESSAGE value="plot name is always mcnn" />
     <MESSAGE value="added basic testing for training + more edge case tests" />
-    <option name="LAST_COMMIT_MESSAGE" value="added basic testing for training + more edge case tests" />
+    <MESSAGE value="testing (still some errors) and updated readme file" />
+    <MESSAGE value="corrected functions documentation" />
+    <MESSAGE value="corrected readme file" />
+    <MESSAGE value="models and plots produced during testing are now saved in teh testing folder" />
+    <MESSAGE value="removed useless tests, added new ones" />
+    <MESSAGE value="corrected readme" />
+    <MESSAGE value="tests working" />
+    <option name="LAST_COMMIT_MESSAGE" value="tests working" />
   </component>
 </project>

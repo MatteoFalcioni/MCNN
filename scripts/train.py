@@ -29,6 +29,7 @@ def train(model, dataloader, criterion, optimizer, device):
         optimizer.zero_grad()
 
         # Forward pass
+        # The MCNN takes 3 different inputs for 3 different scales (now same for lack of data)
         outputs = model(inputs, inputs, inputs)
 
         # Compute loss
