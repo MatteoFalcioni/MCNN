@@ -10,9 +10,6 @@ Scanner Data" (at https://www.mdpi.com/1424-8220/18/10/3347).
 - Installation
 - Usage
 - Structure
-- Future Work
-- Contributing
-- License
 
 ## Installation
 
