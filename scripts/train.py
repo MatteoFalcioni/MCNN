@@ -135,7 +135,7 @@ def train_epochs(model, train_loader, val_loader, criterion, optimizer, schedule
     save_model(model, save_dir)
 
     # Plot the losses at the end of training
-    plot_loss(train_losses, val_losses)
+    plot_loss(train_losses, val_losses, plot_dir)
 
 
 

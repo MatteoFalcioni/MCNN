@@ -1,5 +1,3 @@
-Python code with the goal of 
-
 # Multi-Scale Convolutional Neural Network (MCNN) Training Project
 
 This project contains the implementation of a Multi-Scale Convolutional Neural Network (MCNN) for processing point cloud data and generating corresponding images, based on the methodologies described in the article "Segmentation and Multi-Scale Convolutional Neural
