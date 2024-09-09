@@ -1,7 +1,8 @@
+from scipy.spatial import KDTree
 import numpy as np
 
 
-def create_feature_grid(center_point, window_size=10.0, grid_resolution=128, channels = 3):
+def create_feature_grid(center_point, window_size=10.0, grid_resolution=128, channels=3):
     """
     Creates a grid around the center point and initializes cells to store feature values.
 
@@ -34,5 +35,36 @@ def create_feature_grid(center_point, window_size=10.0, grid_resolution=128, cha
     return grid, cell_size, x_coords, y_coords, z_coords
 
 
+def assign_features_to_grid(data_array, grid, x_coords, y_coords, channels=3):
+    """
+    Assign features from the nearest point to each cell in the grid.
+
+    Args:
+    - data_array (numpy.ndarray): Array where each row represents a point with its x, y, z coordinates and features.
+    - grid (numpy.ndarray): A 2D grid initialized to zeros, which will store feature values.
+    - x_coords (numpy.ndarray): Array of x coordinates for the centers of the grid cells.
+    - y_coords (numpy.ndarray): Array of y coordinates for the centers of the grid cells.
+    - channels (int): Number of feature channels to assign to each grid cell (default is 3 for RGB).
+
+    Returns:
+    - grid (numpy.ndarray): Grid populated with feature values.
+    """
+    # Extract point coordinates (x, y) for KDTree
+    points = data_array[:, :2]  # Assuming x, y are the first two columns
+
+    # Create a KDTree for efficient nearest-neighbor search
+    tree = KDTree(points)  # Only use x, y for 2D grid distance calculation
+
+    # Iterate over each cell in the grid
+    for i in range(len(x_coords)):
+        for j in range(len(y_coords)):
+            # Find the nearest point to the cell center (x_coords[i], y_coords[j])
+            dist, idx = tree.query([x_coords[i], y_coords[j]])
+
+            # Assign the features of the nearest point to the grid cell, considering the specified number of channels
+            grid[i, j, :channels] = data_array[idx,
+                                    3:3 + channels]  # Assuming features start from the 4th column (index 3)
+
+    return grid
 
 
