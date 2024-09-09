@@ -5,6 +5,7 @@ from models.mcnn import MultiScaleCNN
 from utils.data_utils import prepare_dataloader
 from scripts.train import train_epochs
 from utils.config_handler import parse_arguments
+from utils.utils import select_device
 
 
 def main():
@@ -12,7 +13,7 @@ def main():
     args = parse_arguments()
 
     # Set device (GPU if available)
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = select_device()
     print(f"Using device: {device}")
 
     # Initialize model (always MCNN)
