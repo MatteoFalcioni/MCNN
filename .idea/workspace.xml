@@ -4,12 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="corrected README.md">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config.yaml" afterDir="false" />
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="corrected parser to now handel config defaults, and overwrite them if needed">
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/config_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/config_handler.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -384,7 +380,21 @@
       <option name="project" value="LOCAL" />
       <updated>1725731733073</updated>
     </task>
-    <option name="localTasksCounter" value="47" />
+    <task id="LOCAL-00047" summary="corrected README.md">
+      <created>1725875681519</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1725875681519</updated>
+    </task>
+    <task id="LOCAL-00048" summary="corrected parser to now handel config defaults, and overwrite them if needed">
+      <created>1725875732555</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1725875732555</updated>
+    </task>
+    <option name="localTasksCounter" value="49" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -399,7 +409,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="configuring data loader and its tests, las files now tracked through git lsf" />
     <MESSAGE value="configuring data loader and its tests. uploading las and dtm files with git lsf" />
     <MESSAGE value="wrote first version of training script, added config file and utilities" />
     <MESSAGE value="Added functions documentations in train.py" />
@@ -424,6 +433,7 @@
     <MESSAGE value="corrected readme" />
     <MESSAGE value="tests working" />
     <MESSAGE value="corrected README.md" />
-    <option name="LAST_COMMIT_MESSAGE" value="corrected README.md" />
+    <MESSAGE value="corrected parser to now handel config defaults, and overwrite them if needed" />
+    <option name="LAST_COMMIT_MESSAGE" value="corrected parser to now handel config defaults, and overwrite them if needed" />
   </component>
 </project>

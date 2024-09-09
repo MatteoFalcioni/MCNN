@@ -1,4 +1,3 @@
-import torch
 import torch.nn as nn
 import torch.optim as optim
 from models.mcnn import MultiScaleCNN
@@ -30,10 +29,10 @@ def main():
     criterion = nn.CrossEntropyLoss()
 
     # Set up optimizer (Stochastic Gradient Descent)
-    optimizer = optim.SGD(model.parameters(), lr=args.learning_rate)
+    optimizer = optim.SGD(model.parameters(), lr=args.learning_rate, momentum=args.momentum)
 
     # Learning rate scheduler
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=args.learning_rate_decay_epochs, gamma=args.learning_rate_decay_gamma)
+    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=args.learning_rate_decay_epochs, gamma=args.learning_rate_decay_factor)
 
     # Start training with early stopping
     print("Starting training process with early stopping...")
