@@ -68,3 +68,45 @@ def assign_features_to_grid(data_array, grid, x_coords, y_coords, channels=3):
     return grid
 
 
+def generate_grids_for_training(data_array, window_size=10.0, grid_resolution=128, channels=3):
+    """
+    Generate grids for training by scanning through the point cloud and creating a grid for each selected point.
+
+    Args:
+    - data_array (numpy.ndarray): Array where each row represents a point with its x, y, z coordinates and selected features.
+    - window_size (float): Size of the square window for each grid (in meters).
+    - grid_resolution (int): The number of cells in one dimension of the grid (e.g., 128 for a 128x128 grid).
+    - channels (int): The number of feature channels to store in each grid cell (default is 3 for RGB).
+
+    Returns:
+    - grids (list): List of grids with assigned features for each center point.
+    """
+
+    # Initialize a list to store all generated grids
+    grids = []
+
+    print(f"Generating grids for {len(data_array)} points...")
+    # Loop through each point in the dataset to use as a grid center
+    for i in range(len(data_array)):
+        # Print progress every 1000 points
+        if i % 1000 == 0:
+            print(f"Processing point {i+1}/{len(data_array)}...")
+
+        # Select the current point as the center point for the grid
+        center_point = data_array[i, :3]  # (x, y, z)
+
+        # Create a grid around the current center point
+        grid, cell_size, x_coords, y_coords, z_coords = create_feature_grid(center_point, window_size, grid_resolution, channels)
+
+        # Assign features to the grid cells (KDTree created inside assign_features_to_grid)
+        grid_with_features = assign_features_to_grid(data_array, grid, x_coords, y_coords, channels)
+
+        # Append the grid with features to the list
+        grids.append(grid_with_features)
+
+    print("Grids generation complete.")
+    return grids
+
+
+
+
