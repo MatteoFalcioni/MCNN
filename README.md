@@ -1,8 +1,9 @@
 # Multi-Scale Convolutional Neural Network (MCNN) Training Project
 
-This project contains the implementation of a Multi-Scale Convolutional Neural Network (MCNN) for processing point cloud data and generating corresponding images, based on the methodologies described in the article "Segmentation and Multi-Scale Convolutional Neural
-Network-Based Classification of Airborne Laser
-Scanner Data" (at https://www.mdpi.com/1424-8220/18/10/3347).
+This project contains the implementation of a Multi-Scale Convolutional Neural Network (MCNN) for processing point cloud data and generating corresponding images, based on the methodologies described in the articles
+"Segmentation and Multi-Scale Convolutional Neural Network-Based Classification of Airborne Laser
+Scanner Data" (2018) - at https://www.mdpi.com/1424-8220/18/10/3347 - and "A Convolutional Neural Network-Based 3D Semantic
+Labeling Method for ALS Point Clouds" (2017) at https://www.mdpi.com/2072-4292/9/9/936. 
 
 ## Table of Contents
 - Installation
@@ -39,7 +40,8 @@ To train the MCNN model with custom setting you can use the argument parser spec
 - `--patience` specifies the number of epochs to wait for an improvement in validation loss before early stopping
 - `--learning_rate` specifies the learning rate for the optimizer
 - `--learning_rate_decay_epochs` specifies the epochs interval to decay learning rate 
-- `--learning_rate_decay_gamma` specifies the learning rate decay factor
+- `--learning_rate_decay_factor` specifies the learning rate decay factor
+- `--momentum` specifies the value of momentum to be used in the scheduler
 - `--save_dir` specifies the directory to save trained models
 
 ## Structure

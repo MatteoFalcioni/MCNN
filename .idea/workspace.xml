@@ -4,8 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="corrected parser to now handel config defaults, and overwrite them if needed">
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="now using momentum during training, as described in the first paper">
+      <change afterPath="$PROJECT_DIR$/data/transforms/__utils__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/transforms/data_loader.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/transforms/point_cloud_data_reader.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/transforms/data_preprocessing.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/transforms/point_cloud_to_image.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -394,7 +398,14 @@
       <option name="project" value="LOCAL" />
       <updated>1725875732555</updated>
     </task>
-    <option name="localTasksCounter" value="49" />
+    <task id="LOCAL-00049" summary="now using momentum during training, as described in the first paper">
+      <created>1725876043018</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1725876043018</updated>
+    </task>
+    <option name="localTasksCounter" value="50" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -409,7 +420,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="configuring data loader and its tests. uploading las and dtm files with git lsf" />
     <MESSAGE value="wrote first version of training script, added config file and utilities" />
     <MESSAGE value="Added functions documentations in train.py" />
     <MESSAGE value="refactoring code for clarity" />
@@ -434,6 +444,7 @@
     <MESSAGE value="tests working" />
     <MESSAGE value="corrected README.md" />
     <MESSAGE value="corrected parser to now handel config defaults, and overwrite them if needed" />
-    <option name="LAST_COMMIT_MESSAGE" value="corrected parser to now handel config defaults, and overwrite them if needed" />
+    <MESSAGE value="now using momentum during training, as described in the first paper" />
+    <option name="LAST_COMMIT_MESSAGE" value="now using momentum during training, as described in the first paper" />
   </component>
 </project>
