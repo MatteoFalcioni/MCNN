@@ -37,3 +37,35 @@ def plot_loss(train_losses, val_losses, save_dir='results/plots/'):
 
     # Close the plot
     plt.close()
+
+
+def visualize_grid(grid, channel=0, title="Grid Visualization"):
+    """
+    Visualizes a specific channel of the grid.
+
+    Args:
+    - grid (numpy.ndarray): A 2D grid array with shape (grid_resolution, grid_resolution, channels).
+    - channel (int): The channel to visualize (default is 0 for the first channel).
+    - title (str): Title for the plot.
+
+    Returns:
+    - None: Displays the plot.
+    """
+    if grid.ndim != 3:
+        raise ValueError("Grid must be a 3D array with shape (grid_resolution, grid_resolution, channels).")
+
+    if channel >= grid.shape[2]:
+        raise ValueError(f"Channel {channel} is out of bounds for this grid with {grid.shape[2]} channels.")
+
+    # Extract the specified channel
+    grid_channel = grid[:, :, channel]
+
+    # Plotting the grid using a heatmap
+    plt.figure(figsize=(8, 8))
+    plt.imshow(grid_channel, cmap='viridis', interpolation='nearest')
+    plt.colorbar(label=f'Feature Value (Channel {channel})')
+    plt.title(title)
+    plt.xlabel('Grid X')
+    plt.ylabel('Grid Y')
+    plt.show()
+

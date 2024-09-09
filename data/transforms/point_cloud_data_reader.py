@@ -86,19 +86,26 @@ def load_las_features(file_path):
     return features_df
 
 
-def convert_dataframe_to_numpy(features_df):
+def convert_dataframe_to_numpy(features_df, selected_features=None):
     """
-    Converts the feature DataFrame into a NumPy array.
+    Converts the feature DataFrame into a NumPy array with selected features.
 
     Args:
     - features_df (pd.DataFrame): DataFrame containing all points and their features.
+    - selected_features (list): List of column names or indices to include in the output (default is None, which includes all features).
 
     Returns:
-    - data_array (numpy.ndarray): A NumPy array where each row represents a point,
-                                  and columns represent x, y, z, and all other features.
+    - data_array (numpy.ndarray): A NumPy array where each row represents a point and selected features.
     """
-    # Convert entire DataFrame to a NumPy array
-    data_array = features_df.to_numpy()
+    if selected_features is not None:
+        # Filter the DataFrame to include only the selected features
+        filtered_df = features_df[['x', 'y', 'z'] + selected_features]
+    else:
+        # Convert entire DataFrame to a NumPy array if no selection is made
+        filtered_df = features_df
+
+    # Convert the DataFrame to a NumPy array
+    data_array = filtered_df.to_numpy()
     return data_array
 
 
