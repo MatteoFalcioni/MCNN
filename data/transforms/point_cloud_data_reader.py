@@ -1,4 +1,3 @@
-import os
 import laspy
 import numpy as np
 import pandas as pd
@@ -85,6 +84,22 @@ def load_las_features(file_path):
     features_df = pd.DataFrame(features)
 
     return features_df
+
+
+def convert_dataframe_to_numpy(features_df):
+    """
+    Converts the feature DataFrame into a NumPy array.
+
+    Args:
+    - features_df (pd.DataFrame): DataFrame containing all points and their features.
+
+    Returns:
+    - data_array (numpy.ndarray): A NumPy array where each row represents a point,
+                                  and columns represent x, y, z, and all other features.
+    """
+    # Convert entire DataFrame to a NumPy array
+    data_array = features_df.to_numpy()
+    return data_array
 
 
 def visualize_dtm(dtm_data):
