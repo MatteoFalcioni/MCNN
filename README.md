@@ -21,7 +21,9 @@ To set up the environment and install the necessary dependencies, follow these s
 
 2. **Install the required packages**:
 
-    `pip install -r requirements.txt`
+    ```bash
+   pip install -r requirements.txt
+    ```
 
 
 ## Usage
@@ -42,7 +44,7 @@ To train the MCNN model with custom setting you can use the argument parser spec
 
 ## Structure
 
-- `mcnn-training/`
+- `MCNN/`
   - `data/`
     - `data_utils.py`           Data processing and loading utilities
   - `models/`
