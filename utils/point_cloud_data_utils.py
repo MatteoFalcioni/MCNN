@@ -1,8 +1,6 @@
 import laspy
 import numpy as np
 import pandas as pd
-import glob
-import os
 
 
 def load_las_data(file_path):
@@ -34,86 +32,81 @@ def load_asc_data(file_path):
     return dtm_data
 
 
-def read_feature_las_files(las_directory='data/raw', feature_suffix='_F', features_to_extract=None, save_to_csv=False,
-                           csv_output_dir='data/csv_files', sample_size=None, sample_fraction=None, random_state=42):
+def read_las_file_to_numpy(file_path, features_to_extract=None):
     """
-    Reads all LAS files with a given suffix in a directory, extracts the coordinate data (x, y, z) and specific features,
-    and returns them as a list of pandas DataFrames. Optionally saves the DataFrames as CSV files and allows sampling of the data.
+    Reads a LAS file, extracts coordinate data (x, y, z) and specific features,
+    and returns them as a numpy array.
 
     Parameters:
-    - las_directory (str): The directory where the LAS files are stored.
-    - feature_suffix (str): The suffix used to identify feature LAS files.
-    - features_to_extract (list): List of features to extract from each LAS file. If None, default features will be extracted.
-    - save_to_csv (bool): If True, saves the extracted DataFrames to CSV files.
-    - csv_output_dir (str): Directory to save the CSV files if save_to_csv is True.
-    - sample_size (int, optional): Number of points to sample. If None, use `sample_fraction` instead.
-    - sample_fraction (float, optional): Fraction of the DataFrame to sample (between 0.0 and 1.0). Ignored if `sample_size` is specified.
-    - random_state (int, optional): Seed for the random number generator for reproducibility.
+    - file_path (str): The path to the LAS file.
+    - features_to_extract (list): List of features to extract from the LAS file.
+                                  If None, default features will be extracted.
 
     Returns:
-    - List[pd.DataFrame]: A list of pandas DataFrames containing the extracted data from each LAS file.
+    - np.ndarray: A numpy array containing the extracted data from the LAS file.
     """
+    # Set default features if none are provided
     if features_to_extract is None:
         features_to_extract = ['intensity', 'return_number', 'number_of_returns', 'red', 'green', 'blue', 'nir',
                                'ndvi', 'ndwi', 'ssi', 'l1_b', 'l2_b', 'l3_b', 'planarity_b', 'sphericity_b',
-                               'linearity_b', 'entropy_b', 'theta_b', 'theta_variance_b', 'mad_b', 'delta_z_b', 'N_h', 'delta_z_fl']
+                               'linearity_b', 'entropy_b', 'theta_b', 'theta_variance_b', 'mad_b', 'delta_z_b', 'N_h',
+                               'delta_z_fl']
 
-    dataframes = []
+    # Read the LAS file
+    print(f"Processing {file_path}...")
+    las_data = laspy.read(file_path)
 
-    if save_to_csv:
-        os.makedirs(csv_output_dir, exist_ok=True)
+    # Initialize a list to store the features for this file
+    data = []
 
-    las_files = glob.glob(os.path.join(las_directory, f'*{feature_suffix}.las'))
+    # Check if x, y, z coordinates are present and not empty
+    if hasattr(las_data, 'x') and hasattr(las_data, 'y') and hasattr(las_data, 'z'):
+        if len(las_data.x) > 0 and len(las_data.y) > 0 and len(las_data.z) > 0:
+            # Add x, y, z as the first columns
+            data.append(las_data.x)
+            data.append(las_data.y)
+            data.append(las_data.z)
+        else:
+            print(f"Warning: One of the coordinate arrays (x, y, z) is empty in {file_path}.")
+            return None
+    else:
+        print(f"Warning: LAS data in {file_path} does not have 'x', 'y', or 'z' attributes.")
+        return None
 
-    for las_file in las_files:
-        print(f"Processing {las_file}...")
-        las_data = laspy.read(las_file)
+    # Extract additional features
+    for feature in features_to_extract:
+        if feature in ['x', 'y', 'z']:
+            continue  # Skip if feature is x, y, or z since they are already added
+        if feature in las_data.point_format.dimension_names:
+            data.append(las_data[feature])
+        else:
+            print(f"Feature '{feature}' is not available in {file_path}.")
 
-        try:
-            # Initialize data dictionary
-            data = {}
+    # Convert the data list to a numpy array and transpose to match the expected shape (N, num_features)
+    data_array = np.vstack(data).T
+    print(f"Loaded NumPy array with shape: {data_array.shape}")
 
-            if hasattr(las_data, 'x') and hasattr(las_data, 'y') and hasattr(las_data, 'z'):
-                if len(las_data.x) > 0 and len(las_data.y) > 0 and len(las_data.z) > 0:
-                    data['x'] = las_data.x  # Scaled x
-                    data['y'] = las_data.y  # Scaled y
-                    data['z'] = las_data.z  # Scaled z
-                else:
-                    print(f"Warning: One of the coordinate arrays (x, y, z) is empty in {las_file}.")
-            else:
-                print(f"Warning: LAS data in {las_file} does not have 'x', 'y', or 'z' attributes.")
+    return data_array
 
-            # Extract additional features, skipping x, y, z
-            for feature in features_to_extract:
-                if feature in ['x', 'y', 'z']:
-                    continue  # Skip if feature is x, y, or z since they are already added
-                if feature in las_data.point_format.dimension_names:
-                    data[feature] = las_data[feature]
-                else:
-                    print(f"Feature '{feature}' is not available in {las_file}.")
 
-            df = pd.DataFrame(data)
+def numpy_to_dataframe(data_array, feature_names=None):
+    """
+    Converts a NumPy array to a pandas DataFrame.
 
-            # Apply sampling if needed. Get a smaller sampled dataframe
-            if sample_size is not None:
-                df = df.sample(n=sample_size, random_state=random_state)
-                print(f"Sampled DataFrame with {sample_size} points: {df.shape}")
-            elif sample_fraction is not None:
-                df = df.sample(frac=sample_fraction, random_state=random_state)
-                print(f"Sampled DataFrame with fraction {sample_fraction}: {df.shape}")
+    Args:
+    - data_array (numpy.ndarray): The NumPy array to convert.
+    - feature_names (list): List of column names for the DataFrame.
 
-            dataframes.append(df)
-            print(f"Loaded DataFrame with shape: {df.shape}")
+    Returns:
+    - pandas.DataFrame: The resulting DataFrame.
+    """
 
-            if save_to_csv:
-                print(f"Saving to CSV file...")
-                csv_filename = os.path.splitext(os.path.basename(las_file))[0] + '.csv.gz'
-                csv_path = os.path.join(csv_output_dir, csv_filename)
-                df.to_csv(csv_path, index=False, compression='gzip')
-                print(f"Saved DataFrame to CSV: {csv_path} with gzip compression")
+    # Define default feature names if not provided
+    if feature_names is None:
+        feature_names = ['x', 'y', 'z', 'intensity', 'return_number', 'number_of_returns',
+                         'red', 'green', 'blue', 'nir', 'ndvi', 'ndwi', 'ssi', 'l1_b', 'l2_b',
+                         'l3_b', 'planarity_b', 'sphericity_b', 'linearity_b', 'entropy_b',
+                         'theta_b', 'theta_variance_b', 'mad_b', 'delta_z_b', 'N_h', 'delta_z_fl']
 
-        except Exception as e:
-            print(f"Error processing file {las_file}: {e}")
-
-    return dataframes
-
+    # Convert the numpy array to a pandas DataFrame
+    return pd.DataFrame(data_array, columns=feature_names)

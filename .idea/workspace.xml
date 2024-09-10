@@ -4,10 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="refactoring code and started creating the transform point cloud --&gt; feature image">
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="tested point cloud data util without np only with pandas, all working">
+      <change afterPath="$PROJECT_DIR$/quicktest.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/tests/test_grid_generation.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/transforms/point_cloud_data_reader.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/transforms/point_cloud_data_reader.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/transforms/point_cloud_to_image.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/transforms/point_cloud_to_image.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_data_loader.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_point_cloud_data_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_point_cloud_data_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/point_cloud_data_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/point_cloud_data_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,6 +49,7 @@
       <recent name="C:\Users\matte\PycharmProjects\MCNN\data\raw" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\matte\PycharmProjects\MCNN\utils" />
       <recent name="C:\Users\matte\PycharmProjects\MCNN\tests\test_training_saved" />
       <recent name="C:\Users\matte\PycharmProjects\MCNN\tests" />
       <recent name="C:\Users\matte\PycharmProjects\MCNN\test_training_saved" />
@@ -59,97 +63,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00002" summary="first version of the SCNN code implemented">
-      <created>1725547779590</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1725547779590</updated>
-    </task>
-    <task id="LOCAL-00003" summary="Correcting GPT errors in first block. now its 3x128x128 --&gt; 32x64x64">
-      <created>1725551417026</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1725551417026</updated>
-    </task>
-    <task id="LOCAL-00004" summary="Correcting GPT errors in 2nd and 3rd block">
-      <created>1725551872708</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1725551872708</updated>
-    </task>
-    <task id="LOCAL-00005" summary="removed forward and tests (will add later on) and removed final linear layers (to be included only in the MCNN)">
-      <created>1725553121452</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1725553121452</updated>
-    </task>
-    <task id="LOCAL-00006" summary="changed class documentation and added forward method">
-      <created>1725553846825</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1725553846825</updated>
-    </task>
-    <task id="LOCAL-00007" summary="Implementing the actual MCNN. Check if forward is right, class definition should already match the paper">
-      <created>1725555359104</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1725555359104</updated>
-    </task>
-    <task id="LOCAL-00008" summary="renamed files for simplicity and checked models correct functioning through tests">
-      <created>1725614130636</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1725614130636</updated>
-    </task>
-    <task id="LOCAL-00009" summary="Adding other tests, in order to make testing more robust.">
-      <created>1725615092673</created>
-      <option name="number" value="00009" />
-      <option name="presentableId" value="LOCAL-00009" />
-      <option name="project" value="LOCAL" />
-      <updated>1725615092673</updated>
-    </task>
-    <task id="LOCAL-00010" summary="test for checking for overfitting needed only in MCNN">
-      <created>1725617146970</created>
-      <option name="number" value="00010" />
-      <option name="presentableId" value="LOCAL-00010" />
-      <option name="project" value="LOCAL" />
-      <updated>1725617146970</updated>
-    </task>
-    <task id="LOCAL-00011" summary="Added a small initial readme (to be expanded)">
-      <created>1725617287161</created>
-      <option name="number" value="00011" />
-      <option name="presentableId" value="LOCAL-00011" />
-      <option name="project" value="LOCAL" />
-      <updated>1725617287161</updated>
-    </task>
-    <task id="LOCAL-00012" summary="Uploading las data files to be processed + data readme">
-      <created>1725625980813</created>
-      <option name="number" value="00012" />
-      <option name="presentableId" value="LOCAL-00012" />
-      <option name="project" value="LOCAL" />
-      <updated>1725625980813</updated>
-    </task>
-    <task id="LOCAL-00013" summary="configuring data loader and its tests">
-      <created>1725628078933</created>
-      <option name="number" value="00013" />
-      <option name="presentableId" value="LOCAL-00013" />
-      <option name="project" value="LOCAL" />
-      <updated>1725628078933</updated>
-    </task>
-    <task id="LOCAL-00014" summary="configuring data loader and its tests, feature file to heavy to upload?">
-      <created>1725632139773</created>
-      <option name="number" value="00014" />
-      <option name="presentableId" value="LOCAL-00014" />
-      <option name="project" value="LOCAL" />
-      <updated>1725632139773</updated>
     </task>
     <task id="LOCAL-00015" summary="configuring data loader and its tests, las files now tracked through git lsf">
       <created>1725632692046</created>
@@ -403,7 +316,98 @@
       <option name="project" value="LOCAL" />
       <updated>1725878094697</updated>
     </task>
-    <option name="localTasksCounter" value="51" />
+    <task id="LOCAL-00051" summary="made it possible to witch to numpy from pandas dataframe for las file">
+      <created>1725879798233</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1725879798233</updated>
+    </task>
+    <task id="LOCAL-00052" summary="implemented assignment of features to grid">
+      <created>1725880105229</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1725880105229</updated>
+    </task>
+    <task id="LOCAL-00053" summary="imlementing feature selection in grid creation">
+      <created>1725888135296</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1725888135296</updated>
+    </task>
+    <task id="LOCAL-00054" summary="added grids creation main loop">
+      <created>1725888454395</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1725888454395</updated>
+    </task>
+    <task id="LOCAL-00055" summary="changed reading of las feature files, now csv files are created">
+      <created>1725959195489</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1725959195489</updated>
+    </task>
+    <task id="LOCAL-00056" summary="added init to data transforms">
+      <created>1725959215539</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1725959215539</updated>
+    </task>
+    <task id="LOCAL-00057" summary="refactored dtm visualization in plot utils">
+      <created>1725959240605</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1725959240605</updated>
+    </task>
+    <task id="LOCAL-00058" summary="refactoring data utils, added sampling step for pandas df">
+      <created>1725959749300</created>
+      <option name="number" value="00058" />
+      <option name="presentableId" value="LOCAL-00058" />
+      <option name="project" value="LOCAL" />
+      <updated>1725959749300</updated>
+    </task>
+    <task id="LOCAL-00059" summary="ensured x,y,z extraction from las feature file">
+      <created>1725964318541</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1725964318541</updated>
+    </task>
+    <task id="LOCAL-00060" summary="added utils to data transforms">
+      <created>1725965222771</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1725965222771</updated>
+    </task>
+    <task id="LOCAL-00061" summary="added small checks to pc --&gt; img">
+      <created>1725965265849</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1725965265849</updated>
+    </task>
+    <task id="LOCAL-00062" summary="removed full conversion pd dataframe --&gt; numpy, too many problems in scalar array type">
+      <created>1725984926042</created>
+      <option name="number" value="00062" />
+      <option name="presentableId" value="LOCAL-00062" />
+      <option name="project" value="LOCAL" />
+      <updated>1725984926044</updated>
+    </task>
+    <task id="LOCAL-00063" summary="tested point cloud data util without np only with pandas, all working">
+      <created>1725987882078</created>
+      <option name="number" value="00063" />
+      <option name="presentableId" value="LOCAL-00063" />
+      <option name="project" value="LOCAL" />
+      <updated>1725987882078</updated>
+    </task>
+    <option name="localTasksCounter" value="64" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -418,19 +422,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Added functions documentations in train.py" />
-    <MESSAGE value="refactoring code for clarity" />
-    <MESSAGE value="added parser and cleaned configuration file" />
-    <MESSAGE value="added eval function" />
-    <MESSAGE value="added early stopping with patiecne." />
-    <MESSAGE value="device is no longer an hyperparameter" />
-    <MESSAGE value="config is now a yaml file, handled in config_handler.py" />
-    <MESSAGE value="adjusted main to try train script" />
-    <MESSAGE value="added new torch feature tu use intel gpu" />
-    <MESSAGE value="corrected order of arguments in train epochs" />
-    <MESSAGE value="added plot of loss at the end of training" />
-    <MESSAGE value="improved plotting, created results/plots folder" />
-    <MESSAGE value="plot name is always mcnn" />
     <MESSAGE value="added basic testing for training + more edge case tests" />
     <MESSAGE value="testing (still some errors) and updated readme file" />
     <MESSAGE value="corrected functions documentation" />
@@ -443,6 +434,19 @@
     <MESSAGE value="corrected parser to now handel config defaults, and overwrite them if needed" />
     <MESSAGE value="now using momentum during training, as described in the first paper" />
     <MESSAGE value="refactoring code and started creating the transform point cloud --&gt; feature image" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactoring code and started creating the transform point cloud --&gt; feature image" />
+    <MESSAGE value="made it possible to witch to numpy from pandas dataframe for las file" />
+    <MESSAGE value="implemented assignment of features to grid" />
+    <MESSAGE value="imlementing feature selection in grid creation" />
+    <MESSAGE value="added grids creation main loop" />
+    <MESSAGE value="changed reading of las feature files, now csv files are created" />
+    <MESSAGE value="added init to data transforms" />
+    <MESSAGE value="refactored dtm visualization in plot utils" />
+    <MESSAGE value="refactoring data utils, added sampling step for pandas df" />
+    <MESSAGE value="ensured x,y,z extraction from las feature file" />
+    <MESSAGE value="added utils to data transforms" />
+    <MESSAGE value="added small checks to pc --&gt; img" />
+    <MESSAGE value="removed full conversion pd dataframe --&gt; numpy, too many problems in scalar array type" />
+    <MESSAGE value="tested point cloud data util without np only with pandas, all working" />
+    <option name="LAST_COMMIT_MESSAGE" value="tested point cloud data util without np only with pandas, all working" />
   </component>
 </project>

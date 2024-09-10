@@ -1,4 +1,4 @@
-from utils.point_cloud_data_utils import load_las_data, load_asc_data, read_feature_las_files
+from utils.point_cloud_data_utils import load_las_data, load_asc_data, read_las_file_to_numpy, numpy_to_dataframe
 import os
 import pandas as pd
 import unittest
@@ -14,8 +14,12 @@ class TestPointCloudDataProcessing(unittest.TestCase):
                                     'ndvi', 'ndwi', 'ssi', 'l1_b', 'l2_b', 'l3_b', 'planarity_b', 'sphericity_b',
                                     'linearity_b', 'entropy_b', 'theta_b', 'theta_variance_b', 'mad_b', 'delta_z_b',
                                     'N_h', 'delta_z_fl']
-        self.n_samples = 50  # Use a smaller number of samples for efficient testing
-        self.csv_output_dir = 'test/test_csv_files'
+        self.numpy_array = np.array([
+            [681999.979, 4931411.238, 42.146, 182, 0.18326766788959503, -0.14921404421329498],
+            [681999.999, 4931410.997, 42.203, 202, 0.21067164838314056, -0.1748277097940445],
+            [681999.955, 4931409.817, 42.217, 1122, 0.1847124844789505, -0.14715950191020966]
+        ])
+        self.column_names = ['x', 'y', 'z', 'intensity', 'feature1', 'feature2']
 
     def test_load_las_data(self):
         # Test loading LAS data
@@ -36,56 +40,39 @@ class TestPointCloudDataProcessing(unittest.TestCase):
         except FileNotFoundError:
             self.skipTest("ASC file not found for testing `load_asc_data`.")
 
-    def test_read_feature_las_files(self):
-        # Sample the DataFrame to speed up testing
-        dataframes = read_feature_las_files(
-            las_directory=self.las_directory,
-            features_to_extract=self.features_to_extract,
-            save_to_csv=True,
-            sample_size=self.n_samples,
-            csv_output_dir=self.csv_output_dir
-        )
+    def test_read_las_file_to_numpy(self):
+        # Test the read_las_file_to_numpy function
+        sample_file = os.path.join(self.las_directory, 'features_F.las')  # Use a sample file
+        numpy_array = read_las_file_to_numpy(sample_file, features_to_extract=self.features_to_extract)
 
-        # Check that some DataFrames are returned
-        self.assertGreater(len(dataframes), 0, "No DataFrames returned from read_feature_las_files.")
+        # Ensure the result is a NumPy array
+        self.assertIsInstance(numpy_array, np.ndarray, "Result is not a NumPy array.")
 
-        for df in dataframes:
-            # Ensure the result is a DataFrame
-            self.assertIsInstance(df, pd.DataFrame, "Result is not a pandas DataFrame.")
+        # Ensure the shape of the array is as expected (at least 4 columns: x, y, z, features)
+        self.assertGreaterEqual(numpy_array.shape[1], 4, "NumPy array does not have the expected number of columns.")
 
-            # Ensure 'x', 'y', 'z' are present
-            self.assertIn('x', df.columns, "'x' column missing in DataFrame.")
-            self.assertIn('y', df.columns, "'y' column missing in DataFrame.")
-            self.assertIn('z', df.columns, "'z' column missing in DataFrame.")
+        # Check some values to ensure data was loaded correctly (sample values for the first few points)
+        print("Sample data from NumPy array (first 5 rows):")
+        print(numpy_array[:5])
 
-            # Ensure all specified features are included or reported as missing
-            missing_features = []
-            for feature in self.features_to_extract:
-                if feature not in ['x', 'y', 'z']:
-                    if feature not in df.columns:
-                        missing_features.append(feature)
+    def test_numpy_to_dataframe(self):
+        # Convert numpy array to DataFrame
+        df = numpy_to_dataframe(self.numpy_array, self.column_names)
 
-            # Check if all missing features were correctly reported
-            print(f"Missing features (if any): {missing_features}")
+        # Check the result is a DataFrame
+        self.assertIsInstance(df, pd.DataFrame, "The result is not a pandas DataFrame.")
 
-            # Ensure the DataFrame is not empty
-            self.assertFalse(df.empty, "DataFrame is unexpectedly empty.")
+        # Check the DataFrame has the correct number of rows and columns
+        self.assertEqual(df.shape[0], self.numpy_array.shape[0], "The number of rows in the DataFrame does not match the input NumPy array.")
+        self.assertEqual(df.shape[1], self.numpy_array.shape[1], "The number of columns in the DataFrame does not match the input NumPy array.")
 
-        # Check if CSV files are saved correctly
-        for las_file in os.listdir(self.las_directory):
-            if las_file.endswith('_F.las'):
-                csv_filename = os.path.splitext(las_file)[0] + '.csv.gz'
-                csv_path = os.path.join(self.csv_output_dir, csv_filename)
-                self.assertTrue(os.path.exists(csv_path), f"CSV file {csv_path} was not saved correctly.")
+        # Check the DataFrame columns have the expected names
+        self.assertListEqual(list(df.columns), self.column_names, "The DataFrame columns do not match the expected names.")
 
-                # Load the CSV and check its contents
-                loaded_df = pd.read_csv(csv_path, compression='gzip')
-                self.assertIsInstance(loaded_df, pd.DataFrame, "Loaded CSV is not a pandas DataFrame.")
+        # Check if the values are correctly copied from NumPy array
+        np.testing.assert_array_almost_equal(df.values, self.numpy_array, decimal=6, err_msg="The DataFrame values do not match the original NumPy array values.")
 
-                # Sample the loaded DataFrame as well for consistency in testing
-                sampled_loaded_df = loaded_df.sample(n=self.n_samples, random_state=42)
-
-                # Ensure that the columns match
-                self.assertEqual(list(sampled_loaded_df.columns), list(df.columns),
-                                 "CSV columns do not match the original DataFrame.")
+        # Print sample data for manual verification
+        print("Sample data from DataFrame (first 5 rows):")
+        print(df.head())
 
