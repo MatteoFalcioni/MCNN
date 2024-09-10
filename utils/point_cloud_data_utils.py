@@ -34,86 +34,102 @@ def load_asc_data(file_path):
     return dtm_data
 
 
-def read_feature_las_files(las_directory='data/raw', feature_suffix='_F', variables=None, save_to_csv=False,
-                           csv_directory='data/csv_files'):
+def read_feature_las_files(las_directory='data/raw', feature_suffix='_F', features_to_extract=None, save_to_csv=False,
+                           csv_output_dir='data/csv_files'):
     """
-    Reads all LAS files with a specific suffix (e.g., '_F') in a specified directory,
-    extracts the relevant features (computed with radius 1m, i.e., ending with '_b'), and
-    converts each LAS file into a separate pandas DataFrame. Optionally saves each DataFrame to a CSV file.
+    Reads all LAS files with a given suffix in a directory, extracts the scaled coordinate data (x, y, z) and specific features,
+    and returns them as a list of pandas DataFrames. Optionally saves the DataFrames as CSV files.
 
-    Args:
-    - las_directory (str): Path to the directory containing LAS files. Default is 'data/raw'.
-    - feature_suffix (str): Suffix to identify feature LAS files. Default is '_F'.
-    - variables (list): List of features to extract from LAS files. Default is None, meaning extract all.
-    - save_to_csv (bool): If True, saves each DataFrame to a CSV file. Default is False.
-    - csv_directory (str): Directory to save the CSV files. Default is 'data/csv_files'.
+    Parameters:
+    - las_directory (str): The directory where the LAS files are stored.
+    - feature_suffix (str): The suffix used to identify feature LAS files.
+    - features_to_extract (list): List of features to extract from each LAS file. If None, default features will be extracted.
+    - save_to_csv (bool): If True, saves the extracted DataFrames to CSV files.
+    - csv_output_dir (str): Directory to save the CSV files if save_to_csv is True.
 
     Returns:
-    - dict: A dictionary where each key is the LAS file name and the value is the corresponding DataFrame.
+    - List[pd.DataFrame]: A list of pandas DataFrames containing the extracted data from each LAS file.
     """
-    # Default features to extract (those ending with '_b' for radius = 1m)
-    if variables is None:
-        variables = [
-            'x', 'y', 'z', 'intensity',  # Common point features
-            'ndvi', 'ndwi', 'ssi', 'N_h', 'delta_z_fl',  # Other non-radius features
-            # Features computed with radius 1m
-            'l1_b', 'l2_b', 'l3_b', 'planarity_b', 'sphericity_b', 'linearity_b',
-            'entropy_b', 'theta_b', 'theta_variance_b', 'mad_b', 'delta_z_b'
-        ]
+    # Default features to extract if none are provided
+    if features_to_extract is None:
+        features_to_extract = ['intensity', 'return_number', 'number_of_returns',
+                               'red', 'green', 'blue', 'nir',
+                               'ndvi', 'ndwi', 'ssi',
+                               'l1_b', 'l2_b', 'l3_b', 'planarity_b',
+                               'sphericity_b', 'linearity_b', 'entropy_b', 'theta_b', 'theta_variance_b',
+                               'mad_b', 'delta_z_b', 'N_h', 'delta_z_fl'
+                               ]
 
-    # Get a list of all feature LAS files in the directory
-    feature_files = glob.glob(os.path.join(las_directory, f'*{feature_suffix}.las'))
+    # Initialize a list to store DataFrames
+    dataframes = []
 
-    # Dictionary to store DataFrames for each LAS file
-    las_dataframes = {}
-
-    # Create directory for CSV files if saving is enabled
+    # Ensure CSV output directory exists if saving to CSV
     if save_to_csv:
-        os.makedirs(csv_directory, exist_ok=True)
+        os.makedirs(csv_output_dir, exist_ok=True)
 
-    # Iterate over each feature LAS file
-    for las_file in feature_files:
+    # Get a list of all LAS files with the specified suffix in the directory
+    las_files = glob.glob(os.path.join(las_directory, f'*{feature_suffix}.las'))
+
+    # Iterate over each LAS file
+    for las_file in las_files:
         print(f"Processing {las_file}...")
 
-        # Read the LAS file and extract the data
+        # Read the LAS file
         las_data = laspy.read(las_file)
 
-        # Create a DataFrame from the LAS data for the specified features
-        df = pd.DataFrame(
-            {var: np.array(las_data[var]) for var in variables if var in las_data.point_format.dimension_names})
+        # Extract scaled coordinates (x, y, z) "manually" (to avoid laspy erorrs) and the specified features
+        try:
+            data = {
+                'x': las_data.x,  # Scaled x
+                'y': las_data.y,  # Scaled y
+                'z': las_data.z  # Scaled z
+            }
 
-        # Store the DataFrame in the dictionary
-        las_dataframes[os.path.basename(las_file)] = df
+            # Extract additional features
+            for feature in features_to_extract:
+                if feature in las_data.point_format.dimension_names:
+                    data[feature] = las_data[feature]
+                else:
+                    print(f"Feature '{feature}' is not available in {las_file}.")
 
-        # Save to CSV if needed
-        if save_to_csv:
-            csv_path = os.path.join(csv_directory, f"{os.path.basename(las_file).replace('.las', '.csv')}")
-            df.to_csv(csv_path, index=False)
-            print(f"Saved {csv_path}")
+            # Convert the extracted data to a DataFrame
+            df = pd.DataFrame(data)
+            dataframes.append(df)
+            print(f"Loaded DataFrame with shape: {df.shape}")
 
-    return las_dataframes
+            # Save to CSV if required
+            if save_to_csv:
+                print(f"Saving to CSV file...")
+                csv_filename = os.path.splitext(os.path.basename(las_file))[0] + '.csv'
+                csv_path = os.path.join(csv_output_dir, csv_filename)
+                df.to_csv(csv_path, index=False, compression='gzip')
+                print(f"Saved DataFrame to CSV: {csv_path} with gzip compression")
+
+        except Exception as e:
+            print(f"Error processing file {las_file}: {e}")
+
+    return dataframes
 
 
-def convert_dataframe_to_numpy(features_df, selected_features=None):
+def convert_dataframe_to_numpy(df, selected_features=None):
     """
     Converts the feature DataFrame into a NumPy array with selected features.
 
     Args:
-    - features_df (pd.DataFrame): DataFrame containing all points and their features.
+    - df (pd.DataFrame): DataFrame containing all points and their features.
     - selected_features (list): List of column names or indices to include in the output (default is None, which includes all features).
 
     Returns:
     - data_array (numpy.ndarray): A NumPy array where each row represents a point and selected features.
     """
-    if selected_features is not None:
-        # Filter the DataFrame to include only the selected features
-        filtered_df = features_df[['x', 'y', 'z'] + selected_features]
+    # Select specific features or use all if none provided
+    if selected_features:
+        df = df[['x', 'y', 'z'] + selected_features]
     else:
-        # Convert entire DataFrame to a NumPy array if no selection is made
-        filtered_df = features_df
+        df = df[['x', 'y', 'z'] + [col for col in df.columns if col not in ['x', 'y', 'z']]]
 
     # Convert the DataFrame to a NumPy array
-    data_array = filtered_df.to_numpy()
+    data_array = df.to_numpy()
     return data_array
 
 
@@ -140,7 +156,3 @@ def sample_df(df, sample_size=None, fraction=None, random_state=None):
         raise ValueError("Either `sample_size` or `fraction` must be provided.")
 
     return sampled_df
-
-
-
-
