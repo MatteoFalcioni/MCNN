@@ -2,6 +2,8 @@ import laspy
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import glob
+import os
 
 
 def load_las_data(file_path):
@@ -33,57 +35,64 @@ def load_asc_data(file_path):
     return dtm_data
 
 
-def load_las_features(file_path):
+def read_feature_las_files(las_directory='data/raw', feature_suffix='_F', variables=None, save_to_csv=False,
+                           csv_directory='data/csv_files'):
     """
-    Carica il file LAS con le features calcolate e restituisce un DataFrame con le features.
+    Reads all LAS files with a specific suffix (e.g., '_F') in a specified directory,
+    extracts the relevant features (computed with radius 1m, i.e., ending with '_b'), and
+    converts each LAS file into a separate pandas DataFrame. Optionally saves each DataFrame to a CSV file.
 
     Args:
-    - file_path (str): Percorso al file LAS con features.
+    - las_directory (str): Path to the directory containing LAS files. Default is 'data/raw'.
+    - feature_suffix (str): Suffix to identify feature LAS files. Default is '_F'.
+    - variables (list): List of features to extract from LAS files. Default is None, meaning extract all.
+    - save_to_csv (bool): If True, saves each DataFrame to a CSV file. Default is False.
+    - csv_directory (str): Directory to save the CSV files. Default is 'data/csv_files'.
 
     Returns:
-    - pd.DataFrame: DataFrame contenente le features del file LAS.
+    - dict: A dictionary where each key is the LAS file name and the value is the corresponding DataFrame.
     """
-    las = laspy.read(file_path)
+    # Default features to extract (those ending with '_b' for radius = 1m)
+    if variables is None:
+        variables = [
+            'x', 'y', 'z', 'intensity',  # Common point features
+            'ndvi', 'ndwi', 'ssi', 'N_h', 'delta_z_fl',  # Other non-radius features
+            # Features computed with radius 1m
+            'l1_b', 'l2_b', 'l3_b', 'planarity_b', 'sphericity_b', 'linearity_b',
+            'entropy_b', 'theta_b', 'theta_variance_b', 'mad_b', 'delta_z_b'
+        ]
 
-    # Extract the feature columns
-    features = {
-                'x': las.x,
-                'y': las.y,
-                'z': las.z,
-                'intensity': las.intensity,
-                'ndvi': las.ndvi,
-                'ndwi': las.ndwi,
-                'ssi': las.ssi,
-                'l1_a': las.l1_a,
-                'l2_a': las.l2_a,
-                'l3_a': las.l3_a,
-                'planarity_a': las.planarity_a,
-                'sphericity_a': las.sphericity_a,
-                'linearity_a': las.linearity_a,
-                'entropy_a': las.entropy_a,
-                'theta_a': las.theta_a,
-                'theta_variance_a': las.theta_variance_a,
-                'mad_a': las.mad_a,
-                'delta_z_a': las.delta_z_a,
-                'l1_b': las.l1_b,
-                'l2_b': las.l2_b,
-                'l3_b': las.l3_b,
-                'planarity_b': las.planarity_b,
-                'sphericity_b': las.sphericity_b,
-                'linearity_b': las.linearity_b,
-                'entropy_b': las.entropy_b,
-                'theta_b': las.theta_b,
-                'theta_variance_b': las.theta_variance_b,
-                'mad_b': las.mad_b,
-                'delta_z_b': las.delta_z_b,
-                'N_h': las.N_h,
-                'delta_z_fl': las.delta_z_fl
-    }
+    # Get a list of all feature LAS files in the directory
+    feature_files = glob.glob(os.path.join(las_directory, f'*{feature_suffix}.las'))
 
-    # Convert to a DataFrame for easier manipulation
-    features_df = pd.DataFrame(features)
+    # Dictionary to store DataFrames for each LAS file
+    las_dataframes = {}
 
-    return features_df
+    # Create directory for CSV files if saving is enabled
+    if save_to_csv:
+        os.makedirs(csv_directory, exist_ok=True)
+
+    # Iterate over each feature LAS file
+    for las_file in feature_files:
+        print(f"Processing {las_file}...")
+
+        # Read the LAS file and extract the data
+        las_data = laspy.read(las_file)
+
+        # Create a DataFrame from the LAS data for the specified features
+        df = pd.DataFrame(
+            {var: np.array(las_data[var]) for var in variables if var in las_data.point_format.dimension_names})
+
+        # Store the DataFrame in the dictionary
+        las_dataframes[os.path.basename(las_file)] = df
+
+        # Save to CSV if needed
+        if save_to_csv:
+            csv_path = os.path.join(csv_directory, f"{os.path.basename(las_file).replace('.las', '.csv')}")
+            df.to_csv(csv_path, index=False)
+            print(f"Saved {csv_path}")
+
+    return las_dataframes
 
 
 def convert_dataframe_to_numpy(features_df, selected_features=None):
@@ -109,23 +118,5 @@ def convert_dataframe_to_numpy(features_df, selected_features=None):
     return data_array
 
 
-def visualize_dtm(dtm_data):
-    """
-    Visualizza il Digital Terrain Model (DTM) con una legenda.
 
-    Args:
-    - dtm_data (np.ndarray): Array numpy con i dati del DTM.
-    """
-    plt.figure(figsize=(10, 8))
-    im = plt.imshow(dtm_data, cmap='terrain', interpolation='nearest')
-
-    # Add colorbar with legend for elevation values
-    cbar = plt.colorbar(im, orientation='vertical')
-    cbar.set_label('Elevation (meters)', rotation=270, labelpad=15)
-
-    plt.title('Digital Terrain Model (DTM)')
-    plt.xlabel('X Coordinate')
-    plt.ylabel('Y Coordinate')
-
-    plt.show()
 
