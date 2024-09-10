@@ -69,3 +69,24 @@ def visualize_grid(grid, channel=0, title="Grid Visualization"):
     plt.ylabel('Grid Y')
     plt.show()
 
+
+def visualize_dtm(dtm_data):
+    """
+    Visualizza il Digital Terrain Model (DTM) con una legenda.
+
+    Args:
+    - dtm_data (np.ndarray): Array numpy con i dati del DTM.
+    """
+    plt.figure(figsize=(10, 8))
+    im = plt.imshow(dtm_data, cmap='terrain', interpolation='nearest')
+
+    # Add colorbar with legend for elevation values
+    cbar = plt.colorbar(im, orientation='vertical')
+    cbar.set_label('Elevation (meters)', rotation=270, labelpad=15)
+
+    plt.title('Digital Terrain Model (DTM)')
+    plt.xlabel('X Coordinate')
+    plt.ylabel('Y Coordinate')
+
+    plt.show()
+
