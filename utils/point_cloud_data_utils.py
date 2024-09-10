@@ -34,10 +34,24 @@ def load_asc_data(file_path):
     return dtm_data
 
 
-def read_feature_las_files(las_directory='data/raw', feature_suffix='_F', features_to_extract=None, save_to_csv=False, csv_output_dir='data/csv_files'):
+def read_feature_las_files(las_directory='data/raw', feature_suffix='_F', features_to_extract=None, save_to_csv=False,
+                           csv_output_dir='data/csv_files', sample_size=None, sample_fraction=None, random_state=42):
     """
     Reads all LAS files with a given suffix in a directory, extracts the coordinate data (x, y, z) and specific features,
-    and returns them as a list of pandas DataFrames. Optionally saves the DataFrames as CSV files.
+    and returns them as a list of pandas DataFrames. Optionally saves the DataFrames as CSV files and allows sampling of the data.
+
+    Parameters:
+    - las_directory (str): The directory where the LAS files are stored.
+    - feature_suffix (str): The suffix used to identify feature LAS files.
+    - features_to_extract (list): List of features to extract from each LAS file. If None, default features will be extracted.
+    - save_to_csv (bool): If True, saves the extracted DataFrames to CSV files.
+    - csv_output_dir (str): Directory to save the CSV files if save_to_csv is True.
+    - sample_size (int, optional): Number of points to sample. If None, use `sample_fraction` instead.
+    - sample_fraction (float, optional): Fraction of the DataFrame to sample (between 0.0 and 1.0). Ignored if `sample_size` is specified.
+    - random_state (int, optional): Seed for the random number generator for reproducibility.
+
+    Returns:
+    - List[pd.DataFrame]: A list of pandas DataFrames containing the extracted data from each LAS file.
     """
     if features_to_extract is None:
         features_to_extract = ['intensity', 'return_number', 'number_of_returns', 'red', 'green', 'blue', 'nir',
@@ -79,12 +93,21 @@ def read_feature_las_files(las_directory='data/raw', feature_suffix='_F', featur
                     print(f"Feature '{feature}' is not available in {las_file}.")
 
             df = pd.DataFrame(data)
+
+            # Apply sampling if needed. Get a smaller sampled dataframe
+            if sample_size is not None:
+                df = df.sample(n=sample_size, random_state=random_state)
+                print(f"Sampled DataFrame with {sample_size} points: {df.shape}")
+            elif sample_fraction is not None:
+                df = df.sample(frac=sample_fraction, random_state=random_state)
+                print(f"Sampled DataFrame with fraction {sample_fraction}: {df.shape}")
+
             dataframes.append(df)
             print(f"Loaded DataFrame with shape: {df.shape}")
 
             if save_to_csv:
                 print(f"Saving to CSV file...")
-                csv_filename = os.path.splitext(os.path.basename(las_file))[0] + '.csv'
+                csv_filename = os.path.splitext(os.path.basename(las_file))[0] + '.csv.gz'
                 csv_path = os.path.join(csv_output_dir, csv_filename)
                 df.to_csv(csv_path, index=False, compression='gzip')
                 print(f"Saved DataFrame to CSV: {csv_path} with gzip compression")
@@ -94,27 +117,3 @@ def read_feature_las_files(las_directory='data/raw', feature_suffix='_F', featur
 
     return dataframes
 
-
-def sample_df(df, sample_size=None, fraction=None, random_state=None):
-    """
-    Samples a DataFrame either by a fixed number of points or a fraction of the DataFrame.
-
-    Args:
-    - df (pd.DataFrame): The DataFrame to sample from.
-    - sample_size (int, optional): Number of points to sample. If None, use `fraction` instead.
-    - fraction (float, optional): Fraction of the DataFrame to sample (between 0.0 and 1.0). Ignored if `sample_size` is specified.
-    - random_state (int, optional): Seed for the random number generator for reproducibility.
-
-    Returns:
-    - pd.DataFrame: A sampled DataFrame.
-    """
-    if sample_size is not None:
-        # Sample a fixed number of points
-        sampled_df = df.sample(n=sample_size, random_state=random_state)
-    elif fraction is not None:
-        # Sample a fraction of the DataFrame
-        sampled_df = df.sample(frac=fraction, random_state=random_state)
-    else:
-        raise ValueError("Either `sample_size` or `fraction` must be provided.")
-
-    return sampled_df
