@@ -53,7 +53,9 @@ def assign_features_to_grid(data_array, grid, x_coords, y_coords, channels=3):
     points = data_array[:, :2]  # Assuming x, y are the first two columns
 
     # Create a KDTree for efficient nearest-neighbor search
-    tree = KDTree(points)  # Only use x, y for 2D grid distance calculation
+    print("Initializing KDTree for efficient nearest-neighbor search...")
+    tree = KDTree(data_array[:, :2])  # Only use x, y for 2D grid distance calculation
+    print("KDTree initialized.")
 
     # Iterate over each cell in the grid
     for i in range(len(x_coords)):
@@ -81,6 +83,10 @@ def generate_grids_for_training(data_array, window_size=10.0, grid_resolution=12
     Returns:
     - grids (list): List of grids with assigned features for each center point.
     """
+
+    # Ensure the data array has more than just x, y, z (at least 4 dimensions)
+    if data_array.shape[1] < 4:
+        raise ValueError("Data array must have at least 4 columns: x, y, z, and at least one feature")
 
     # Initialize a list to store all generated grids
     grids = []
