@@ -1,7 +1,6 @@
 import laspy
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import glob
 import os
 
@@ -116,6 +115,31 @@ def convert_dataframe_to_numpy(features_df, selected_features=None):
     # Convert the DataFrame to a NumPy array
     data_array = filtered_df.to_numpy()
     return data_array
+
+
+def sample_df(df, sample_size=None, fraction=None, random_state=None):
+    """
+    Samples a DataFrame either by a fixed number of points or a fraction of the DataFrame.
+
+    Args:
+    - df (pd.DataFrame): The DataFrame to sample from.
+    - sample_size (int, optional): Number of points to sample. If None, use `fraction` instead.
+    - fraction (float, optional): Fraction of the DataFrame to sample (between 0.0 and 1.0). Ignored if `sample_size` is specified.
+    - random_state (int, optional): Seed for the random number generator for reproducibility.
+
+    Returns:
+    - pd.DataFrame: A sampled DataFrame.
+    """
+    if sample_size is not None:
+        # Sample a fixed number of points
+        sampled_df = df.sample(n=sample_size, random_state=random_state)
+    elif fraction is not None:
+        # Sample a fraction of the DataFrame
+        sampled_df = df.sample(frac=fraction, random_state=random_state)
+    else:
+        raise ValueError("Either `sample_size` or `fraction` must be provided.")
+
+    return sampled_df
 
 
 
