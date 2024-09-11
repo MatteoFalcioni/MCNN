@@ -4,13 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="tested point cloud data util without np only with pandas, all working">
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="numpy --&gt; pandas works waaay better. implemented">
       <change afterPath="$PROJECT_DIR$/quicktest.py" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/tests/test_grid_generation.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/test_data_loader.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_point_cloud_data_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_point_cloud_data_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/point_cloud_data_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/point_cloud_data_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,13 +61,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00015" summary="configuring data loader and its tests, las files now tracked through git lsf">
-      <created>1725632692046</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1725632692046</updated>
     </task>
     <task id="LOCAL-00016" summary="configuring data loader and its tests, las files now tracked through git lsf">
       <created>1725633006280</created>
@@ -407,7 +398,14 @@
       <option name="project" value="LOCAL" />
       <updated>1725987882078</updated>
     </task>
-    <option name="localTasksCounter" value="64" />
+    <task id="LOCAL-00064" summary="numpy --&gt; pandas works waaay better. implemented">
+      <created>1725990083698</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1725990083698</updated>
+    </task>
+    <option name="localTasksCounter" value="65" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -422,7 +420,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="added basic testing for training + more edge case tests" />
     <MESSAGE value="testing (still some errors) and updated readme file" />
     <MESSAGE value="corrected functions documentation" />
     <MESSAGE value="corrected readme file" />
@@ -447,6 +444,7 @@
     <MESSAGE value="added small checks to pc --&gt; img" />
     <MESSAGE value="removed full conversion pd dataframe --&gt; numpy, too many problems in scalar array type" />
     <MESSAGE value="tested point cloud data util without np only with pandas, all working" />
-    <option name="LAST_COMMIT_MESSAGE" value="tested point cloud data util without np only with pandas, all working" />
+    <MESSAGE value="numpy --&gt; pandas works waaay better. implemented" />
+    <option name="LAST_COMMIT_MESSAGE" value="numpy --&gt; pandas works waaay better. implemented" />
   </component>
 </project>
