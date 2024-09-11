@@ -26,7 +26,7 @@ class TestPointCloudToImageProcessing(unittest.TestCase):
         self.assertIsInstance(self.sampled_data, np.ndarray)
         self.assertGreaterEqual(self.sampled_data.shape[1], 4)  # At least x, y, z, and one feature
 
-        # Select a center point (could be the first point for simplicity)
+        # Select a center point
         center_point = self.sampled_data[10000, :3]
 
         # Create a grid around the center point

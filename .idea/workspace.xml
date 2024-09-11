@@ -4,11 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="now saving feature names in the numpy conversion. tested">
-      <change afterPath="$PROJECT_DIR$/tests/test_point_cloud_to_image.py" afterDir="false" />
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="refined pc --&gt; img and tested with a subset of data, working">
+      <change afterPath="$PROJECT_DIR$/quicktest.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/data/transforms/point_cloud_to_image.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/transforms/point_cloud_to_image.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_point_cloud_to_image.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_point_cloud_to_image.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/plot_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/plot_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/point_cloud_data_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/point_cloud_data_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,13 +63,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00018" summary="wrote first version of training script, added config file and utilities">
-      <created>1725702807898</created>
-      <option name="number" value="00018" />
-      <option name="presentableId" value="LOCAL-00018" />
-      <option name="project" value="LOCAL" />
-      <updated>1725702807898</updated>
     </task>
     <task id="LOCAL-00019" summary="Added functions documentations in train.py">
       <created>1725703333806</created>
@@ -405,7 +400,14 @@
       <option name="project" value="LOCAL" />
       <updated>1726050602772</updated>
     </task>
-    <option name="localTasksCounter" value="67" />
+    <task id="LOCAL-00067" summary="refined pc --&gt; img and tested with a subset of data, working">
+      <created>1726062298339</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1726062298344</updated>
+    </task>
+    <option name="localTasksCounter" value="68" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -420,7 +422,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="corrected readme file" />
     <MESSAGE value="models and plots produced during testing are now saved in teh testing folder" />
     <MESSAGE value="removed useless tests, added new ones" />
     <MESSAGE value="corrected readme" />
@@ -445,6 +446,7 @@
     <MESSAGE value="numpy --&gt; pandas works waaay better. implemented" />
     <MESSAGE value="refactoring code for clarity" />
     <MESSAGE value="now saving feature names in the numpy conversion. tested" />
-    <option name="LAST_COMMIT_MESSAGE" value="now saving feature names in the numpy conversion. tested" />
+    <MESSAGE value="refined pc --&gt; img and tested with a subset of data, working" />
+    <option name="LAST_COMMIT_MESSAGE" value="refined pc --&gt; img and tested with a subset of data, working" />
   </component>
 </project>

@@ -29,8 +29,11 @@ def create_feature_grid(center_point, window_size, grid_resolution=128, channels
     i_indices = np.arange(grid_resolution)
     j_indices = np.arange(grid_resolution)
 
-    x_coords = center_point[0] - (64.5 - j_indices) * cell_size
-    y_coords = center_point[1] - (64.5 - i_indices) * cell_size
+    half_resolution_plus_half = (grid_resolution / 2) + 0.5
+
+    # following x_k = x_pk - (64.5 - j) * w
+    x_coords = center_point[0] - (half_resolution_plus_half - j_indices) * cell_size
+    y_coords = center_point[1] - (half_resolution_plus_half - i_indices) * cell_size
     z_coords = np.full((grid_resolution, grid_resolution), center_point[2])  # Z coordinate is constant for all cells
 
     return grid, cell_size, x_coords, y_coords, z_coords
