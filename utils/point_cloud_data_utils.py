@@ -44,6 +44,7 @@ def read_las_file_to_numpy(file_path, features_to_extract=None):
 
     Returns:
     - np.ndarray: A numpy array containing the extracted data from the LAS file.
+    - feature_names (list of str): List of feature names corresponding to the columns in the array.
     """
     # Set default features if none are provided
     if features_to_extract is None:
@@ -56,16 +57,20 @@ def read_las_file_to_numpy(file_path, features_to_extract=None):
     print(f"Processing {file_path}...")
     las_data = laspy.read(file_path)
 
-    # Initialize a list to store the features for this file
+    # Initialize a list to store the features and their names
     data = []
+    feature_names = []
 
     # Check if x, y, z coordinates are present and not empty
     if hasattr(las_data, 'x') and hasattr(las_data, 'y') and hasattr(las_data, 'z'):
         if len(las_data.x) > 0 and len(las_data.y) > 0 and len(las_data.z) > 0:
             # Add x, y, z as the first columns
             data.append(las_data.x)
+            feature_names.append('x')
             data.append(las_data.y)
+            feature_names.append('y')
             data.append(las_data.z)
+            feature_names.append('z')
         else:
             print(f"Warning: One of the coordinate arrays (x, y, z) is empty in {file_path}.")
             return None
@@ -79,6 +84,7 @@ def read_las_file_to_numpy(file_path, features_to_extract=None):
             continue  # Skip if feature is x, y, or z since they are already added
         if feature in las_data.point_format.dimension_names:
             data.append(las_data[feature])
+            feature_names.append(feature)
         else:
             print(f"Feature '{feature}' is not available in {file_path}.")
 
@@ -86,7 +92,7 @@ def read_las_file_to_numpy(file_path, features_to_extract=None):
     data_array = np.vstack(data).T
     print(f"Loaded NumPy array with shape: {data_array.shape}")
 
-    return data_array
+    return data_array, feature_names
 
 
 def numpy_to_dataframe(data_array, feature_names=None):

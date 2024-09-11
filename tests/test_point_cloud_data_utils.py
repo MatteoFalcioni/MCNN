@@ -43,17 +43,29 @@ class TestPointCloudDataProcessing(unittest.TestCase):
     def test_read_las_file_to_numpy(self):
         # Test the read_las_file_to_numpy function
         sample_file = os.path.join(self.las_directory, 'features_F.las')  # Use a sample file
-        numpy_array = read_las_file_to_numpy(sample_file, features_to_extract=self.features_to_extract)
+        numpy_array, feature_names = read_las_file_to_numpy(sample_file, features_to_extract=self.features_to_extract)
 
         # Ensure the result is a NumPy array
         self.assertIsInstance(numpy_array, np.ndarray, "Result is not a NumPy array.")
 
         # Ensure the shape of the array is as expected (at least 4 columns: x, y, z, features)
         self.assertGreaterEqual(numpy_array.shape[1], 4, "NumPy array does not have the expected number of columns.")
+        self.assertGreater(len(feature_names), 0, "No feature names returned.")
+
+        # Check that the first three feature names are 'x', 'y', 'z'
+        self.assertEqual(feature_names[:3], ['x', 'y', 'z'], "The first three features should be 'x', 'y', 'z'.")
+
+        # Ensure that all specified features to extract are either in the list or not available
+        for feature in self.features_to_extract:
+            if feature in ['x', 'y', 'z']:
+                continue
+            self.assertIn(feature, feature_names, f"Feature '{feature}' is not found in the returned feature names.")
 
         # Check some values to ensure data was loaded correctly (sample values for the first few points)
         print("Sample data from NumPy array (first 5 rows):")
         print(numpy_array[:5])
+        print("Feature names extracted:")
+        print(feature_names)
 
     def test_numpy_to_dataframe(self):
         # Convert numpy array to DataFrame
