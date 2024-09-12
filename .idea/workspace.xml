@@ -4,10 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="implementing visualization of grid and point cloud all together.">
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="removed unnecessary debugging functions">
       <change afterPath="$PROJECT_DIR$/quicktest.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/plot_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/plot_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/mcnn.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/mcnn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/scnn.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/scnn.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_data_loader.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_point_cloud_to_image.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_point_cloud_to_image.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,13 +63,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00020" summary="refactoring code for clarity">
-      <created>1725704231774</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
-      <option name="project" value="LOCAL" />
-      <updated>1725704231774</updated>
     </task>
     <task id="LOCAL-00021" summary="added parser and cleaned configuration file">
       <created>1725706121226</created>
@@ -404,7 +400,14 @@
       <option name="project" value="LOCAL" />
       <updated>1726074473092</updated>
     </task>
-    <option name="localTasksCounter" value="69" />
+    <task id="LOCAL-00069" summary="removed unnecessary debugging functions">
+      <created>1726136188238</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1726136188238</updated>
+    </task>
+    <option name="localTasksCounter" value="70" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -419,7 +422,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="removed useless tests, added new ones" />
     <MESSAGE value="corrected readme" />
     <MESSAGE value="tests working" />
     <MESSAGE value="corrected README.md" />
@@ -444,6 +446,7 @@
     <MESSAGE value="now saving feature names in the numpy conversion. tested" />
     <MESSAGE value="refined pc --&gt; img and tested with a subset of data, working" />
     <MESSAGE value="implementing visualization of grid and point cloud all together." />
-    <option name="LAST_COMMIT_MESSAGE" value="implementing visualization of grid and point cloud all together." />
+    <MESSAGE value="removed unnecessary debugging functions" />
+    <option name="LAST_COMMIT_MESSAGE" value="removed unnecessary debugging functions" />
   </component>
 </project>
