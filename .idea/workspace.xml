@@ -4,13 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="refined pc --&gt; img and tested with a subset of data, working">
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="implementing visualization of grid and point cloud all together.">
       <change afterPath="$PROJECT_DIR$/quicktest.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/transforms/point_cloud_to_image.py" beforeDir="false" afterPath="$PROJECT_DIR$/data/transforms/point_cloud_to_image.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_point_cloud_to_image.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_point_cloud_to_image.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/plot_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/plot_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/point_cloud_data_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/point_cloud_data_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,13 +60,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00019" summary="Added functions documentations in train.py">
-      <created>1725703333806</created>
-      <option name="number" value="00019" />
-      <option name="presentableId" value="LOCAL-00019" />
-      <option name="project" value="LOCAL" />
-      <updated>1725703333806</updated>
     </task>
     <task id="LOCAL-00020" summary="refactoring code for clarity">
       <created>1725704231774</created>
@@ -407,7 +397,14 @@
       <option name="project" value="LOCAL" />
       <updated>1726062298344</updated>
     </task>
-    <option name="localTasksCounter" value="68" />
+    <task id="LOCAL-00068" summary="implementing visualization of grid and point cloud all together.">
+      <created>1726074473092</created>
+      <option name="number" value="00068" />
+      <option name="presentableId" value="LOCAL-00068" />
+      <option name="project" value="LOCAL" />
+      <updated>1726074473092</updated>
+    </task>
+    <option name="localTasksCounter" value="69" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -422,7 +419,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="models and plots produced during testing are now saved in teh testing folder" />
     <MESSAGE value="removed useless tests, added new ones" />
     <MESSAGE value="corrected readme" />
     <MESSAGE value="tests working" />
@@ -447,6 +443,7 @@
     <MESSAGE value="refactoring code for clarity" />
     <MESSAGE value="now saving feature names in the numpy conversion. tested" />
     <MESSAGE value="refined pc --&gt; img and tested with a subset of data, working" />
-    <option name="LAST_COMMIT_MESSAGE" value="refined pc --&gt; img and tested with a subset of data, working" />
+    <MESSAGE value="implementing visualization of grid and point cloud all together." />
+    <option name="LAST_COMMIT_MESSAGE" value="implementing visualization of grid and point cloud all together." />
   </component>
 </project>

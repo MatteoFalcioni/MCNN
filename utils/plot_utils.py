@@ -117,7 +117,7 @@ def plot_point_cloud_with_rgb(df):
     plt.show()
 
 
-def visualize_grid_with_comparison(grid, df, center, window_size=5.0, channel=3, feature_names=None, visual_size=100.0):
+def visualize_grid_with_comparison(grid, df, center, window_size=10.0, channel=3, feature_names=None, visual_size=100):
     """
     Visualize the grid and the filtered point cloud together.
 
@@ -125,67 +125,7 @@ def visualize_grid_with_comparison(grid, df, center, window_size=5.0, channel=3,
     - grid (np.ndarray): The grid to visualize.
     - df (pd.DataFrame): DataFrame of the point cloud.
     - center (tuple): (x, y, z) coordinates of the center point.
-    - window_size (int): Size of the window around the center point.
-    - channel (int): The channel to visualize from the grid (default is 0).
-    - feature_names (list): List of feature names corresponding to grid channels.
-    - visual size (float): size of the cubic box around the center to be visualized in the point cloud
-    """
-    x_min, x_max = center[0] - (window_size / 2), center[0] + (window_size / 2)
-    y_min, y_max = center[1] - (window_size / 2), center[1] + (window_size / 2)
-
-    # Dynamically set z_min and z_max based on point cloud statistics
-    z_min, z_max = df['z'].min(), df['z'].max()
-
-    # Print the bounding box coordinates for debugging
-    print(f"Bounding Box Coordinates - X: ({x_min}, {x_max}), Y: ({y_min}, {y_max}), Z: ({z_min}, {z_max})")
-
-    x_visualize_min, x_visualize_max = center[0] - (visual_size / 2), center[0] + (visual_size / 2)
-    y_visualize_min, y_visualize_max = center[1] - (visual_size / 2), center[1] + (visual_size / 2)
-    z_visualize_min, z_visualize_max = center[2] - (visual_size / 2), center[2] + (visual_size / 2)
-
-    # Filter the points within the specified range
-    filtered_df = df[(df['x'] >= x_visualize_min) & (df['x'] <= x_visualize_max) &
-                     (df['y'] >= y_visualize_min) & (df['y'] <= y_visualize_max) &
-                     (df['z'] >= z_visualize_min) & (df['z'] <= z_visualize_max)]
-    print("DataFrame has been filtered")
-
-    fig = plt.figure(figsize=(12, 6))
-
-    # Plot the grid
-    ax1 = fig.add_subplot(121)
-
-    # Extract the specified channel for visualization
-    grid_channel = grid[:, :, channel]
-    im = ax1.imshow(grid_channel, cmap='viridis', interpolation='nearest')
-    plt.colorbar(im, ax=ax1, label=f'Feature Value (Channel {channel})')
-    feature_name = feature_names[channel] if feature_names and channel < len(feature_names) else f"Channel {channel}"
-    ax1.set_title(f'Grid Visualization: {feature_name}')
-    ax1.set_xlabel('Grid X')
-    ax1.set_ylabel('Grid Y')
-
-    # Plot the filtered point cloud
-    ax2 = fig.add_subplot(122, projection='3d')
-    ax2.scatter(filtered_df['x'], filtered_df['y'], filtered_df['z'],
-                c=filtered_df[['red', 'green', 'blue']].values / 65535, s=0.1)
-    ax2.scatter(center[0], center[1], center[2], color='black', s=2000, label='Center Point P', zorder=10)  # Plot the center point
-    ax2.set_title('Point Cloud Subset Visualization')
-
-    # Draw a bounding box around the grid area at the appropriate height
-    ax2.plot([x_min, x_max, x_max, x_min, x_min], [y_min, y_min, y_max, y_max, y_min],
-             [center[2], center[2], center[2], center[2], center[2]], color='r')
-
-    plt.show()
-
-
-def visualize_grid_with_comparison_2(grid, df, center, window_size=128, channel=3, feature_names=None, visual_size=100):
-    """
-    Visualize the grid and the filtered point cloud together.
-
-    Args:
-    - grid (np.ndarray): The grid to visualize.
-    - df (pd.DataFrame): DataFrame of the point cloud.
-    - center (tuple): (x, y, z) coordinates of the center point.
-    - window_size (int): Size of the window around the center point.
+    - window_size (float): Size of the window (in meters) around the center point.
     - channel (int): The channel to visualize from the grid (default is 0).
     - feature_names (list): List of feature names corresponding to grid channels.
     - visual_size (float): Size of the visualization area around the center point.
@@ -255,3 +195,4 @@ def visualize_grid_with_comparison_2(grid, df, center, window_size=128, channel=
 
     plt.legend()
     plt.show()
+
