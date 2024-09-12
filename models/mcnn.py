@@ -10,22 +10,22 @@ class MultiScaleCNN(nn.Module):
     classification through fully connected layers.
 
     Architecture Overview:
-    - Inputs: Three 3-channel images of size 128x128.
+    - Inputs: Three n-channel images of size 128x128.
     - Three SCNNs process each input to generate feature maps.
     - Fully connected layers to combine and classify the features from different scales.
     - Output: Classification into 9 classes.
     """
 
-    def __init__(self):
+    def __init__(self, channels=3):
         """
         Initializes the MultiScaleCNN model with three SCNNs and fully connected layers.
         """
         super(MultiScaleCNN, self).__init__()
 
         # Initialize three SCNNs
-        self.scnn1 = SingleScaleCNN()
-        self.scnn2 = SingleScaleCNN()
-        self.scnn3 = SingleScaleCNN()
+        self.scnn1 = SingleScaleCNN(channels=channels)
+        self.scnn2 = SingleScaleCNN(channels=channels)
+        self.scnn3 = SingleScaleCNN(channels=channels)
 
         # First MCNN Layer (FC + BN + ReLU) to combine SCNN outputs
         self.fc_fusion = nn.Linear(8 * 8 * 128 * 3, 4096)  # Combining outputs from three SCNNs

@@ -11,14 +11,15 @@ class SingleScaleCNN(nn.Module):
     followed by max-pooling layers to downsample the spatial dimensions.
 
     Architecture Overview:
-    - Input: 3-channel image (e.g., RGB) of size 128x128.
+    - Input: n-channel image (e.g., 3 for RGB) of size 128x128.
     - Five sequential convolutional blocks:
-      - Each block consists of:
+      - Each block (except for the 4th*) consists of:
         - A 3x3 Convolutional layer with padding of 1.
         - A Batch Normalization layer.
         - A ReLU activation function.
       - Max pooling layers are applied after the first, second, third, and fifth convolutional layers
         to downsample the spatial dimensions by half.
+      * 4th block consists only of Batch Normalization and ReLu
     - Output: A feature map of size 8x8x128.
 
     Attributes:
@@ -42,14 +43,14 @@ class SingleScaleCNN(nn.Module):
         pool5 (nn.MaxPool2d): Max pooling layer with a 2x2 kernel after the fifth convolutional block.
     """
 
-    def __init__(self):
+    def __init__(self, channels=3):
         """
         Initializes the SingleScaleCNN model with its layers.
         """
         super(SingleScaleCNN, self).__init__()
 
-        # First Convolutional Block: 3x128x128 --> 32x64x64  (recall: in Torch, channel dimension goes first)
-        self.conv1 = nn.Conv2d(in_channels=3, out_channels=32, kernel_size=3, padding=1)  # Output: 32x128x128
+        # First Convolutional Block: nx128x128 --> 32x64x64  (recall: in Torch, channel dimension goes first)
+        self.conv1 = nn.Conv2d(in_channels=channels, out_channels=32, kernel_size=3, padding=1)  # Output: 32x128x128
         self.bn1 = nn.BatchNorm2d(32)   # Batch normalization doesn't change the spatial dimension
         self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)  # Output: 32x64x64 (MaxPool changes spatial dimension)
 
