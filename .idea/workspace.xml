@@ -4,13 +4,42 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="removed unnecessary debugging functions">
-      <change afterPath="$PROJECT_DIR$/quicktest.py" afterDir="false" />
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="changed testing in order ot save generated feature imgs">
+      <change beforePath="$PROJECT_DIR$/.gitattributes" beforeDir="false" afterPath="$PROJECT_DIR$/.gitattributes" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/mcnn.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/mcnn.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/scnn.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/scnn.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_data_loader.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Comparison_window20_chan8.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window10_blue.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window10_green.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window10_intensity.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window10_l1_b.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window10_ndvi.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window10_ndwi.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window10_nir.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window10_red.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window10_return_number.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window10_ssi.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window20_blue.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window20_green.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window20_intensity.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window20_l1_b.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window20_ndvi.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window20_ndwi.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window20_nir.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window20_red.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window20_return_number.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window20_ssi.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window5_blue.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window5_green.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window5_intensity.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window5_l1_b.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window5_ndvi.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window5_ndwi.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window5_nir.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window5_red.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window5_return_number.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_feature_imgs/Grid_Visual_window5_ssi.png" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/test_point_cloud_to_image.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_point_cloud_to_image.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/plot_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/plot_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,27 +92,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00021" summary="added parser and cleaned configuration file">
-      <created>1725706121226</created>
-      <option name="number" value="00021" />
-      <option name="presentableId" value="LOCAL-00021" />
-      <option name="project" value="LOCAL" />
-      <updated>1725706121226</updated>
-    </task>
-    <task id="LOCAL-00022" summary="added eval function">
-      <created>1725706160025</created>
-      <option name="number" value="00022" />
-      <option name="presentableId" value="LOCAL-00022" />
-      <option name="project" value="LOCAL" />
-      <updated>1725706160025</updated>
-    </task>
-    <task id="LOCAL-00023" summary="added early stopping with patiecne.">
-      <created>1725706819003</created>
-      <option name="number" value="00023" />
-      <option name="presentableId" value="LOCAL-00023" />
-      <option name="project" value="LOCAL" />
-      <updated>1725706819003</updated>
     </task>
     <task id="LOCAL-00024" summary="device is no longer an hyperparameter">
       <created>1725706830899</created>
@@ -407,7 +415,28 @@
       <option name="project" value="LOCAL" />
       <updated>1726136188238</updated>
     </task>
-    <option name="localTasksCounter" value="70" />
+    <task id="LOCAL-00070" summary="deleting unnecessary files">
+      <created>1726145479286</created>
+      <option name="number" value="00070" />
+      <option name="presentableId" value="LOCAL-00070" />
+      <option name="project" value="LOCAL" />
+      <updated>1726145479286</updated>
+    </task>
+    <task id="LOCAL-00071" summary="now channels is a parameter in the models as well">
+      <created>1726145514524</created>
+      <option name="number" value="00071" />
+      <option name="presentableId" value="LOCAL-00071" />
+      <option name="project" value="LOCAL" />
+      <updated>1726145514524</updated>
+    </task>
+    <task id="LOCAL-00072" summary="changed testing in order ot save generated feature imgs">
+      <created>1726145540247</created>
+      <option name="number" value="00072" />
+      <option name="presentableId" value="LOCAL-00072" />
+      <option name="project" value="LOCAL" />
+      <updated>1726145540247</updated>
+    </task>
+    <option name="localTasksCounter" value="73" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -422,9 +451,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="corrected readme" />
-    <MESSAGE value="tests working" />
-    <MESSAGE value="corrected README.md" />
     <MESSAGE value="corrected parser to now handel config defaults, and overwrite them if needed" />
     <MESSAGE value="now using momentum during training, as described in the first paper" />
     <MESSAGE value="refactoring code and started creating the transform point cloud --&gt; feature image" />
@@ -447,6 +473,9 @@
     <MESSAGE value="refined pc --&gt; img and tested with a subset of data, working" />
     <MESSAGE value="implementing visualization of grid and point cloud all together." />
     <MESSAGE value="removed unnecessary debugging functions" />
-    <option name="LAST_COMMIT_MESSAGE" value="removed unnecessary debugging functions" />
+    <MESSAGE value="deleting unnecessary files" />
+    <MESSAGE value="now channels is a parameter in the models as well" />
+    <MESSAGE value="changed testing in order ot save generated feature imgs" />
+    <option name="LAST_COMMIT_MESSAGE" value="changed testing in order ot save generated feature imgs" />
   </component>
 </project>

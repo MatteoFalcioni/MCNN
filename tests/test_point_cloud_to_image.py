@@ -1,8 +1,8 @@
 import unittest
 import numpy as np
-from utils.point_cloud_data_utils import read_las_file_to_numpy
+from utils.point_cloud_data_utils import read_las_file_to_numpy, numpy_to_dataframe
 from data.transforms.point_cloud_to_image import create_feature_grid, assign_features_to_grid, generate_grids_for_training
-from utils.plot_utils import visualize_grid, plot_point_cloud_with_rgb
+from utils.plot_utils import visualize_grid, visualize_grid_with_comparison
 import os
 import matplotlib.pyplot as plt
 
@@ -18,6 +18,7 @@ class TestPointCloudToImageProcessing(unittest.TestCase):
 
         # Load LAS file, get the data and feature names
         self.full_data, self.feature_names = read_las_file_to_numpy(self.las_file_path)
+        self.df = numpy_to_dataframe(self.full_data)
         np.random.seed(42)  # For reproducibility
         self.sampled_data = self.full_data[np.random.choice(self.full_data.shape[0], self.sample_size, replace=False)]
 
@@ -59,7 +60,7 @@ class TestPointCloudToImageProcessing(unittest.TestCase):
         save_dir = 'tests/test_feature_imgs'
         os.makedirs(save_dir, exist_ok=True)
 
-        # Visualize and save one of the channels to verify visually
+        # Save feature images
         for chan in range(0, self.channels):
             # Create a filename for saving the image
             feature_name = self.feature_names[3 + chan] if len(self.feature_names) > 3 + chan else f"Channel_{chan}"
@@ -69,6 +70,15 @@ class TestPointCloudToImageProcessing(unittest.TestCase):
             visualize_grid(grid_with_features, channel=chan, title=f"Grid Visualization for {feature_name}")
             plt.savefig(file_path)
             plt.close()  # Close the plot to avoid displaying it during testing
+
+        # visualize and save feature image compared with point cloud
+        chosen_chan = 8  # channel to visualize on feature image (8=nir)
+        visualize_grid_with_comparison(grid, self.df, center_point, window_size=self.window_size, feature_names=self.feature_names,
+                                       channel=chosen_chan, visual_size=50)
+
+        file_path = os.path.join(save_dir, f"Grid_Comparison_window{int(self.window_size)}_chan{chosen_chan}.png")
+        plt.savefig(file_path)
+        plt.close()
 
     """def test_generate_grids_for_training(self):
         # Generate grids for the sampled dataset

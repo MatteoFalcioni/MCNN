@@ -40,7 +40,7 @@ def plot_loss(train_losses, val_losses, save_dir='results/plots/'):
     plt.close()
 
 
-def visualize_grid(grid, channel=0, title="Grid Visualization"):
+def visualize_grid(grid, channel=0, title="Grid Visualization", save=False, file_path=None):
     """
     Visualizes a specific channel of the grid.
 
@@ -48,6 +48,8 @@ def visualize_grid(grid, channel=0, title="Grid Visualization"):
     - grid (numpy.ndarray): A 2D grid array with shape (grid_resolution, grid_resolution, channels).
     - channel (int): The channel to visualize (default is 0 for the first channel).
     - title (str): Title for the plot.
+    - save (bool): If True, saves the plot to a file instead of showing it.
+    - file_path (str): File path to save the plot if save is True.
 
     Returns:
     - None: Displays the plot.
@@ -68,7 +70,16 @@ def visualize_grid(grid, channel=0, title="Grid Visualization"):
     plt.title(title)
     plt.xlabel('Grid X')
     plt.ylabel('Grid Y')
-    plt.show()
+
+    if save and file_path:
+        plt.savefig(file_path)
+        plt.show()
+        plt.close()
+    elif save and not file_path:
+        print("No saving path added for the plot. Saving disabled.")
+        plt.show()
+    elif not save:
+        plt.show()
 
 
 def visualize_dtm(dtm_data):
@@ -92,12 +103,14 @@ def visualize_dtm(dtm_data):
     plt.show()
 
 
-def plot_point_cloud_with_rgb(df):
+def plot_point_cloud_with_rgb(df, save=False, file_path=None):
     """
     Plots a 3D scatter plot of a point cloud with RGB colors.
 
     Args:
     - df (pandas.DataFrame): DataFrame containing 'x', 'y', 'z', 'red', 'green', 'blue' columns.
+    - save (bool): If True, saves the plot to a file instead of showing it.
+    - file_path (str): File path to save the plot if save is True.
     """
     # Ensure that RGB values are rescaled (from 16bit to 8bit and then in range 0-1)
     df[['red', 'green', 'blue']] = (df[['red', 'green', 'blue']] / 65535).astype(np.float32)
@@ -114,10 +127,18 @@ def plot_point_cloud_with_rgb(df):
     ax.set_ylabel('Y')
     ax.set_zlabel('Z')
 
-    plt.show()
+    if save and file_path:
+        plt.savefig(file_path)
+        plt.show()
+        plt.close()
+    elif save and not file_path:
+        print("No saving path added for the plot. Saving disabled.")
+        plt.show()
+    elif not save:
+        plt.show()
 
 
-def visualize_grid_with_comparison(grid, df, center, window_size=10.0, channel=3, feature_names=None, visual_size=100):
+def visualize_grid_with_comparison(grid, df, center, window_size=10.0, channel=3, feature_names=None, visual_size=100, save=False, file_path=None):
     """
     Visualize the grid and the filtered point cloud together.
 
@@ -129,6 +150,8 @@ def visualize_grid_with_comparison(grid, df, center, window_size=10.0, channel=3
     - channel (int): The channel to visualize from the grid (default is 0).
     - feature_names (list): List of feature names corresponding to grid channels.
     - visual_size (float): Size of the visualization area around the center point.
+    - save (bool): If True, saves the plot to a file instead of showing it.
+    - file_path (str): File path to save the plot if save is True.
     """
 
     # Define the extents of the grid area and point cloud visualization area
@@ -194,5 +217,14 @@ def visualize_grid_with_comparison(grid, df, center, window_size=10.0, channel=3
         ax2.plot3D(*zip(corners[edge[0]], corners[edge[1]]), color="r",zorder=10)
 
     plt.legend()
-    plt.show()
+
+    if save and file_path:
+        plt.savefig(file_path)
+        plt.show()
+        plt.close()
+    elif save and not file_path:
+        print("No saving path added for the plot. Saving disabled.")
+        plt.show()
+    elif not save:
+        plt.show()
 
