@@ -4,7 +4,6 @@ from utils.point_cloud_data_utils import read_las_file_to_numpy, numpy_to_datafr
 from data.transforms.point_cloud_to_image import create_feature_grid, assign_features_to_grid, generate_grids_for_training
 from utils.plot_utils import visualize_grid, visualize_grid_with_comparison
 import os
-import matplotlib.pyplot as plt
 
 
 class TestPointCloudToImageProcessing(unittest.TestCase):
@@ -21,6 +20,10 @@ class TestPointCloudToImageProcessing(unittest.TestCase):
         self.df = numpy_to_dataframe(self.full_data)
         np.random.seed(42)  # For reproducibility
         self.sampled_data = self.full_data[np.random.choice(self.full_data.shape[0], self.sample_size, replace=False)]
+
+        self.save_bool = False  # if True, save the generated images
+        self.save_dir = 'tests/test_feature_imgs'   # directory to save test images
+        os.makedirs(self.save_dir, exist_ok=True)
 
     def test_create_and_assign_grids(self):
 
@@ -56,31 +59,22 @@ class TestPointCloudToImageProcessing(unittest.TestCase):
         for chan in range(0, self.channels):
             visualize_grid(grid_with_features, channel=chan, title=f"Grid Visualization for {self.feature_names[3+chan]}")
 
-        # Directory for saving test feature images
-        save_dir = 'tests/test_feature_imgs'
-        os.makedirs(save_dir, exist_ok=True)
-
-        # Save feature images
+        # Visualize and eventually save feature images (if save.bool = True)
         for chan in range(0, self.channels):
             # Create a filename for saving the image
             feature_name = self.feature_names[3 + chan] if len(self.feature_names) > 3 + chan else f"Channel_{chan}"
-            file_path = os.path.join(save_dir, f"Grid_Visual_window{int(self.window_size)}_{feature_name}.png")
+            file_path = os.path.join(self.save_dir, f"Grid_Visual_window{int(self.window_size)}_{feature_name}.png")
 
             # Visualize and save the grid image
-            visualize_grid(grid_with_features, channel=chan, title=f"Grid Visualization for {feature_name}")
-            plt.savefig(file_path)
-            plt.close()  # Close the plot to avoid displaying it during testing
+            visualize_grid(grid_with_features, channel=chan, title=f"Grid Visualization for {feature_name}", save=self.save_bool, file_path=file_path)
 
         # visualize and save feature image compared with point cloud
         chosen_chan = 8  # channel to visualize on feature image (8=nir)
         visualize_grid_with_comparison(grid, self.df, center_point, window_size=self.window_size, feature_names=self.feature_names,
-                                       channel=chosen_chan, visual_size=50)
+                                       channel=chosen_chan, visual_size=50, save=self.save_bool, file_path=file_path)
 
-        file_path = os.path.join(save_dir, f"Grid_Comparison_window{int(self.window_size)}_chan{chosen_chan}.png")
-        plt.savefig(file_path)
-        plt.close()
 
-    """def test_generate_grids_for_training(self):
+    def test_generate_grids_for_training(self):
         # Generate grids for the sampled dataset
         grids = generate_grids_for_training(self.sampled_data, self.window_size, self.grid_resolution, self.channels)
 
@@ -93,5 +87,5 @@ class TestPointCloudToImageProcessing(unittest.TestCase):
 
         # Validate the shape of each grid
         for grid in grids:
-            self.assertEqual(grid.shape, (self.grid_resolution, self.grid_resolution, self.channels), "Grid shape is not as expected.")"""
+            self.assertEqual(grid.shape, (self.grid_resolution, self.grid_resolution, self.channels), "Grid shape is not as expected.")
 
