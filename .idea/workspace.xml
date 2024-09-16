@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="uploading test imgs">
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-    </list>
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="updated readme" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -59,13 +57,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00033" summary="added basic testing for training + more edge case tests">
-      <created>1725716052598</created>
-      <option name="number" value="00033" />
-      <option name="presentableId" value="LOCAL-00033" />
-      <option name="project" value="LOCAL" />
-      <updated>1725716052598</updated>
     </task>
     <task id="LOCAL-00034" summary="testing (still some errors) and updated readme file">
       <created>1725719305048</created>
@@ -403,7 +394,14 @@
       <option name="project" value="LOCAL" />
       <updated>1726498733959</updated>
     </task>
-    <option name="localTasksCounter" value="82" />
+    <task id="LOCAL-00082" summary="updated readme">
+      <created>1726499231019</created>
+      <option name="number" value="00082" />
+      <option name="presentableId" value="LOCAL-00082" />
+      <option name="project" value="LOCAL" />
+      <updated>1726499231019</updated>
+    </task>
+    <option name="localTasksCounter" value="83" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -441,8 +439,8 @@
     <MESSAGE value="refacoring code and uploading segmented files" />
     <MESSAGE value="refactoring code, cleaned and updated readme file" />
     <MESSAGE value="cleaned code" />
-    <MESSAGE value="updated readme" />
     <MESSAGE value="uploading test imgs" />
-    <option name="LAST_COMMIT_MESSAGE" value="uploading test imgs" />
+    <MESSAGE value="updated readme" />
+    <option name="LAST_COMMIT_MESSAGE" value="updated readme" />
   </component>
 </project>

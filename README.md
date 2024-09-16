@@ -53,7 +53,7 @@ To train the MCNN model with custom setting you can use the argument parser spec
   - `data/`
     - `raw`           Unprocessed data
     -  `transforms/` Data pre-processing
-      - `point_cloud_to_image.py` Converting raw point cloud data to feature images
+       - `point_cloud_to_image.py` Converting raw point cloud data to feature images
   - `models/`
     - `saved/`                Directory in which trained model can be saved
     - `mcnn.py`                Model definitions for MCNN
