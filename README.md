@@ -12,6 +12,8 @@ Labeling Method for ALS Point Clouds" (2017) at https://www.mdpi.com/2072-4292/9
 
 ## Installation
 
+**Warning: this code is still a work in progress, so it's not ready to be used in its fullness right now. Primarily, training data pre-processing needs to be refined. Updates will soon follow! :)** 
+
 To set up the environment and install the required dependencies, it's recommended to use Conda. Follow these steps:
 1. **Clone this repository**:
 
