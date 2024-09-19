@@ -1,5 +1,6 @@
 from scipy.spatial import KDTree
 import numpy as np
+import os
 
 
 def create_feature_grid(center_point, window_size, grid_resolution=128, channels=3):
@@ -91,7 +92,7 @@ def generate_grids_for_training(data_array, window_size, grid_resolution=128, ch
 
     # Initialize a list to store all generated grids
     grids = []
-    print(f"Generating grids for {len(data_array)} points...")
+    print(f"Generating grids for {len(data_array)} points, with window size={window_size}...")
 
     # Loop through each point in the dataset to use as a grid center
     for i in range(len(data_array)):
@@ -113,6 +114,40 @@ def generate_grids_for_training(data_array, window_size, grid_resolution=128, ch
 
     print("Grids generation complete.")
     return grids
+
+
+def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channels, save_dir):
+    """
+    Generates grids for each point in the data array with different window sizes and saves them to disk.
+
+    Args:
+    - data_array (np.ndarray): Array where each row represents a point with its x, y, z coordinates and features.
+    - window_sizes (list): List of window sizes to use for grid generation (e.g., [small, medium, large]).
+    - grid_resolution (int): Resolution of the grid (e.g., 128x128).
+    - channels (int): Number of channels to store in each grid.
+    - save_dir (str): Directory to save the generated grids.
+    """
+    os.makedirs(save_dir, exist_ok=True)
+
+    for i in range(len(data_array)):
+        # Select the current point as the center point for the grid
+        center_point = data_array[i, :3]  # (x, y, z)
+
+        for size_label, window_size in window_sizes:
+            print(f"Generating {size_label} grid for point {i} with window size {window_size}...")
+
+            # Create a grid around the current center point
+            grid, _, x_coords, y_coords, _ = create_feature_grid(center_point, window_size, grid_resolution, channels)
+
+            # Assign features to the grid cells
+            grid_with_features = assign_features_to_grid(data_array, grid, x_coords, y_coords, channels)
+
+            # Save the grid
+            grid_filename = os.path.join(save_dir, f"grid_{i}_{size_label}.npy")
+            np.save(grid_filename, grid_with_features)
+            print(f"Saved {size_label} grid for point {i} to {grid_filename}")
+
+
 
 
 
