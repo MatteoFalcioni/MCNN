@@ -1,6 +1,6 @@
 import torch
-from utils.utils import save_model
 from utils.plot_utils import plot_loss
+from utils.train_data_utils import save_model
 
 
 def train(model, dataloader, criterion, optimizer, device):
@@ -78,7 +78,7 @@ def validate(model, dataloader, criterion, device):
     return val_loss / len(dataloader)
 
 
-def train_epochs(model, train_loader, val_loader, criterion, optimizer, scheduler, epochs, patience, device, save_dir, plot_dir='results/plots/'):
+def train_epochs(model, train_loader, val_loader, criterion, optimizer, scheduler, epochs, patience, device, save_dir, plot_dir='results/plots/', save=False):
     """
     Trains the MCNN model over multiple epochs with early stopping and applies learning rate decay.
     After each epoch, the model is evaluated on a validation set, and training stops if the validation
@@ -97,6 +97,7 @@ def train_epochs(model, train_loader, val_loader, criterion, optimizer, schedule
     - save_dir (str): Directory to save the trained model.
     - patience (int): Number of epochs to wait for an improvement in validation loss before early stopping.
     - plot_dir (str): Directory to save the loss plots. Default is 'results/plots/'.
+    - save (bool): boolean value to allow or disallow saving of the model after training. Default is False.
     """
 
     train_losses = []  # To store training losses
@@ -132,7 +133,10 @@ def train_epochs(model, train_loader, val_loader, criterion, optimizer, schedule
         scheduler.step()
 
     # Save the MCNN model after training
-    save_model(model, save_dir)
+    if save:
+        print("saving trained model...")
+        save_model(model, save_dir)
+        print("model saved successfully.")
 
     # Plot the losses at the end of training
     plot_loss(train_losses, val_losses, plot_dir)

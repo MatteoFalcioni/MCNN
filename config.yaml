@@ -7,4 +7,5 @@ LEARNING_RATE_DECAY_FACTOR = 0.0005 # mentioned in first article
 LEARNING_RATE_DECAY_EPOCHS = 1  # not mentioned, so assuming that lr decay is performed through each epoch
 MOMENTUM = 0.9  # used in first article
 MODEL_SAVE_DIR = "models/saved/"    # Model save path base directory
+SAVE = False  # choice to save the model or to discard. Default is False, i.e., discard the trained model.
 
