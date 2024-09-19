@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 from utils.point_cloud_data_utils import read_las_file_to_numpy, numpy_to_dataframe
-from data.transforms.point_cloud_to_image import create_feature_grid, assign_features_to_grid, generate_grids_for_training
+from data.transforms.point_cloud_to_image import create_feature_grid, assign_features_to_grid, generate_grids_for_training, generate_multiscale_grids
 from utils.plot_utils import visualize_grid, visualize_grid_with_comparison
 import os
 
@@ -10,7 +10,7 @@ class TestPointCloudToImageProcessing(unittest.TestCase):
 
     def setUp(self):
         self.las_file_path = 'data/raw/features_F.las'
-        self.sample_size = 1000  # Subset for testing. Choosing a very small subset of data to avoid computational overload
+        self.sample_size = 200  # Subset for testing. Choosing a very small subset of data to avoid computational overload
         self.grid_resolution = 128
         self.channels = 10
         self.window_size = 20.0
@@ -73,7 +73,6 @@ class TestPointCloudToImageProcessing(unittest.TestCase):
         visualize_grid_with_comparison(grid, self.df, center_point, window_size=self.window_size, feature_names=self.feature_names,
                                        channel=chosen_chan, visual_size=50, save=self.save_bool, file_path=file_path)
 
-
     def test_generate_grids_for_training(self):
         # Generate grids for the sampled dataset
         grids = generate_grids_for_training(self.sampled_data, self.window_size, self.grid_resolution, self.channels)
@@ -88,4 +87,27 @@ class TestPointCloudToImageProcessing(unittest.TestCase):
         # Validate the shape of each grid
         for grid in grids:
             self.assertEqual(grid.shape, (self.grid_resolution, self.grid_resolution, self.channels), "Grid shape is not as expected.")
+
+    def test_generate_multiscale_grids(self):
+        """
+        Test the generation and saving of multiscale grids.
+        """
+
+        # Define the window sizes
+        window_sizes = [('small', 5.0), ('medium', 10.0), ('large', 20.0)]
+
+        generate_multiscale_grids(self.sampled_data, window_sizes, self.grid_resolution, self.channels, self.save_dir)
+
+        # Check if files for all scales were saved correctly
+        for i in range(len(self.sampled_data)):
+            for size_label, _ in window_sizes:
+                grid_filename = os.path.join(self.save_dir, f"grid_{i}_{size_label}.npy")
+
+                # Check that the file exists
+                self.assertTrue(os.path.exists(grid_filename), f"{grid_filename} was not saved.")
+
+                # Load the saved grid and check its shape
+                grid = np.load(grid_filename)
+                self.assertEqual(grid.shape, (self.grid_resolution, self.grid_resolution, self.channels),
+                                 f"Grid shape for {grid_filename} is not as expected.")
 
