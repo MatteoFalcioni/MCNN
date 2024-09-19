@@ -71,6 +71,9 @@ def visualize_grid(grid, channel=0, title="Grid Visualization", save=False, file
     plt.xlabel('Grid X')
     plt.ylabel('Grid Y')
 
+    if file_path:
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
     if save and file_path:
         plt.savefig(file_path)
         plt.show()
@@ -126,6 +129,9 @@ def plot_point_cloud_with_rgb(df, save=False, file_path=None):
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
     ax.set_zlabel('Z')
+
+    if file_path:
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
     if save and file_path:
         plt.savefig(file_path)
@@ -218,6 +224,10 @@ def visualize_grid_with_comparison(grid, df, center, window_size=10.0, channel=3
 
     plt.legend()
 
+    if file_path:
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+    # save to file
     if save and file_path:
         plt.savefig(file_path)
         plt.show()
