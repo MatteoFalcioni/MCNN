@@ -1,4 +1,4 @@
-Folder containing raw and processed data for the model. In the following, a brief explanation of the raw data files: 
+Folder containing raw data for the model and the transforms folder for data pre-processing before training. In the following, a brief explanation of the raw data files: 
 
 - File DTM (.ASC)
 - File las originale (.las)
@@ -33,4 +33,4 @@ Lista features (oltre alle altre variabili di un normale las):
 - 'N_h'
 - 'delta_z_fl'
 
-Le variabili che terminano con “_a” sono calcolate con un intorno di raggio 0.5m, quelle che terminano con “_b” raggio 1m. Quelle senza suffisso sono variabili puntuali.
+Variables ending in "_a" are computed in a neighborhood of radius 0.5m, those that end in "_b" with a radius of 1m. Those without sufixes are point-wise variables.
