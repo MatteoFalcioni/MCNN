@@ -6,7 +6,7 @@ from utils.plot_utils import visualize_grid, visualize_grid_with_comparison
 import os
 
 
-class TestPointCloudToImageProcessing(unittest.TestCase):
+class TestPointCloudToImage(unittest.TestCase):
 
     def setUp(self):
         self.las_file_path = 'data/raw/features_F.las'
@@ -96,7 +96,7 @@ class TestPointCloudToImageProcessing(unittest.TestCase):
         # Define the window sizes
         window_sizes = [('small', 5.0), ('medium', 10.0), ('large', 20.0)]
 
-        generate_multiscale_grids(self.sampled_data, window_sizes, self.grid_resolution, self.channels, self.save_dir)
+        generate_multiscale_grids(self.sampled_data, window_sizes, self.grid_resolution, self.channels, 'tests/test_feature_imgs/test_grid_np')
 
         # Check if files for all scales were saved correctly
         for i in range(len(self.sampled_data)):

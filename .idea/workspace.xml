@@ -4,13 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="adding a script to make an easy test on runtime complexity">
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="implementing user choice to save or discard the trained model">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/train.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/config_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/config_handler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/train_data_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/train_data_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/utils.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/runtime_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/runtime_test.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,6 +46,7 @@
       <recent name="C:\Users\matte\PycharmProjects\MCNN\data\raw" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\matte\PycharmProjects\MCNN\tests\test_runtime" />
       <recent name="C:\Users\matte\PycharmProjects\MCNN\utils" />
       <recent name="C:\Users\matte\PycharmProjects\MCNN\tests\test_training_saved" />
       <recent name="C:\Users\matte\PycharmProjects\MCNN\tests" />
@@ -64,20 +61,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00041" summary="tests working">
-      <created>1725727378899</created>
-      <option name="number" value="00041" />
-      <option name="presentableId" value="LOCAL-00041" />
-      <option name="project" value="LOCAL" />
-      <updated>1725727378899</updated>
-    </task>
-    <task id="LOCAL-00042" summary="tests working">
-      <created>1725727889199</created>
-      <option name="number" value="00042" />
-      <option name="presentableId" value="LOCAL-00042" />
-      <option name="project" value="LOCAL" />
-      <updated>1725727889199</updated>
     </task>
     <task id="LOCAL-00043" summary="tests working">
       <created>1725730270162</created>
@@ -408,7 +391,21 @@
       <option name="project" value="LOCAL" />
       <updated>1726759075543</updated>
     </task>
-    <option name="localTasksCounter" value="90" />
+    <task id="LOCAL-00090" summary="refactoring utils implementing user choice to save or discard the trained model">
+      <created>1726761423754</created>
+      <option name="number" value="00090" />
+      <option name="presentableId" value="LOCAL-00090" />
+      <option name="project" value="LOCAL" />
+      <updated>1726761423754</updated>
+    </task>
+    <task id="LOCAL-00091" summary="implementing user choice to save or discard the trained model">
+      <created>1726761442295</created>
+      <option name="number" value="00091" />
+      <option name="presentableId" value="LOCAL-00091" />
+      <option name="project" value="LOCAL" />
+      <updated>1726761442295</updated>
+    </task>
+    <option name="localTasksCounter" value="92" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -423,8 +420,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="tested point cloud data util without np only with pandas, all working" />
-    <MESSAGE value="numpy --&gt; pandas works waaay better. implemented" />
     <MESSAGE value="refactoring code for clarity" />
     <MESSAGE value="now saving feature names in the numpy conversion. tested" />
     <MESSAGE value="refined pc --&gt; img and tested with a subset of data, working" />
@@ -448,22 +443,8 @@
     <MESSAGE value="adding grids generation at the 3 different scales" />
     <MESSAGE value="adding grids generation at the 3 different scales in testing" />
     <MESSAGE value="adding a script to make an easy test on runtime complexity" />
-    <option name="LAST_COMMIT_MESSAGE" value="adding a script to make an easy test on runtime complexity" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/tests/runtime_test.py</url>
-          <line>43</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/tests/runtime_test.py</url>
-          <line>60</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <MESSAGE value="refactoring utils implementing user choice to save or discard the trained model" />
+    <MESSAGE value="implementing user choice to save or discard the trained model" />
+    <option name="LAST_COMMIT_MESSAGE" value="implementing user choice to save or discard the trained model" />
   </component>
 </project>
