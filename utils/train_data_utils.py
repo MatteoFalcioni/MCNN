@@ -2,30 +2,15 @@ import torch
 from torch.utils.data import DataLoader, TensorDataset
 import os
 import numpy as np
-from datetime import datetime
 from utils.point_cloud_data_utils import read_las_file_to_numpy
 from scripts.point_cloud_to_image import generate_multiscale_grids
 
 
-def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw', grid_save_dir='data/pre_processed_data', window_sizes=None, grid_resolution=None, channels=None, device=None):
-    """
-    Prepares the grids and labels for training the model. If the user chooses not to use and wants to generate new ones
-    from raw data, it first generates new grids and then prepares the dataloader.
-
-Args:
-    - batch_size (int): Size of the batches for training.
-    - pre_process_data (bool): Whether to generate new grids from raw data (preprocessing) or load saved grids.
-    - data_dir (str): Directory where raw LiDAR data or saved grids are stored. Default is data/raw.
-    - grid_save_dir (str): Directory where generated grids are stored or will be saved. Default is data/pre_processed_data.
-    - window_sizes (list): List of window sizes for grid generation (required if generating grids).
-    - grid_resolution (int): Grid resolution (e.g., 128x128, required if generating grids).
-    - channels (int): Number of channels in the grids (required if generating grids).
-    - device (torch.device): Device to process data (CPU or GPU, required if generating grids).
-
-    Returns:
-    - DataLoader: A DataLoader object with the grids and their corresponding labels.
-    """
-    grids = []
+def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw', grid_save_dir='data/pre_processed_data',
+                       window_sizes=None, grid_resolution=None, channels=None, device=None, save_grids=True):
+    small_grids = []
+    medium_grids = []
+    large_grids = []
     labels = []
 
     if not os.listdir(grid_save_dir) and not pre_process_data:
@@ -33,60 +18,46 @@ Args:
             f"No saved grids found in {grid_save_dir}. Please generate grids first or check the directory.")
 
     if pre_process_data:
-
         if not window_sizes or not grid_resolution or not channels:
             raise ValueError("Window sizes, grid resolution, and channels must be provided when generating grids.")
 
-        # Process raw LiDAR data and generate grids
         print("Generating new grids from raw data...")
         data_array = read_las_file_to_numpy(data_dir)
-        grids_dict = generate_multiscale_grids(data_array, window_sizes, grid_resolution, channels, grid_save_dir, device)
+        grids_dict = generate_multiscale_grids(data_array, window_sizes, grid_resolution, channels, grid_save_dir,
+                                               save=save_grids)
 
-        # Loop through grids_dict to extract grids and labels
-        for scale, data in grids_dict.items():
-            grids.extend(data['grids'])
-            labels.extend(data['class_labels'])
+        # Extract grids for each scale and class labels from grids_dict
+        small_grids = torch.stack(grids_dict['small']['grids'])
+        medium_grids = torch.stack(grids_dict['medium']['grids'])
+        large_grids = torch.stack(grids_dict['large']['grids'])
+        labels = torch.tensor(grids_dict['small']['class_labels'], dtype=torch.long)
+
     else:
-        # Load saved grids
+        # Load saved grids from the directory
         print("Loading saved grids...")
-        for file_name in os.listdir(grid_save_dir):
-            if file_name.endswith('.npy'):
-                grid = np.load(os.path.join(grid_save_dir, file_name))
-                grids.append(grid)
+        for scale in ['small', 'medium', 'large']:
+            for file_name in os.listdir(os.path.join(grid_save_dir, scale)):
+                grid = np.load(os.path.join(grid_save_dir, scale, file_name))
+                if scale == 'small':
+                    small_grids.append(torch.tensor(grid, dtype=torch.float32))
+                elif scale == 'medium':
+                    medium_grids.append(torch.tensor(grid, dtype=torch.float32))
+                elif scale == 'large':
+                    large_grids.append(torch.tensor(grid, dtype=torch.float32))
 
-                # Extract label from filename (assuming format like grid_0_small_class_X.npy)
-                label = int(file_name.split('_')[-1].split('.')[0].replace('class_', ''))
-                labels.append(label)
+                # Extract class label from filename (assuming format like grid_0_small_class_X.npy)
+                if scale == 'small':
+                    label = int(file_name.split('_')[-1].split('.')[0].replace('class_', ''))
+                    labels.append(label)
 
-    # Convert lists to tensors
-    grids = torch.tensor(grids, dtype=torch.float32)  # Assuming float grids
-    labels = torch.tensor(labels, dtype=torch.long)  # Assuming class labels are integers
+        small_grids = torch.stack(small_grids)
+        medium_grids = torch.stack(medium_grids)
+        large_grids = torch.stack(large_grids)
+        labels = torch.tensor(labels, dtype=torch.long)
 
-    # Create TensorDataset and DataLoader
-    dataset = TensorDataset(grids, labels)
+    # Create a TensorDataset with three grid sizes and labels
+    dataset = TensorDataset(small_grids, medium_grids, large_grids, labels)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
     return dataloader
-
-
-def save_model(model, save_dir):
-    """
-    Saves the MCNN model in the specified directory with a timestamp.
-
-    Args:
-    - model (nn.Module): The MCNN model to be saved.
-    - save_dir (str): Directory where the model will be saved.
-    """
-    # Ensure the save directory exists
-    os.makedirs(save_dir, exist_ok=True)
-
-    # Create a filename with the current date and time
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    model_save_path = os.path.join(save_dir, f"mcnn_{timestamp}.pth")
-
-    # Save the model
-    torch.save(model.state_dict(), model_save_path)
-    print(f'Model saved to {model_save_path}')
-
-
 
