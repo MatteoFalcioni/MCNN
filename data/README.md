@@ -1,4 +1,4 @@
-Folder containing raw data for the model and the transforms folder for data pre-processing before training. In the following, a brief explanation of the raw data files: 
+Folder containing raw data for the model. In the following, a brief explanation of the raw data files: 
 
 - File DTM (.ASC)
 - File las originale (.las)
