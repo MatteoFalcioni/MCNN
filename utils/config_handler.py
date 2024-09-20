@@ -1,6 +1,6 @@
 import argparse
 import yaml
-import torch
+
 
 
 def load_config(file_path='config.yaml'):
@@ -51,25 +51,4 @@ def parse_arguments():
 
     return args
 
-
-def select_device():
-    """
-    Selects the best available device for PyTorch: CUDA > DirectML > CPU.
-
-    Returns:
-    - torch.device: The selected device (CUDA, DirectML, or CPU).
-    """
-    try:
-        if torch.cuda.is_available():
-            print("Using CUDA device.")
-            return torch.device('cuda')
-        elif torch.directml.is_available():
-            print("CUDA not available. Using DirectML device.")
-            return torch.device('dml')
-        else:
-            print("CUDA and DirectML not available. Using CPU.")
-            return torch.device('cpu')
-    except Exception as e:
-        print(f"Error selecting device: {e}")
-        return torch.device('cpu')
 
