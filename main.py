@@ -3,7 +3,8 @@ import torch.optim as optim
 from models.mcnn import MultiScaleCNN
 from utils.train_data_utils import prepare_dataloader
 from scripts.train import train_epochs
-from utils.config_handler import parse_arguments, select_device
+from utils.config_handler import parse_arguments
+from utils.device_utils import select_device, move_to_device
 
 
 def main():
