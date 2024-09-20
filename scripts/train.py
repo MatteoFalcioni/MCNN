@@ -22,15 +22,17 @@ def train(model, dataloader, criterion, optimizer, device):
     running_loss = 0.0
     total_batches = len(dataloader)  # Total number of batches
 
-    for i, (inputs, labels) in enumerate(dataloader):
-        inputs, labels = inputs.to(device), labels.to(device)
+    for i, (small_grids, medium_grids, large_grids, labels) in enumerate(dataloader):
+        small_grids, medium_grids, large_grids, labels = (
+            small_grids.to(device), medium_grids.to(device), large_grids.to(device), labels.to(device)
+        )
 
         # Zero the parameter gradients
         optimizer.zero_grad()
 
         # Forward pass
-        # The MCNN takes 3 different inputs for 3 different scales (now same for lack of data)
-        outputs = model(inputs, inputs, inputs)
+        # The MCNN takes 3 different inputs for 3 different scales
+        outputs = model(small_grids, medium_grids, large_grids)
 
         # Compute loss
         loss = criterion(outputs, labels)
@@ -68,13 +70,16 @@ def validate(model, dataloader, criterion, device):
     model.eval()  # Set model to evaluation mode
     val_loss = 0.0
     with torch.no_grad():  # Disable gradient calculation
-        for inputs, labels in dataloader:
-            inputs, labels = inputs.to(device), labels.to(device)
+        for small_grids, medium_grids, large_grids, labels in dataloader:
+            small_grids, medium_grids, large_grids, labels = (
+                small_grids.to(device), medium_grids.to(device), large_grids.to(device), labels.to(device)
+            )
 
-            # Forward pass for MCNN
-            outputs = model(inputs, inputs, inputs)
+            # Forward pass with three inputs
+            outputs = model(small_grids, medium_grids, large_grids)
             loss = criterion(outputs, labels)
             val_loss += loss.item()
+
     return val_loss / len(dataloader)
 
 
