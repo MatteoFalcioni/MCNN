@@ -1,5 +1,5 @@
 import torch
-from torch.utils.data import DataLoader, TensorDataset
+from torch.utils.data import DataLoader, TensorDataset, random_split
 import os
 import numpy as np
 from utils.point_cloud_data_utils import read_las_file_to_numpy
@@ -7,7 +7,29 @@ from scripts.point_cloud_to_image import generate_multiscale_grids
 
 
 def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw', grid_save_dir='data/pre_processed_data',
-                       window_sizes=None, grid_resolution=None, channels=None, device=None, save_grids=True):
+                       window_sizes=None, grid_resolution=None, channels=None, save_grids=True, train_split=0.8):
+    """
+        Prepares DataLoader objects for training and evaluation with three grid sizes (small, medium, large) and labels.
+
+        If `pre_process_data` is True, the function will generate new grids from raw data. If False, it will load
+        pre-saved grids from the specified directory.
+
+        Args:
+        - batch_size (int): Size of the batches for training and evaluation.
+        - pre_process_data (bool): Whether to generate new grids from raw data or load pre-saved grids.
+        - data_dir (str): Directory where raw LiDAR data is stored if generating grids. Default is 'data/raw'.
+        - grid_save_dir (str): Directory where the generated grids will be stored or loaded from. Default is 'data/pre_processed_data'.
+        - window_sizes (list): List of window sizes for grid generation (e.g., [('small', 2.5), ('medium', 5.0), ('large', 10.0)]).
+        - grid_resolution (int): Resolution of the grid (e.g., 128x128). Required if generating grids.
+        - channels (int): Number of channels in the grids (e.g., 3). Required if generating grids.
+        - save_grids (bool): Whether to save the generated grids to disk. Default is True.
+        - train_split (float): Proportion of the data to be used for training (between 0 and 1). Default is 0.8 (80%).
+
+        Returns:
+        - train_loader (DataLoader): DataLoader for the training set.
+        - eval_loader (DataLoader): DataLoader for the evaluation set.
+        """
+
     small_grids = []
     medium_grids = []
     large_grids = []
@@ -57,7 +79,15 @@ def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw', grid_s
 
     # Create a TensorDataset with three grid sizes and labels
     dataset = TensorDataset(small_grids, medium_grids, large_grids, labels)
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
-    return dataloader
+    # Split the dataset into training and evaluation sets
+    train_size = int(train_split * len(dataset))
+    eval_size = len(dataset) - train_size
+    train_dataset, eval_dataset = random_split(dataset, [train_size, eval_size])
+
+    # Create DataLoaders for training and evaluation
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False)
+
+    return train_loader, eval_loader
 
