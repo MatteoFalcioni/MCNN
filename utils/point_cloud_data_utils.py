@@ -88,6 +88,15 @@ def read_las_file_to_numpy(file_path, features_to_extract=None):
         else:
             print(f"Feature '{feature}' is not available in {file_path}.")
 
+    # Check for segment_id and label fields
+    if 'segment_id' in las_data.point_format.dimension_names:
+        data.append(las_data['segment_id'])
+        feature_names.append('segment_id')
+
+    if 'label' in las_data.point_format.dimension_names:
+        data.append(las_data['label'])
+        feature_names.append('label')
+
     # Convert the data list to a numpy array and transpose to match the expected shape (N, num_features)
     data_array = np.vstack(data).T
     print(f"Loaded NumPy array with shape: {data_array.shape}")
