@@ -4,6 +4,7 @@ import os
 import numpy as np
 from utils.point_cloud_data_utils import read_las_file_to_numpy
 from scripts.point_cloud_to_image import generate_multiscale_grids
+from datetime import datetime
 
 
 def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw', grid_save_dir='data/pre_processed_data',
@@ -90,4 +91,26 @@ def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw', grid_s
     eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False)
 
     return train_loader, eval_loader
+
+def save_model(model, save_dir='models/saved'):
+    """
+    Saves the PyTorch model with a filename that includes the current date and time.
+
+    Args:
+    - model (nn.Module): The trained model to be saved.
+    - save_dir (str): The directory where the model will be saved. Default is 'models/saved'.
+    """
+    # Ensure the save directory exists
+    os.makedirs(save_dir, exist_ok=True)
+
+    # Get the current date and time
+    current_time = datetime.now().strftime('%Y%m%d_%H%M%S')
+
+    # Create the model filename
+    model_filename = f"mcnn_model_{current_time}.pth"
+    model_save_path = os.path.join(save_dir, model_filename)
+
+    # Save the model
+    torch.save(model.state_dict(), model_save_path)
+    print(f'Model saved to {model_save_path}')
 
