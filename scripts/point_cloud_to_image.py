@@ -102,7 +102,7 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channel
         label = data_array[i, -1]  # Assuming the class label is the last column
 
         for size_label, window_size in window_sizes:
-            print(f"Generating {size_label} grid for point {i} with window size {window_size}...")
+            print(f"reGenerating {size_label} grid for point {i} with window size {window_size}...")
 
             # Create a grid around the current center point
             grid, _, x_coords, y_coords, _ = create_feature_grid(center_point, window_size, grid_resolution, channels)
