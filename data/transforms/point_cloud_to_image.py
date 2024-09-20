@@ -116,7 +116,7 @@ def generate_grids_for_training(data_array, window_size, grid_resolution=128, ch
     return grids
 
 
-def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channels, save_dir):
+def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channels, save_dir, save=True):
     """
     Generates grids for each point in the data array with different window sizes and saves them to disk.
 
@@ -126,8 +126,15 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channel
     - grid_resolution (int): Resolution of the grid (e.g., 128x128).
     - channels (int): Number of channels to store in each grid.
     - save_dir (str): Directory to save the generated grids.
+    - save (bool): Boolean value to save or discard the generated grids. Default is True.
+    Returns:
+    - grids (dict): A dictionary with the window size labels as keys and the corresponding list of grids as values.
     """
+
     os.makedirs(save_dir, exist_ok=True)
+
+    # Initialize a dictionary to store the generated grids by window size
+    grids = {size_label: [] for size_label, _ in window_sizes}
 
     for i in range(len(data_array)):
         # Select the current point as the center point for the grid
@@ -142,10 +149,16 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channel
             # Assign features to the grid cells
             grid_with_features = assign_features_to_grid(data_array, grid, x_coords, y_coords, channels)
 
-            # Save the grid
-            grid_filename = os.path.join(save_dir, f"grid_{i}_{size_label}.npy")
-            np.save(grid_filename, grid_with_features)
-            print(f"Saved {size_label} grid for point {i} to {grid_filename}")
+            # Append the grid to the corresponding list in the dictionary
+            grids[size_label].append(grid_with_features)
+
+            # Save the grid if required
+            if save:
+                grid_filename = os.path.join(save_dir, f"grid_{i}_{size_label}.npy")
+                np.save(grid_filename, grid_with_features)
+                print(f"Saved {size_label} grid for point {i} to {grid_filename}")
+
+    return grids
 
 
 
