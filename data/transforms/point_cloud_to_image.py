@@ -119,6 +119,7 @@ def generate_grids_for_training(data_array, window_size, grid_resolution=128, ch
 def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channels, save_dir, save=True):
     """
     Generates grids for each point in the data array with different window sizes and saves them to disk.
+    Returns a dictionary with grids and their corresponding labels for each window size.
 
     Args:
     - data_array (np.ndarray): Array where each row represents a point with its x, y, z coordinates and features.
@@ -127,14 +128,17 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channel
     - channels (int): Number of channels to store in each grid.
     - save_dir (str): Directory to save the generated grids.
     - save (bool): Boolean value to save or discard the generated grids. Default is True.
+
     Returns:
-    - grids (dict): A dictionary with the window size labels as keys and the corresponding list of grids as values.
+    - labeled_grids_dict (dict): A dictionary with window size labels as keys. Each entry contains a dictionary
+                          with 'grids' and 'labels' keys, where 'grids' is a list of generated grids and
+                          'labels' is a list of corresponding class labels.
     """
 
     os.makedirs(save_dir, exist_ok=True)
 
-    # Initialize a dictionary to store the generated grids by window size
-    grids = {size_label: [] for size_label, _ in window_sizes}
+    # Initialize a dictionary to store the generated grids and labels by window size
+    labeled_grids_dict = {size_label: {'grids': [], 'labels': []} for size_label, _ in window_sizes}
 
     for i in range(len(data_array)):
         # Select the current point as the center point for the grid
@@ -150,17 +154,17 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channel
             # Assign features to the grid cells
             grid_with_features = assign_features_to_grid(data_array, grid, x_coords, y_coords, channels)
 
-            # Append the grid to the corresponding list in the dictionary
-            grids[size_label].append(grid_with_features)
+            # Append the grid and the label to the respective lists in the dictionary
+            labeled_grids_dict[size_label]['grids'].append(grid_with_features)
+            labeled_grids_dict[size_label]['labels'].append(label)
 
             # Save the grid if required
             if save:
-                # save class label in file name
                 grid_filename = os.path.join(save_dir, f"grid_{i}_{size_label}_class_{int(label)}.npy")
                 np.save(grid_filename, grid_with_features)
                 print(f"Saved {size_label} grid for point {i} to {grid_filename}")
 
-    return grids
+    return labeled_grids_dict
 
 
 
