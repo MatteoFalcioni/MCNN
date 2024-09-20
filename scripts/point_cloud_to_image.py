@@ -102,7 +102,7 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channel
         label = data_array[i, -1]  # Assuming the class label is the last column
 
         for size_label, window_size in window_sizes:
-            print(f"reGenerating {size_label} grid for point {i} with window size {window_size}...")
+            print(f"Generating {size_label} grid for point {i} with window size {window_size}...")
 
             # Create a grid around the current center point
             grid, _, x_coords, y_coords, _ = create_feature_grid(center_point, window_size, grid_resolution, channels)
@@ -116,7 +116,12 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channel
 
             # Save the grid if required
             if save:
-                grid_filename = os.path.join(save_dir, f"grid_{i}_{size_label}_class_{int(label)}.npy")
+                # Create a subdirectory for each grid size (small, medium, large)
+                scale_dir = os.path.join(save_dir, size_label)
+                os.makedirs(scale_dir, exist_ok=True)
+
+                # Save the grid in the appropriate subdirectory
+                grid_filename = os.path.join(scale_dir, f"grid_{i}_{size_label}_class_{int(label)}.npy")
                 np.save(grid_filename, grid_with_features)
                 print(f"Saved {size_label} grid for point {i} to {grid_filename}")
 
