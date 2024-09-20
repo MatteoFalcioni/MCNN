@@ -43,8 +43,12 @@ def parse_arguments():
                         help='Momentum factor for the optimizer')
     parser.add_argument('--save_dir', type=str, default=config.get('save_dir', 'models/saved/'),
                         help='Directory to save trained models')
-    parser.add_argument('--save', type=str, default=config.get('save', False),
+    parser.add_argument('--save_model', type=str, default=config.get('save_model', False),
                         help='Choice to save the trained model or to discard it.')
+    parser.add_argument('--preprocess_data', type=str, default=config.get('preprocess_data', False),
+                        help='Choice to preprocess raw data for training or use existing pre-processed data (if False)')
+    parser.add_argument('--preprocessed_data_dir', type=str, default=config.get('preprocessed_data_dir', 'data/pre_processed_data'),
+                        help='directory where pre-processed data for training is stored.')
 
     # Parsing arguments
     args = parser.parse_args()

@@ -1,11 +1,13 @@
 # Hyperparameters
-BATCH_SIZE = 16  # Not explicitly mentioned in the article
+BATCH_SIZE = 16   # Not explicitly mentioned in the article
 EPOCHS = 20
 PATIENCE = 3
-LEARNING_RATE = 0.01  # Initial learning rate as mentioned in both articles
-LEARNING_RATE_DECAY_FACTOR = 0.0005 # mentioned in first article 
-LEARNING_RATE_DECAY_EPOCHS = 1  # not mentioned, so assuming that lr decay is performed through each epoch
-MOMENTUM = 0.9  # used in first article
-MODEL_SAVE_DIR = "models/saved/"    # Model save path base directory
-SAVE = False  # choice to save the model or to discard. Default is False, i.e., discard the trained model.
-
+LEARNING_RATE = 0.01    # Initial learning rate as mentioned in both articles
+LEARNING_RATE_DECAY_FACTOR = 0.0005   # mentioned in first article 
+LEARNING_RATE_DECAY_EPOCHS = 1    # not mentioned, so assuming that lr decay is performed through each epoch
+MOMENTUM = 0.9    # used in first article
+MODEL_SAVE_DIR = "models/saved/"      # Model save path base directory
+SAVE_MODEL = False    # whether to save the model or to discard. Default is False, i.e., discard the trained model.
+PREPROCESS_DATA = False   # whether to preprocess raw data, or to use existing pre-processed data (if False) 
+RAW_DATA_DIR = "data/raw"   # directory where raw data (to be eventually processed) is stored
+PREPROCESSED_DATA_DIR = "data/pre_processed_data"   # directory where pre-processed data for training is stored.
