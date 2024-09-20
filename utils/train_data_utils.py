@@ -7,14 +7,14 @@ from utils.point_cloud_data_utils import read_las_file_to_numpy
 from scripts.point_cloud_to_image import generate_multiscale_grids
 
 
-def prepare_dataloader(batch_size, generate_grids, data_dir='data/raw', grid_save_dir='data/pre_processed_data', window_sizes=None, grid_resolution=None, channels=None, device=None):
+def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw', grid_save_dir='data/pre_processed_data', window_sizes=None, grid_resolution=None, channels=None, device=None):
     """
     Prepares the grids and labels for training the model. If the user chooses not to use and wants to generate new ones
     from raw data, it first generates new grids and then prepares the dataloader.
 
 Args:
     - batch_size (int): Size of the batches for training.
-    - generate_grids (bool): Whether to generate new grids from raw data or load saved grids.
+    - pre_process_data (bool): Whether to generate new grids from raw data (preprocessing) or load saved grids.
     - data_dir (str): Directory where raw LiDAR data or saved grids are stored. Default is data/raw.
     - grid_save_dir (str): Directory where generated grids are stored or will be saved. Default is data/pre_processed_data.
     - window_sizes (list): List of window sizes for grid generation (required if generating grids).
@@ -28,7 +28,15 @@ Args:
     grids = []
     labels = []
 
-    if generate_grids:
+    if not os.listdir(grid_save_dir) and not pre_process_data:
+        raise FileNotFoundError(
+            f"No saved grids found in {grid_save_dir}. Please generate grids first or check the directory.")
+
+    if pre_process_data:
+
+        if not window_sizes or not grid_resolution or not channels:
+            raise ValueError("Window sizes, grid resolution, and channels must be provided when generating grids.")
+
         # Process raw LiDAR data and generate grids
         print("Generating new grids from raw data...")
         data_array = read_las_file_to_numpy(data_dir)
