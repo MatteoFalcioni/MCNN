@@ -1,7 +1,6 @@
 import unittest
 import torch
 from utils.train_data_utils import prepare_dataloader
-from utils.config_handler import parse_arguments
 
 
 class TestPrepareDataLoader(unittest.TestCase):
@@ -44,7 +43,4 @@ class TestPrepareDataLoader(unittest.TestCase):
                 self.assertEqual(labels.shape[0], self.batch_size, "Incorrect batch size for labels")
                 # Stop after one batch for simplicity
                 break
-
-
-
 

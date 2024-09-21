@@ -2,7 +2,6 @@ import argparse
 import yaml
 
 
-
 def load_config(file_path='config.yaml'):
     """
     Load configuration from a YAML file.
