@@ -16,7 +16,7 @@ class MultiScaleCNN(nn.Module):
     - Output: Classification into 9 classes.
     """
 
-    def __init__(self, channels=3):
+    def __init__(self, channels, classes):
         """
         Initializes the MultiScaleCNN model with three SCNNs and fully connected layers.
         """
@@ -38,7 +38,7 @@ class MultiScaleCNN(nn.Module):
         self.relu_fc1 = nn.ReLU()
 
         # Final Fully Connected Layer for Output
-        self.fc2 = nn.Linear(4096, 9)  # Output layer with 9 classes
+        self.fc2 = nn.Linear(4096, classes)  # Output layer with a chosen number of classes
 
     def forward(self, x1, x2, x3):
         """
