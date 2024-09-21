@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 from utils.point_cloud_data_utils import read_las_file_to_numpy, numpy_to_dataframe
-from data.transforms.point_cloud_to_image import create_feature_grid, assign_features_to_grid, generate_multiscale_grids
+from scripts.point_cloud_to_image import create_feature_grid, assign_features_to_grid, generate_multiscale_grids
 from utils.plot_utils import visualize_grid, visualize_grid_with_comparison
 import os
 
@@ -80,7 +80,7 @@ class TestPointCloudToImage(unittest.TestCase):
 
     def test_generate_multiscale_grids(self):
         """
-        Test the generation and saving of multiscale grids with associated labels, using a sampled dataset with dummy labels.
+        Test the generation of multiscale grids with associated labels, using a sampled dataset with dummy labels.
         """
 
         grids_dict = generate_multiscale_grids(self.sampled_data_with_class_labels, self.window_sizes,
@@ -92,14 +92,15 @@ class TestPointCloudToImage(unittest.TestCase):
             scale_label = scale_info[0]  # Extract the scale label (small, medium, large)
             self.assertIn(scale_label, grids_dict, f"{scale_label} scale not found in the returned dictionary.")
 
-            # Check grids and class labels exist
-            self.assertIn('grids', grids_dict[scale_label], f"'grids' not found for {scale_label} scale.")
-            self.assertIn('class_labels', grids_dict[scale_label],
-                          f"'class_labels' not found for {scale_label} scale.")
+            # Check that grids and class labels are NumPy arrays
+            self.assertIsInstance(grids_dict[scale_label]['grids'], np.ndarray,
+                                  f"'grids' is not a NumPy array for {scale_label}.")
+            self.assertIsInstance(grids_dict[scale_label]['class_labels'], np.ndarray,
+                                  f"'class_labels' is not a NumPy array for {scale_label}.")
 
             # Ensure grids and class labels are the correct length
-            num_grids = len(grids_dict[scale_label]['grids'])
-            num_class_labels = len(grids_dict[scale_label]['class_labels'])
+            num_grids = grids_dict[scale_label]['grids'].shape[0]
+            num_class_labels = grids_dict[scale_label]['class_labels'].shape[0]
             self.assertEqual(num_grids, num_class_labels,
                              f"Number of grids does not match number of class labels for {scale_label} scale.")
 
@@ -108,7 +109,7 @@ class TestPointCloudToImage(unittest.TestCase):
                 grid = grids_dict[scale_label]['grids'][i]
                 class_label = grids_dict[scale_label]['class_labels'][i]
 
-                # Ensure each grid has the correct shape
+                # Ensure each grid has the correct shape (channels should be the last dimension)
                 self.assertEqual(grid.shape, (self.grid_resolution, self.grid_resolution, self.channels),
                                  f"Grid shape is incorrect for {scale_label} scale at index {i}.")
 
