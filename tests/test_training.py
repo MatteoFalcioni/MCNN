@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from models.mcnn import MultiScaleCNN
-from utils.data_utils import prepare_dataloader
+from utils.train_data_utils import prepare_dataloader
 from scripts.train import train, validate, train_epochs
 
 
@@ -14,14 +14,13 @@ class TestTrainingProcess(unittest.TestCase):
     def setUpClass(cls):
         # Run once for the entire test class
         cls.device = torch.device('cpu')  # Use CPU for testing
-        cls.model = MultiScaleCNN().to(cls.device)
+        cls.model = MultiScaleCNN(channels=10, classes=5).to(cls.device)
         cls.criterion = nn.CrossEntropyLoss()
         cls.optimizer = optim.SGD(cls.model.parameters(), lr=0.01)
         cls.scheduler = optim.lr_scheduler.StepLR(cls.optimizer, step_size=5, gamma=0.5)
 
         # Mocked DataLoader with random data
-        cls.train_loader = prepare_dataloader(batch_size=4, num_samples=200)
-        cls.val_loader = prepare_dataloader(batch_size=4, num_samples=200)
+        cls.train_loader, cls.val_loader = prepare_dataloader(batch_size=2, pre_process_data=False, grid_save_dir='tests/test_feature_imgs/test_grid_np')
 
     def test_model_initialization(self):
         """Test if the model initializes correctly."""
@@ -31,9 +30,10 @@ class TestTrainingProcess(unittest.TestCase):
     def test_data_loader(self):
         """Test if data loaders are working properly."""
         batch = next(iter(self.train_loader))
-        inputs, labels = batch
-        self.assertEqual(inputs.size(0), 4, "Batch size should be 4.")
-        self.assertEqual(inputs.ndim, 4, "Inputs should be 4-dimensional.")
+        small_grids, medium_grids, large_grids, labels = batch
+
+        self.assertEqual(small_grids.size(0), 2, "Batch size should be 2.")
+        self.assertEqual(small_grids.ndim, 4, "Inputs should be 4-dimensional (batch, channels, H, W.")
         self.assertEqual(labels.ndim, 1, "Labels should be 1-dimensional.")
 
     def test_training_step(self):
@@ -50,7 +50,8 @@ class TestTrainingProcess(unittest.TestCase):
         # Run training with a few epochs to ensure it works
         train_epochs(self.model, self.train_loader, self.val_loader, self.criterion,
                      self.optimizer, self.scheduler, epochs=epochs_to_run, patience=initial_patience,
-                     device=self.device, save_dir='tests/test_training_saved', plot_dir='tests/test_training_saved')
+                     device=self.device, save_dir='tests/test_training_saved', plot_dir='tests/test_training_saved',
+                     save=False)
 
         # Check that the training completes without any exceptions
         self.assertTrue(True, "Model training did not complete as expected.")
@@ -68,16 +69,19 @@ class TestTrainingProcess(unittest.TestCase):
 
     def test_incorrect_input_shape(self):
         """Test the model with incorrect input shapes to ensure it raises an error."""
-        # Simulate DataLoader yielding incorrect shapes
+        # Simulate DataLoader yielding 4 elements with incorrect shapes
         incorrect_loader = [(
-            torch.randn(4, 1, 32, 32),  # Incorrect shape; should be [batch_size, channels, height, width]
-            torch.randint(0, 10, (4,))
+            torch.randn(4, 1, 32, 32),  # Incorrect shape for small_grids
+            torch.randn(4, 1, 32, 32),  # Incorrect shape for medium_grids
+            torch.randn(4, 1, 32, 32),  # Incorrect shape for large_grids
+            torch.randint(0, 10, (4,))  # Labels
         )]
 
-        # Mock the DataLoader to yield incorrect shapes
+        # Mock the DataLoader to yield the incorrect shapes
         dataloader_mock = MagicMock()
         dataloader_mock.__iter__.return_value = iter(incorrect_loader)
 
+        # Expect a RuntimeError due to the incorrect shape
         with self.assertRaises(RuntimeError):
             train(self.model, dataloader_mock, self.criterion, self.optimizer, self.device)
 
