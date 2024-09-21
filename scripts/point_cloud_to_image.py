@@ -72,7 +72,7 @@ def assign_features_to_grid(data_array, grid, x_coords, y_coords, channels=3):
     return grid
 
 
-def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channels, save_dir, save=True):
+def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channels, save_dir=None, save=False):
     """
     Generates grids for each point in the data array with different window sizes and saves them to disk.
     Returns a dictionary with grids and their corresponding labels for each window size.
@@ -83,7 +83,7 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channel
     - grid_resolution (int): Resolution of the grid (e.g., 128x128).
     - channels (int): Number of channels to store in each grid.
     - save_dir (str): Directory to save the generated grids.
-    - save (bool): Boolean value to save or discard the generated grids. Default is True.
+    - save (bool): Boolean value to save or discard the generated grids. Default is False.
 
     Returns:
     - labeled_grids_dict (dict): A dictionary with window size labels as keys. Each entry contains a dictionary
@@ -91,12 +91,21 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channel
                           'labels' is a list of corresponding class labels.
     """
 
-    os.makedirs(save_dir, exist_ok=True)
+    if save_dir is not None:
+        os.makedirs(save_dir, exist_ok=True)
 
     # Initialize a dictionary to store the generated grids and labels by window size
-    labeled_grids_dict = {scale_label: {'grids': [], 'class_labels': []} for scale_label, _ in window_sizes}
+    num_points = len(data_array)  # Number of points in the dataset
 
-    for i in range(len(data_array)):
+    labeled_grids_dict = {
+        scale_label: {
+            'grids': np.zeros((num_points, grid_resolution, grid_resolution, channels)),  # Preallocate grids
+            'class_labels': np.zeros((num_points,))  # Preallocate labels array
+        }
+        for scale_label, _ in window_sizes
+    }
+
+    for i in range(num_points):
         # Select the current point as the center point for the grid
         center_point = data_array[i, :3]  # (x, y, z)
         label = data_array[i, -1]  # Assuming the class label is the last column
@@ -110,12 +119,12 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channel
             # Assign features to the grid cells
             grid_with_features = assign_features_to_grid(data_array, grid, x_coords, y_coords, channels)
 
-            # Append the grid and the label to the respective lists in the dictionary
-            labeled_grids_dict[size_label]['grids'].append(grid_with_features)
-            labeled_grids_dict[size_label]['class_labels'].append(label)
+            # Store the grid and label in the NumPy arrays
+            labeled_grids_dict[size_label]['grids'][i] = grid_with_features
+            labeled_grids_dict[size_label]['class_labels'][i] = label
 
             # Save the grid if required
-            if save:
+            if save and save_dir is not None:
                 # Reshape the grid to (channels, height, width) for PyTorch
                 grid_with_features = np.transpose(grid_with_features, (2, 0, 1))
 
