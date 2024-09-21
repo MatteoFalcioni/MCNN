@@ -92,6 +92,7 @@ def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw', grid_s
 
     return train_loader, eval_loader
 
+
 def save_model(model, save_dir='models/saved'):
     """
     Saves the PyTorch model with a filename that includes the current date and time.
@@ -113,4 +114,38 @@ def save_model(model, save_dir='models/saved'):
     # Save the model
     torch.save(model.state_dict(), model_save_path)
     print(f'Model saved to {model_save_path}')
+
+
+def remap_labels(data_array, label_column_index=-1):
+    """
+    Automatically remaps the labels in the given data array to a continuous range starting from 0. Needed for
+    training purpose (in order to feed labels as targets to the loss).
+    Stores the mapping for future reference.
+
+    Args:
+    - data_array (np.ndarray): The input data array where the last column (by default) contains the labels.
+    - label_column_index (int): The index of the column containing the labels (default is the last column).
+
+    Returns:
+    - np.ndarray: The data array with the labels remapped.
+    - dict: A dictionary that stores the original to new label mapping.
+    """
+    # Extract the label column
+    labels = data_array[:, label_column_index]
+
+    # Get the unique labels
+    unique_labels = np.unique(labels)
+
+    # Create a mapping from the unique labels to continuous integers
+    label_mapping = {label: idx for idx, label in enumerate(unique_labels)}
+
+    # Apply the mapping to the labels
+    remapped_labels = np.array([label_mapping[label] for label in labels])
+
+    # Replace the original labels in the data array with the remapped labels
+    data_array[:, label_column_index] = remapped_labels
+
+    # Return the remapped data array and the mapping dictionary
+    return data_array, label_mapping
+
 
