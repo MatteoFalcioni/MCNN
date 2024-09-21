@@ -116,6 +116,9 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channel
 
             # Save the grid if required
             if save:
+                # Reshape the grid to (channels, height, width) for PyTorch
+                grid_with_features = np.transpose(grid_with_features, (2, 0, 1))
+
                 # Create a subdirectory for each grid size (small, medium, large)
                 scale_dir = os.path.join(save_dir, size_label)
                 os.makedirs(scale_dir, exist_ok=True)
