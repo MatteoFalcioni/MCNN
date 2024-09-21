@@ -1,4 +1,5 @@
 from scipy.spatial import KDTree
+from utils.train_data_utils import remap_labels
 import numpy as np
 import os
 
@@ -93,6 +94,9 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channel
 
     if save_dir is not None:
         os.makedirs(save_dir, exist_ok=True)
+
+    # remap labels to continous integers (needed for cross entropy loss)
+    data_array, _ = remap_labels(data_array)
 
     # Initialize a dictionary to store the generated grids and labels by window size
     num_points = len(data_array)  # Number of points in the dataset
