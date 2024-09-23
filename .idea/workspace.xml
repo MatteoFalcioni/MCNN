@@ -4,9 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="implementing user choice to save or discard the trained model">
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="remapping labels before generating grids">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/inference.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/inference.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/point_cloud_to_image.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/point_cloud_to_image.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/train.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/runtime_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/runtime_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/config_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/config_handler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/point_cloud_data_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/point_cloud_data_utils.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/train_data_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/train_data_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,11 +54,11 @@
       <recent name="C:\Users\matte\PycharmProjects\MCNN\data\raw" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\matte\PycharmProjects\MCNN\scripts" />
       <recent name="C:\Users\matte\PycharmProjects\MCNN\tests\test_runtime" />
       <recent name="C:\Users\matte\PycharmProjects\MCNN\utils" />
       <recent name="C:\Users\matte\PycharmProjects\MCNN\tests\test_training_saved" />
       <recent name="C:\Users\matte\PycharmProjects\MCNN\tests" />
-      <recent name="C:\Users\matte\PycharmProjects\MCNN\test_training_saved" />
     </key>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -61,230 +69,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00043" summary="tests working">
-      <created>1725730270162</created>
-      <option name="number" value="00043" />
-      <option name="presentableId" value="LOCAL-00043" />
-      <option name="project" value="LOCAL" />
-      <updated>1725730270162</updated>
-    </task>
-    <task id="LOCAL-00044" summary="tests working">
-      <created>1725730771976</created>
-      <option name="number" value="00044" />
-      <option name="presentableId" value="LOCAL-00044" />
-      <option name="project" value="LOCAL" />
-      <updated>1725730771976</updated>
-    </task>
-    <task id="LOCAL-00045" summary="tests working">
-      <created>1725730903436</created>
-      <option name="number" value="00045" />
-      <option name="presentableId" value="LOCAL-00045" />
-      <option name="project" value="LOCAL" />
-      <updated>1725730903437</updated>
-    </task>
-    <task id="LOCAL-00046" summary="corrected README.md">
-      <created>1725731733073</created>
-      <option name="number" value="00046" />
-      <option name="presentableId" value="LOCAL-00046" />
-      <option name="project" value="LOCAL" />
-      <updated>1725731733073</updated>
-    </task>
-    <task id="LOCAL-00047" summary="corrected README.md">
-      <created>1725875681519</created>
-      <option name="number" value="00047" />
-      <option name="presentableId" value="LOCAL-00047" />
-      <option name="project" value="LOCAL" />
-      <updated>1725875681519</updated>
-    </task>
-    <task id="LOCAL-00048" summary="corrected parser to now handel config defaults, and overwrite them if needed">
-      <created>1725875732555</created>
-      <option name="number" value="00048" />
-      <option name="presentableId" value="LOCAL-00048" />
-      <option name="project" value="LOCAL" />
-      <updated>1725875732555</updated>
-    </task>
-    <task id="LOCAL-00049" summary="now using momentum during training, as described in the first paper">
-      <created>1725876043018</created>
-      <option name="number" value="00049" />
-      <option name="presentableId" value="LOCAL-00049" />
-      <option name="project" value="LOCAL" />
-      <updated>1725876043018</updated>
-    </task>
-    <task id="LOCAL-00050" summary="refactoring code and started creating the transform point cloud --&gt; feature image">
-      <created>1725878094688</created>
-      <option name="number" value="00050" />
-      <option name="presentableId" value="LOCAL-00050" />
-      <option name="project" value="LOCAL" />
-      <updated>1725878094697</updated>
-    </task>
-    <task id="LOCAL-00051" summary="made it possible to witch to numpy from pandas dataframe for las file">
-      <created>1725879798233</created>
-      <option name="number" value="00051" />
-      <option name="presentableId" value="LOCAL-00051" />
-      <option name="project" value="LOCAL" />
-      <updated>1725879798233</updated>
-    </task>
-    <task id="LOCAL-00052" summary="implemented assignment of features to grid">
-      <created>1725880105229</created>
-      <option name="number" value="00052" />
-      <option name="presentableId" value="LOCAL-00052" />
-      <option name="project" value="LOCAL" />
-      <updated>1725880105229</updated>
-    </task>
-    <task id="LOCAL-00053" summary="imlementing feature selection in grid creation">
-      <created>1725888135296</created>
-      <option name="number" value="00053" />
-      <option name="presentableId" value="LOCAL-00053" />
-      <option name="project" value="LOCAL" />
-      <updated>1725888135296</updated>
-    </task>
-    <task id="LOCAL-00054" summary="added grids creation main loop">
-      <created>1725888454395</created>
-      <option name="number" value="00054" />
-      <option name="presentableId" value="LOCAL-00054" />
-      <option name="project" value="LOCAL" />
-      <updated>1725888454395</updated>
-    </task>
-    <task id="LOCAL-00055" summary="changed reading of las feature files, now csv files are created">
-      <created>1725959195489</created>
-      <option name="number" value="00055" />
-      <option name="presentableId" value="LOCAL-00055" />
-      <option name="project" value="LOCAL" />
-      <updated>1725959195489</updated>
-    </task>
-    <task id="LOCAL-00056" summary="added init to data transforms">
-      <created>1725959215539</created>
-      <option name="number" value="00056" />
-      <option name="presentableId" value="LOCAL-00056" />
-      <option name="project" value="LOCAL" />
-      <updated>1725959215539</updated>
-    </task>
-    <task id="LOCAL-00057" summary="refactored dtm visualization in plot utils">
-      <created>1725959240605</created>
-      <option name="number" value="00057" />
-      <option name="presentableId" value="LOCAL-00057" />
-      <option name="project" value="LOCAL" />
-      <updated>1725959240605</updated>
-    </task>
-    <task id="LOCAL-00058" summary="refactoring data utils, added sampling step for pandas df">
-      <created>1725959749300</created>
-      <option name="number" value="00058" />
-      <option name="presentableId" value="LOCAL-00058" />
-      <option name="project" value="LOCAL" />
-      <updated>1725959749300</updated>
-    </task>
-    <task id="LOCAL-00059" summary="ensured x,y,z extraction from las feature file">
-      <created>1725964318541</created>
-      <option name="number" value="00059" />
-      <option name="presentableId" value="LOCAL-00059" />
-      <option name="project" value="LOCAL" />
-      <updated>1725964318541</updated>
-    </task>
-    <task id="LOCAL-00060" summary="added utils to data transforms">
-      <created>1725965222771</created>
-      <option name="number" value="00060" />
-      <option name="presentableId" value="LOCAL-00060" />
-      <option name="project" value="LOCAL" />
-      <updated>1725965222771</updated>
-    </task>
-    <task id="LOCAL-00061" summary="added small checks to pc --&gt; img">
-      <created>1725965265849</created>
-      <option name="number" value="00061" />
-      <option name="presentableId" value="LOCAL-00061" />
-      <option name="project" value="LOCAL" />
-      <updated>1725965265849</updated>
-    </task>
-    <task id="LOCAL-00062" summary="removed full conversion pd dataframe --&gt; numpy, too many problems in scalar array type">
-      <created>1725984926042</created>
-      <option name="number" value="00062" />
-      <option name="presentableId" value="LOCAL-00062" />
-      <option name="project" value="LOCAL" />
-      <updated>1725984926044</updated>
-    </task>
-    <task id="LOCAL-00063" summary="tested point cloud data util without np only with pandas, all working">
-      <created>1725987882078</created>
-      <option name="number" value="00063" />
-      <option name="presentableId" value="LOCAL-00063" />
-      <option name="project" value="LOCAL" />
-      <updated>1725987882078</updated>
-    </task>
-    <task id="LOCAL-00064" summary="numpy --&gt; pandas works waaay better. implemented">
-      <created>1725990083698</created>
-      <option name="number" value="00064" />
-      <option name="presentableId" value="LOCAL-00064" />
-      <option name="project" value="LOCAL" />
-      <updated>1725990083698</updated>
-    </task>
-    <task id="LOCAL-00065" summary="refactoring code for clarity">
-      <created>1726046934084</created>
-      <option name="number" value="00065" />
-      <option name="presentableId" value="LOCAL-00065" />
-      <option name="project" value="LOCAL" />
-      <updated>1726046934084</updated>
-    </task>
-    <task id="LOCAL-00066" summary="now saving feature names in the numpy conversion. tested">
-      <created>1726050602772</created>
-      <option name="number" value="00066" />
-      <option name="presentableId" value="LOCAL-00066" />
-      <option name="project" value="LOCAL" />
-      <updated>1726050602772</updated>
-    </task>
-    <task id="LOCAL-00067" summary="refined pc --&gt; img and tested with a subset of data, working">
-      <created>1726062298339</created>
-      <option name="number" value="00067" />
-      <option name="presentableId" value="LOCAL-00067" />
-      <option name="project" value="LOCAL" />
-      <updated>1726062298344</updated>
-    </task>
-    <task id="LOCAL-00068" summary="implementing visualization of grid and point cloud all together.">
-      <created>1726074473092</created>
-      <option name="number" value="00068" />
-      <option name="presentableId" value="LOCAL-00068" />
-      <option name="project" value="LOCAL" />
-      <updated>1726074473092</updated>
-    </task>
-    <task id="LOCAL-00069" summary="removed unnecessary debugging functions">
-      <created>1726136188238</created>
-      <option name="number" value="00069" />
-      <option name="presentableId" value="LOCAL-00069" />
-      <option name="project" value="LOCAL" />
-      <updated>1726136188238</updated>
-    </task>
-    <task id="LOCAL-00070" summary="deleting unnecessary files">
-      <created>1726145479286</created>
-      <option name="number" value="00070" />
-      <option name="presentableId" value="LOCAL-00070" />
-      <option name="project" value="LOCAL" />
-      <updated>1726145479286</updated>
-    </task>
-    <task id="LOCAL-00071" summary="now channels is a parameter in the models as well">
-      <created>1726145514524</created>
-      <option name="number" value="00071" />
-      <option name="presentableId" value="LOCAL-00071" />
-      <option name="project" value="LOCAL" />
-      <updated>1726145514524</updated>
-    </task>
-    <task id="LOCAL-00072" summary="changed testing in order ot save generated feature imgs">
-      <created>1726145540247</created>
-      <option name="number" value="00072" />
-      <option name="presentableId" value="LOCAL-00072" />
-      <option name="project" value="LOCAL" />
-      <updated>1726145540247</updated>
-    </task>
-    <task id="LOCAL-00073" summary="adding the possibility of saving imgs in functions to avoid errors. removed png from glf storage">
-      <created>1726147361642</created>
-      <option name="number" value="00073" />
-      <option name="presentableId" value="LOCAL-00073" />
-      <option name="project" value="LOCAL" />
-      <updated>1726147361642</updated>
-    </task>
-    <task id="LOCAL-00074" summary="error in imgs generation, fixed by implementing saving in functions">
-      <created>1726147396803</created>
-      <option name="number" value="00074" />
-      <option name="presentableId" value="LOCAL-00074" />
-      <option name="project" value="LOCAL" />
-      <updated>1726147396803</updated>
     </task>
     <task id="LOCAL-00075" summary="generated imgs for testing">
       <created>1726147924242</created>
@@ -405,7 +189,231 @@
       <option name="project" value="LOCAL" />
       <updated>1726761442295</updated>
     </task>
-    <option name="localTasksCounter" value="92" />
+    <task id="LOCAL-00092" summary="implemented reading of segment_id and class labels">
+      <created>1726818923719</created>
+      <option name="number" value="00092" />
+      <option name="presentableId" value="LOCAL-00092" />
+      <option name="project" value="LOCAL" />
+      <updated>1726818923719</updated>
+    </task>
+    <task id="LOCAL-00093" summary="tested reading of segment_id and class labels">
+      <created>1726818934989</created>
+      <option name="number" value="00093" />
+      <option name="presentableId" value="LOCAL-00093" />
+      <option name="project" value="LOCAL" />
+      <updated>1726818934989</updated>
+    </task>
+    <task id="LOCAL-00094" summary="generate_multiscale_grids now returns the grids (optional saving)">
+      <created>1726819175425</created>
+      <option name="number" value="00094" />
+      <option name="presentableId" value="LOCAL-00094" />
+      <option name="project" value="LOCAL" />
+      <updated>1726819175425</updated>
+    </task>
+    <task id="LOCAL-00095" summary="tested new function">
+      <created>1726819200347</created>
+      <option name="number" value="00095" />
+      <option name="presentableId" value="LOCAL-00095" />
+      <option name="project" value="LOCAL" />
+      <updated>1726819200347</updated>
+    </task>
+    <task id="LOCAL-00096" summary="labels are now saved in grids_file names for each point">
+      <created>1726819943445</created>
+      <option name="number" value="00096" />
+      <option name="presentableId" value="LOCAL-00096" />
+      <option name="project" value="LOCAL" />
+      <updated>1726819943445</updated>
+    </task>
+    <task id="LOCAL-00097" summary="refactored utils to create device utils for optimization">
+      <created>1726820394441</created>
+      <option name="number" value="00097" />
+      <option name="presentableId" value="LOCAL-00097" />
+      <option name="project" value="LOCAL" />
+      <updated>1726820394441</updated>
+    </task>
+    <task id="LOCAL-00098" summary="importing smt from device utils">
+      <created>1726820420850</created>
+      <option name="number" value="00098" />
+      <option name="presentableId" value="LOCAL-00098" />
+      <option name="project" value="LOCAL" />
+      <updated>1726820420850</updated>
+    </task>
+    <task id="LOCAL-00099" summary="storing both grids and labels in the same dictionary">
+      <created>1726821116920</created>
+      <option name="number" value="00099" />
+      <option name="presentableId" value="LOCAL-00099" />
+      <option name="project" value="LOCAL" />
+      <updated>1726821116920</updated>
+    </task>
+    <task id="LOCAL-00100" summary="changed dict keys for clarity">
+      <created>1726823619899</created>
+      <option name="number" value="00100" />
+      <option name="presentableId" value="LOCAL-00100" />
+      <option name="project" value="LOCAL" />
+      <updated>1726823619899</updated>
+    </task>
+    <task id="LOCAL-00101" summary="tested multiscale generation and saving with dictionary">
+      <created>1726823639836</created>
+      <option name="number" value="00101" />
+      <option name="presentableId" value="LOCAL-00101" />
+      <option name="project" value="LOCAL" />
+      <updated>1726823639836</updated>
+    </task>
+    <task id="LOCAL-00102" summary="Dataloader with user choice of preprocessing data or use existing data">
+      <created>1726831193304</created>
+      <option name="number" value="00102" />
+      <option name="presentableId" value="LOCAL-00102" />
+      <option name="project" value="LOCAL" />
+      <updated>1726831193304</updated>
+    </task>
+    <task id="LOCAL-00103" summary="Refactoring: now pc--&gt;image is in scripts">
+      <created>1726831231355</created>
+      <option name="number" value="00103" />
+      <option name="presentableId" value="LOCAL-00103" />
+      <option name="project" value="LOCAL" />
+      <updated>1726831231355</updated>
+    </task>
+    <task id="LOCAL-00104" summary="Adding user options for using preprocessed data or process raw data">
+      <created>1726831266816</created>
+      <option name="number" value="00104" />
+      <option name="presentableId" value="LOCAL-00104" />
+      <option name="project" value="LOCAL" />
+      <updated>1726831266816</updated>
+    </task>
+    <task id="LOCAL-00105" summary="corrected printing error">
+      <created>1726831314454</created>
+      <option name="number" value="00105" />
+      <option name="presentableId" value="LOCAL-00105" />
+      <option name="project" value="LOCAL" />
+      <updated>1726831314454</updated>
+    </task>
+    <task id="LOCAL-00106" summary="corrected parser">
+      <created>1726839999475</created>
+      <option name="number" value="00106" />
+      <option name="presentableId" value="LOCAL-00106" />
+      <option name="project" value="LOCAL" />
+      <updated>1726839999475</updated>
+    </task>
+    <task id="LOCAL-00107" summary="added some verbose checks">
+      <created>1726840011950</created>
+      <option name="number" value="00107" />
+      <option name="presentableId" value="LOCAL-00107" />
+      <option name="project" value="LOCAL" />
+      <updated>1726840011950</updated>
+    </task>
+    <task id="LOCAL-00108" summary="splitting the train data into the 3 scales">
+      <created>1726845634480</created>
+      <option name="number" value="00108" />
+      <option name="presentableId" value="LOCAL-00108" />
+      <option name="project" value="LOCAL" />
+      <updated>1726845634480</updated>
+    </task>
+    <task id="LOCAL-00109" summary="dividing dataloader in training and eval">
+      <created>1726846381066</created>
+      <option name="number" value="00109" />
+      <option name="presentableId" value="LOCAL-00109" />
+      <option name="project" value="LOCAL" />
+      <updated>1726846381066</updated>
+    </task>
+    <task id="LOCAL-00110" summary="dataloader has been tested">
+      <created>1726847657852</created>
+      <option name="number" value="00110" />
+      <option name="presentableId" value="LOCAL-00110" />
+      <option name="project" value="LOCAL" />
+      <updated>1726847657852</updated>
+    </task>
+    <task id="LOCAL-00111" summary="now saving grids in different sub folders based on the scale">
+      <created>1726847710101</created>
+      <option name="number" value="00111" />
+      <option name="presentableId" value="LOCAL-00111" />
+      <option name="project" value="LOCAL" />
+      <updated>1726847710101</updated>
+    </task>
+    <task id="LOCAL-00112" summary="wrongly deleted save_model()">
+      <created>1726848194996</created>
+      <option name="number" value="00112" />
+      <option name="presentableId" value="LOCAL-00112" />
+      <option name="project" value="LOCAL" />
+      <updated>1726848194997</updated>
+    </task>
+    <task id="LOCAL-00113" summary="refactored training in order to handle 3 scales for MCNN">
+      <created>1726848212710</created>
+      <option name="number" value="00113" />
+      <option name="presentableId" value="LOCAL-00113" />
+      <option name="project" value="LOCAL" />
+      <updated>1726848212710</updated>
+    </task>
+    <task id="LOCAL-00114" summary="implemented labels remapping (loss fn needs ints and continous)">
+      <created>1726932902192</created>
+      <option name="number" value="00114" />
+      <option name="presentableId" value="LOCAL-00114" />
+      <option name="project" value="LOCAL" />
+      <updated>1726932902192</updated>
+    </task>
+    <task id="LOCAL-00115" summary="correcting file formatting">
+      <created>1726932939868</created>
+      <option name="number" value="00115" />
+      <option name="presentableId" value="LOCAL-00115" />
+      <option name="project" value="LOCAL" />
+      <updated>1726932939868</updated>
+    </task>
+    <task id="LOCAL-00116" summary="classes is now a parameter in the model">
+      <created>1726932956569</created>
+      <option name="number" value="00116" />
+      <option name="presentableId" value="LOCAL-00116" />
+      <option name="project" value="LOCAL" />
+      <updated>1726932956569</updated>
+    </task>
+    <task id="LOCAL-00117" summary="transposing grids to have channels first (Torch standards)">
+      <created>1726932995657</created>
+      <option name="number" value="00117" />
+      <option name="presentableId" value="LOCAL-00117" />
+      <option name="project" value="LOCAL" />
+      <updated>1726932995657</updated>
+    </task>
+    <task id="LOCAL-00118" summary="tested new training pipeline with actual data (not synthetic)">
+      <created>1726933038979</created>
+      <option name="number" value="00118" />
+      <option name="presentableId" value="LOCAL-00118" />
+      <option name="project" value="LOCAL" />
+      <updated>1726933038979</updated>
+    </task>
+    <task id="LOCAL-00119" summary="created inference script">
+      <created>1726936138513</created>
+      <option name="number" value="00119" />
+      <option name="presentableId" value="LOCAL-00119" />
+      <option name="project" value="LOCAL" />
+      <updated>1726936138513</updated>
+    </task>
+    <task id="LOCAL-00120" summary="tested inference script">
+      <created>1726936155325</created>
+      <option name="number" value="00120" />
+      <option name="presentableId" value="LOCAL-00120" />
+      <option name="project" value="LOCAL" />
+      <updated>1726936155325</updated>
+    </task>
+    <task id="LOCAL-00121" summary="working with np arrays instead of lists for efficiency">
+      <created>1726936180202</created>
+      <option name="number" value="00121" />
+      <option name="presentableId" value="LOCAL-00121" />
+      <option name="project" value="LOCAL" />
+      <updated>1726936180202</updated>
+    </task>
+    <task id="LOCAL-00122" summary="updated tests for change lists --&gt; np arrays">
+      <created>1726936198064</created>
+      <option name="number" value="00122" />
+      <option name="presentableId" value="LOCAL-00122" />
+      <option name="project" value="LOCAL" />
+      <updated>1726936198064</updated>
+    </task>
+    <task id="LOCAL-00123" summary="remapping labels before generating grids">
+      <created>1726936364370</created>
+      <option name="number" value="00123" />
+      <option name="presentableId" value="LOCAL-00123" />
+      <option name="project" value="LOCAL" />
+      <updated>1726936364370</updated>
+    </task>
+    <option name="localTasksCounter" value="124" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -420,31 +428,31 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="refactoring code for clarity" />
-    <MESSAGE value="now saving feature names in the numpy conversion. tested" />
-    <MESSAGE value="refined pc --&gt; img and tested with a subset of data, working" />
-    <MESSAGE value="implementing visualization of grid and point cloud all together." />
-    <MESSAGE value="removed unnecessary debugging functions" />
-    <MESSAGE value="deleting unnecessary files" />
-    <MESSAGE value="now channels is a parameter in the models as well" />
-    <MESSAGE value="changed testing in order ot save generated feature imgs" />
-    <MESSAGE value="adding the possibility of saving imgs in functions to avoid errors. removed png from glf storage" />
-    <MESSAGE value="error in imgs generation, fixed by implementing saving in functions" />
-    <MESSAGE value="generated imgs for testing" />
-    <MESSAGE value="refacoring code and uploading segmented files" />
-    <MESSAGE value="refactoring code, cleaned and updated readme file" />
-    <MESSAGE value="cleaned code" />
-    <MESSAGE value="uploading test imgs" />
-    <MESSAGE value="updated readme" />
-    <MESSAGE value="corrected readme structure section" />
-    <MESSAGE value="errors in naming visual comparison, refactored" />
-    <MESSAGE value="now checking for the existence of the save dir before saving" />
-    <MESSAGE value="corrected readme in data folder" />
-    <MESSAGE value="adding grids generation at the 3 different scales" />
-    <MESSAGE value="adding grids generation at the 3 different scales in testing" />
-    <MESSAGE value="adding a script to make an easy test on runtime complexity" />
-    <MESSAGE value="refactoring utils implementing user choice to save or discard the trained model" />
-    <MESSAGE value="implementing user choice to save or discard the trained model" />
-    <option name="LAST_COMMIT_MESSAGE" value="implementing user choice to save or discard the trained model" />
+    <MESSAGE value="storing both grids and labels in the same dictionary" />
+    <MESSAGE value="changed dict keys for clarity" />
+    <MESSAGE value="tested multiscale generation and saving with dictionary" />
+    <MESSAGE value="Dataloader with user choice of preprocessing data or use existing data" />
+    <MESSAGE value="Refactoring: now pc--&gt;image is in scripts" />
+    <MESSAGE value="Adding user options for using preprocessed data or process raw data" />
+    <MESSAGE value="corrected printing error" />
+    <MESSAGE value="corrected parser" />
+    <MESSAGE value="added some verbose checks" />
+    <MESSAGE value="splitting the train data into the 3 scales" />
+    <MESSAGE value="dividing dataloader in training and eval" />
+    <MESSAGE value="dataloader has been tested" />
+    <MESSAGE value="now saving grids in different sub folders based on the scale" />
+    <MESSAGE value="wrongly deleted save_model()" />
+    <MESSAGE value="refactored training in order to handle 3 scales for MCNN" />
+    <MESSAGE value="implemented labels remapping (loss fn needs ints and continous)" />
+    <MESSAGE value="correcting file formatting" />
+    <MESSAGE value="classes is now a parameter in the model" />
+    <MESSAGE value="transposing grids to have channels first (Torch standards)" />
+    <MESSAGE value="tested new training pipeline with actual data (not synthetic)" />
+    <MESSAGE value="created inference script" />
+    <MESSAGE value="tested inference script" />
+    <MESSAGE value="working with np arrays instead of lists for efficiency" />
+    <MESSAGE value="updated tests for change lists --&gt; np arrays" />
+    <MESSAGE value="remapping labels before generating grids" />
+    <option name="LAST_COMMIT_MESSAGE" value="remapping labels before generating grids" />
   </component>
 </project>
