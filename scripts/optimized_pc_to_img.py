@@ -43,8 +43,16 @@ def gpu_assign_features_to_grid(data_array, grid, x_coords, y_coords, channels=3
     # Query KDTree in a batch
     _, idxs = tree.query(flat_coords)
 
+    print("Shape of features:", features.shape)
+    print("Shape of idxs:", idxs.shape)
+    print("Shape of grid before assignment:", grid.shape)
+
     # Assign features to the grid
-    grid[:, flat_indices[0], flat_indices[1]] = features[idxs].T
+    if len(idxs) > 0:
+        grid[:, flat_indices[0], flat_indices[1]] = features[idxs].T
+    else:
+        print("Warning: features[idxs] empty.")
+
 
     return grid
 
