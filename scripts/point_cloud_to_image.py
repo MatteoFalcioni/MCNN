@@ -1,5 +1,5 @@
 from scipy.spatial import KDTree
-from utils.train_data_utils import remap_labels
+from utils.point_cloud_data_utils import remap_labels
 import numpy as np
 import os
 
