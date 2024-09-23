@@ -67,7 +67,7 @@ def main():
     data_array, _ = read_las_file_to_numpy(labeled_filepath)
     # need to remap labels to match the ones in training. Maybe consider remapping already when doing las -> numpy ?
     remapped_array, _ = remap_labels(data_array)
-    sample_array = remapped_array[np.random.choice(data_array.shape[0], 200, replace=False)]
+    sample_array = remapped_array[np.random.choice(remapped_array.shape[0], 200, replace=False)]
     ground_truth_labels = sample_array[:, -1]  # Assuming labels are in the last column
 
     load_model = args.load_model   # load model for inference or train a new one?
