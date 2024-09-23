@@ -7,7 +7,7 @@ from scripts.point_cloud_to_image import generate_multiscale_grids
 from datetime import datetime
 
 
-def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw', grid_save_dir='data/pre_processed_data',
+def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw/labeled_FSL.las', grid_save_dir='data/pre_processed_data',
                        window_sizes=None, grid_resolution=None, channels=None, save_grids=True, train_split=0.8):
     """
         Prepares DataLoader objects for training and evaluation with three grid sizes (small, medium, large) and labels.
@@ -18,7 +18,7 @@ def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw', grid_s
         Args:
         - batch_size (int): Size of the batches for training and evaluation.
         - pre_process_data (bool): Whether to generate new grids from raw data or load pre-saved grids.
-        - data_dir (str): Directory where raw LiDAR data is stored if generating grids. Default is 'data/raw'.
+        - data_dir (str): File path to where raw (labeled) LiDAR data is stored if generating grids. Default is 'data/raw/features_F.las'.
         - grid_save_dir (str): Directory where the generated grids will be stored or loaded from. Default is 'data/pre_processed_data'.
         - window_sizes (list): List of window sizes for grid generation (e.g., [('small', 2.5), ('medium', 5.0), ('large', 10.0)]).
         - grid_resolution (int): Resolution of the grid (e.g., 128x128). Required if generating grids.
@@ -116,36 +116,5 @@ def save_model(model, save_dir='models/saved'):
     print(f'Model saved to {model_save_path}')
 
 
-def remap_labels(data_array, label_column_index=-1):
-    """
-    Automatically remaps the labels in the given data array to a continuous range starting from 0. Needed for
-    training purpose (in order to feed labels as targets to the loss).
-    Stores the mapping for future reference.
-
-    Args:
-    - data_array (np.ndarray): The input data array where the last column (by default) contains the labels.
-    - label_column_index (int): The index of the column containing the labels (default is the last column).
-
-    Returns:
-    - np.ndarray: The data array with the labels remapped.
-    - dict: A dictionary that stores the original to new label mapping.
-    """
-    # Extract the label column
-    labels = data_array[:, label_column_index]
-
-    # Get the unique labels
-    unique_labels = np.unique(labels)
-
-    # Create a mapping from the unique labels to continuous integers
-    label_mapping = {label: idx for idx, label in enumerate(unique_labels)}
-
-    # Apply the mapping to the labels
-    remapped_labels = np.array([label_mapping[label] for label in labels])
-
-    # Replace the original labels in the data array with the remapped labels
-    data_array[:, label_column_index] = remapped_labels
-
-    # Return the remapped data array and the mapping dictionary
-    return data_array, label_mapping
 
 
