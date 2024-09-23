@@ -25,12 +25,12 @@ def gpu_create_feature_grid(center_point, window_size, grid_resolution=128, chan
     return grid, cell_size, x_coords, y_coords
 
 
-def gpu_assign_features_to_grid(data_array, features, grid, x_coords, y_coords, channels=3, device=None):
+def gpu_assign_features_to_grid(batch_data, features, grid, x_coords, y_coords, channels=3, device=None):
     """
     Optimized feature assignment using Torch tensors and KDTree batching.
     Now accepts 'features' as a separate parameter.
     """
-    points = torch.tensor(data_array[:, :2], device=device)  # x, y coordinates in Torch
+    points = batch_data[:, :2]  # x, y coordinates in Torch
 
     num_available_features = features.shape[1]  # Compute how many features are available
     print(f'number of available features: {num_available_features}')
@@ -41,11 +41,16 @@ def gpu_assign_features_to_grid(data_array, features, grid, x_coords, y_coords, 
     print(f"Data points shape: {points.shape}")
     print(f"Features shape: {features.shape}")
 
-    tree = KDTree(points.cpu().numpy())  # Build the KDTree on CPU for now
+    # Only convert to CPU when necessary for KDTree
+    points_cpu = points.cpu().numpy()  # Convert just for KDTree
+    tree = KDTree(points_cpu)
 
     # Iterate over each grid cell in batches
+
+    # following needed for debug, can be removed when all working...
     grid_shape = grid.shape
     batch_indices = np.indices((grid_shape[1], grid_shape[2]))
+    # ...up to here
 
     # Flatten indices to process them in a batch
     flat_indices = batch_indices.reshape(2, -1)
@@ -101,7 +106,8 @@ def batch_process(data_loader, window_sizes, grid_resolution, channels, device, 
                                                                       channels, device)
 
                 # Now pass both batch_data (for coordinates) and features to the assign function
-                grid_with_features = gpu_assign_features_to_grid(batch_data.cpu().numpy(), features.cpu().numpy(), grid, x_coords, y_coords,
+                # Pass the data as is (still on GPU)
+                grid_with_features = gpu_assign_features_to_grid(batch_data, features, grid, x_coords, y_coords,
                                                                  channels, device)
 
                 labeled_grids_dict[size_label]['grids'].append(grid_with_features)
