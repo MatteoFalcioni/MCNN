@@ -2,6 +2,7 @@ import torch
 from scipy.spatial import KDTree
 import numpy as np
 import os
+from torch.utils.data import DataLoader, TensorDataset
 
 
 def gpu_create_feature_grid(center_point, window_size, grid_resolution=128, channels=3, device=None):
@@ -48,44 +49,43 @@ def gpu_assign_features_to_grid(data_array, grid, x_coords, y_coords, channels=3
     return grid
 
 
-def gpu_generate_multiscale_grids(data_array, window_sizes, grid_resolution, channels, device, save_dir=None, save=False):
+def batch_process(data_loader, window_sizes, grid_resolution, channels, device, save_dir=None, save=False):
     """
-    Optimized multiscale grid generation using Torch tensors.
+    Batch processing for GPU-accelerated grid generation.
+    """
+    labeled_grids_dict = {scale_label: {'grids': [], 'class_labels': []} for scale_label, _ in window_sizes}
+
+    for batch_data, batch_labels in data_loader:
+        for i, data_point in enumerate(batch_data):
+            center_point = data_point[:3].to(device)
+            label = batch_labels[i].to(device)
+
+            for size_label, window_size in window_sizes:
+                grid, _, x_coords, y_coords = gpu_create_feature_grid(center_point, window_size, grid_resolution, channels, device)
+                grid_with_features = gpu_assign_features_to_grid(batch_data.cpu().numpy(), grid, x_coords, y_coords, channels, device)
+
+                labeled_grids_dict[size_label]['grids'].append(grid_with_features)
+                labeled_grids_dict[size_label]['class_labels'].append(label)
+
+                if save and save_dir is not None:
+                    grid_with_features_np = grid_with_features.cpu().numpy()
+                    scale_dir = os.path.join(save_dir, size_label)
+                    os.makedirs(scale_dir, exist_ok=True)
+                    grid_filename = os.path.join(scale_dir, f"grid_{i}_{size_label}_class_{int(label)}.npy")
+                    np.save(grid_filename, grid_with_features_np)
+
+    return labeled_grids_dict
+
+
+def gpu_generate_multiscale_grids(data_array, window_sizes, grid_resolution, channels, device, save_dir=None, save=False, batch_size=50, num_workers=4):
+    """
+    Optimized multiscale grid generation using Torch tensors with parallel batching.
     """
     if save_dir is not None:
         os.makedirs(save_dir, exist_ok=True)
 
-    num_points = len(data_array)  # Number of points in the dataset
+    # Convert data_array into a TensorDataset for batching
+    dataset = TensorDataset(torch.tensor(data_array[:, :3]), torch.tensor(data_array[:, -1]))  # Assuming last column is class labels
+    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
-    labeled_grids_dict = {
-        scale_label: {
-            'grids': torch.zeros((num_points, channels, grid_resolution, grid_resolution), device=device),
-            'class_labels': torch.zeros((num_points,), device=device)
-        }
-        for scale_label, _ in window_sizes
-    }
-
-    for i in range(num_points):
-        center_point = torch.tensor(data_array[i, :3], device=device)  # (x, y, z)
-        label = data_array[i, -1]  # Class label
-
-        for size_label, window_size in window_sizes:
-            print(f"Generating {size_label} grid for point {i} with window size {window_size}...")
-
-            grid, _, x_coords, y_coords = gpu_create_feature_grid(center_point, window_size, grid_resolution, channels, device)
-
-            grid_with_features = gpu_assign_features_to_grid(data_array, grid, x_coords, y_coords, channels, device)
-
-            # Store the grid and label
-            labeled_grids_dict[size_label]['grids'][i] = grid_with_features
-            labeled_grids_dict[size_label]['class_labels'][i] = label
-
-            if save and save_dir is not None:
-                grid_with_features_np = grid_with_features.cpu().numpy()  # Move back to CPU for saving
-                scale_dir = os.path.join(save_dir, size_label)
-                os.makedirs(scale_dir, exist_ok=True)
-                grid_filename = os.path.join(scale_dir, f"grid_{i}_{size_label}_class_{int(label)}.npy")
-                np.save(grid_filename, grid_with_features_np)
-                print(f"Saved {size_label} grid for point {i} to {grid_filename}")
-
-    return labeled_grids_dict
+    return batch_process(data_loader, window_sizes, grid_resolution, channels, device, save_dir, save)

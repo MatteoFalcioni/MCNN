@@ -4,8 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="created agnostic environment">
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="wrong file name">
+      <change afterPath="$PROJECT_DIR$/tests/test_optimized_pc_to_img.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/runtime_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/runtime_test.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -61,27 +63,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00091" summary="implementing user choice to save or discard the trained model">
-      <created>1726761442295</created>
-      <option name="number" value="00091" />
-      <option name="presentableId" value="LOCAL-00091" />
-      <option name="project" value="LOCAL" />
-      <updated>1726761442295</updated>
-    </task>
-    <task id="LOCAL-00092" summary="implemented reading of segment_id and class labels">
-      <created>1726818923719</created>
-      <option name="number" value="00092" />
-      <option name="presentableId" value="LOCAL-00092" />
-      <option name="project" value="LOCAL" />
-      <updated>1726818923719</updated>
-    </task>
-    <task id="LOCAL-00093" summary="tested reading of segment_id and class labels">
-      <created>1726818934989</created>
-      <option name="number" value="00093" />
-      <option name="presentableId" value="LOCAL-00093" />
-      <option name="project" value="LOCAL" />
-      <updated>1726818934989</updated>
     </task>
     <task id="LOCAL-00094" summary="generate_multiscale_grids now returns the grids (optional saving)">
       <created>1726819175425</created>
@@ -405,7 +386,28 @@
       <option name="project" value="LOCAL" />
       <updated>1727086683235</updated>
     </task>
-    <option name="localTasksCounter" value="140" />
+    <task id="LOCAL-00140" summary="separated windows and linux envs">
+      <created>1727087099866</created>
+      <option name="number" value="00140" />
+      <option name="presentableId" value="LOCAL-00140" />
+      <option name="project" value="LOCAL" />
+      <updated>1727087099866</updated>
+    </task>
+    <task id="LOCAL-00141" summary="separated windows and linux envs">
+      <created>1727087110214</created>
+      <option name="number" value="00141" />
+      <option name="presentableId" value="LOCAL-00141" />
+      <option name="project" value="LOCAL" />
+      <updated>1727087110214</updated>
+    </task>
+    <task id="LOCAL-00142" summary="wrong file name">
+      <created>1727087181963</created>
+      <option name="number" value="00142" />
+      <option name="presentableId" value="LOCAL-00142" />
+      <option name="project" value="LOCAL" />
+      <updated>1727087181963</updated>
+    </task>
+    <option name="localTasksCounter" value="143" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -420,8 +422,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="correcting file formatting" />
-    <MESSAGE value="classes is now a parameter in the model" />
     <MESSAGE value="transposing grids to have channels first (Torch standards)" />
     <MESSAGE value="tested new training pipeline with actual data (not synthetic)" />
     <MESSAGE value="created inference script" />
@@ -445,6 +445,8 @@
     <MESSAGE value="updated main with inference and loading models" />
     <MESSAGE value="optimized grid creation and feature assginment" />
     <MESSAGE value="created agnostic environment" />
-    <option name="LAST_COMMIT_MESSAGE" value="created agnostic environment" />
+    <MESSAGE value="separated windows and linux envs" />
+    <MESSAGE value="wrong file name" />
+    <option name="LAST_COMMIT_MESSAGE" value="wrong file name" />
   </component>
 </project>
