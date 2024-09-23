@@ -4,16 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="refactoring code for clarity">
-      <change afterPath="$PROJECT_DIR$/scripts/optimized_pc_to_img.py" afterDir="false" />
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="created agnostic environment">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/environment.yml" beforeDir="false" afterPath="$PROJECT_DIR$/environment.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/models/mcnn.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/mcnn.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/inference.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/inference.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/runtime_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/runtime_test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/config_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/config_handler.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,55 +61,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00084" summary="errors in naming visual comparison, refactored">
-      <created>1726758947933</created>
-      <option name="number" value="00084" />
-      <option name="presentableId" value="LOCAL-00084" />
-      <option name="project" value="LOCAL" />
-      <updated>1726758947933</updated>
-    </task>
-    <task id="LOCAL-00085" summary="now checking for the existence of the save dir before saving">
-      <created>1726758973595</created>
-      <option name="number" value="00085" />
-      <option name="presentableId" value="LOCAL-00085" />
-      <option name="project" value="LOCAL" />
-      <updated>1726758973595</updated>
-    </task>
-    <task id="LOCAL-00086" summary="corrected readme in data folder">
-      <created>1726758988193</created>
-      <option name="number" value="00086" />
-      <option name="presentableId" value="LOCAL-00086" />
-      <option name="project" value="LOCAL" />
-      <updated>1726758988193</updated>
-    </task>
-    <task id="LOCAL-00087" summary="adding grids generation at the 3 different scales">
-      <created>1726759014869</created>
-      <option name="number" value="00087" />
-      <option name="presentableId" value="LOCAL-00087" />
-      <option name="project" value="LOCAL" />
-      <updated>1726759014869</updated>
-    </task>
-    <task id="LOCAL-00088" summary="adding grids generation at the 3 different scales in testing">
-      <created>1726759026292</created>
-      <option name="number" value="00088" />
-      <option name="presentableId" value="LOCAL-00088" />
-      <option name="project" value="LOCAL" />
-      <updated>1726759026292</updated>
-    </task>
-    <task id="LOCAL-00089" summary="adding a script to make an easy test on runtime complexity">
-      <created>1726759075543</created>
-      <option name="number" value="00089" />
-      <option name="presentableId" value="LOCAL-00089" />
-      <option name="project" value="LOCAL" />
-      <updated>1726759075543</updated>
-    </task>
-    <task id="LOCAL-00090" summary="refactoring utils implementing user choice to save or discard the trained model">
-      <created>1726761423754</created>
-      <option name="number" value="00090" />
-      <option name="presentableId" value="LOCAL-00090" />
-      <option name="project" value="LOCAL" />
-      <updated>1726761423754</updated>
     </task>
     <task id="LOCAL-00091" summary="implementing user choice to save or discard the trained model">
       <created>1726761442295</created>
@@ -412,7 +356,56 @@
       <option name="project" value="LOCAL" />
       <updated>1727080354842</updated>
     </task>
-    <option name="localTasksCounter" value="133" />
+    <task id="LOCAL-00133" summary="added config param to load model">
+      <created>1727085739948</created>
+      <option name="number" value="00133" />
+      <option name="presentableId" value="LOCAL-00133" />
+      <option name="project" value="LOCAL" />
+      <updated>1727085739948</updated>
+    </task>
+    <task id="LOCAL-00134" summary="updated environment">
+      <created>1727085750692</created>
+      <option name="number" value="00134" />
+      <option name="presentableId" value="LOCAL-00134" />
+      <option name="project" value="LOCAL" />
+      <updated>1727085750692</updated>
+    </task>
+    <task id="LOCAL-00135" summary="replaced view with reshape">
+      <created>1727085866253</created>
+      <option name="number" value="00135" />
+      <option name="presentableId" value="LOCAL-00135" />
+      <option name="project" value="LOCAL" />
+      <updated>1727085866253</updated>
+    </task>
+    <task id="LOCAL-00136" summary="need to permute to have standard torch structure">
+      <created>1727085890996</created>
+      <option name="number" value="00136" />
+      <option name="presentableId" value="LOCAL-00136" />
+      <option name="project" value="LOCAL" />
+      <updated>1727085890996</updated>
+    </task>
+    <task id="LOCAL-00137" summary="updated main with inference and loading models">
+      <created>1727086150352</created>
+      <option name="number" value="00137" />
+      <option name="presentableId" value="LOCAL-00137" />
+      <option name="project" value="LOCAL" />
+      <updated>1727086150352</updated>
+    </task>
+    <task id="LOCAL-00138" summary="optimized grid creation and feature assginment">
+      <created>1727086176953</created>
+      <option name="number" value="00138" />
+      <option name="presentableId" value="LOCAL-00138" />
+      <option name="project" value="LOCAL" />
+      <updated>1727086176953</updated>
+    </task>
+    <task id="LOCAL-00139" summary="created agnostic environment">
+      <created>1727086683235</created>
+      <option name="number" value="00139" />
+      <option name="presentableId" value="LOCAL-00139" />
+      <option name="project" value="LOCAL" />
+      <updated>1727086683235</updated>
+    </task>
+    <option name="localTasksCounter" value="140" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -427,13 +420,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="splitting the train data into the 3 scales" />
-    <MESSAGE value="dividing dataloader in training and eval" />
-    <MESSAGE value="dataloader has been tested" />
-    <MESSAGE value="now saving grids in different sub folders based on the scale" />
-    <MESSAGE value="wrongly deleted save_model()" />
-    <MESSAGE value="refactored training in order to handle 3 scales for MCNN" />
-    <MESSAGE value="implemented labels remapping (loss fn needs ints and continous)" />
     <MESSAGE value="correcting file formatting" />
     <MESSAGE value="classes is now a parameter in the model" />
     <MESSAGE value="transposing grids to have channels first (Torch standards)" />
@@ -452,6 +438,13 @@
     <MESSAGE value="refactored remap_labels in point_cloud_data_utils.py" />
     <MESSAGE value="corrected function description" />
     <MESSAGE value="refactoring code for clarity" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactoring code for clarity" />
+    <MESSAGE value="added config param to load model" />
+    <MESSAGE value="updated environment" />
+    <MESSAGE value="replaced view with reshape" />
+    <MESSAGE value="need to permute to have standard torch structure" />
+    <MESSAGE value="updated main with inference and loading models" />
+    <MESSAGE value="optimized grid creation and feature assginment" />
+    <MESSAGE value="created agnostic environment" />
+    <option name="LAST_COMMIT_MESSAGE" value="created agnostic environment" />
   </component>
 </project>
