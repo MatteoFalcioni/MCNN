@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 import torch.optim as optim
 from models.mcnn import MultiScaleCNN
@@ -6,7 +7,7 @@ from scripts.train import train_epochs
 from scripts.inference import inference
 from utils.config_handler import parse_arguments
 from utils.device_utils import select_device
-from utils.point_cloud_data_utils import read_las_file_to_numpy
+from utils.point_cloud_data_utils import read_las_file_to_numpy, remap_labels
 import numpy as np
 
 
@@ -64,15 +65,29 @@ def main():
     # Run inference on a sample
     print("Starting inference process...")
     data_array, _ = read_las_file_to_numpy(labeled_filepath)
-    sample_array = data_array[np.random.choice(data_array.shape[0], 200, replace=False)]
+    # need to remap labels to match the ones in training. Maybe consider remapping already when doing las -> numpy ?
+    remapped_array, _ = remap_labels(data_array)
+    sample_array = remapped_array[np.random.choice(data_array.shape[0], 200, replace=False)]
+    ground_truth_labels = sample_array[:, -1]  # Assuming labels are in the last column
 
-    predicted_labels = inference(
+    load_model = args.load_model   # load model for inference or train a new one?
+    model_path = args.load_model_filepath
+    if load_model:
+        loaded_model = MultiScaleCNN(channels=10, classes=5).to(device)
+        # Load the saved model state dictionary
+        loaded_model.load_state_dict(torch.load(model_path, map_location=device))
+        model = loaded_model
+        # Set model to evaluation mode (important for inference)
+        model.eval()
+
+    predicted_labels, precision = inference(
         model,
         data_array=sample_array,
         window_sizes=[2.5, 5, 10],
         grid_resolution=128,
         channels=10,
-        device=device
+        device=device,
+        true_labels=ground_truth_labels
     )
 
     print(f"Predicted Labels: {predicted_labels}")
@@ -81,3 +96,7 @@ def main():
 if __name__ == "__main__":
     main()
 
+
+# important: sometimes you use window sizes as list like window_sizes=[2.5, 5, 10], sometimes as tuples like
+# window_sizes = [('small', 2.5), ('medium', 5.0), ('large', 10.0)]). Most importantly, in multiscale_grids and
+# in the dataloader it's  a tuple, while in inference or training it's not. Use same standard for everything.
