@@ -125,3 +125,38 @@ def numpy_to_dataframe(data_array, feature_names=None):
 
     # Convert the numpy array to a pandas DataFrame
     return pd.DataFrame(data_array, columns=feature_names)
+
+
+def remap_labels(data_array, label_column_index=-1):
+    """
+    Automatically remaps the labels in the given data array to a continuous range starting from 0. Needed for
+    training purpose (in order to feed labels as targets to the loss).
+    Stores the mapping for future reference.
+
+    Args:
+    - data_array (np.ndarray): The input data array where the last column (by default) contains the labels.
+    - label_column_index (int): The index of the column containing the labels (default is the last column).
+
+    Returns:
+    - np.ndarray: The data array with the labels remapped.
+    - dict: A dictionary that stores the original to new label mapping.
+    """
+    # Extract the label column
+    labels = data_array[:, label_column_index]
+
+    # Get the unique labels
+    unique_labels = np.unique(labels)
+
+    # Create a mapping from the unique labels to continuous integers
+    label_mapping = {label: idx for idx, label in enumerate(unique_labels)}
+
+    # Apply the mapping to the labels
+    remapped_labels = np.array([label_mapping[label] for label in labels])
+
+    # Replace the original labels in the data array with the remapped labels
+    data_array[:, label_column_index] = remapped_labels
+
+    # Return the remapped data array and the mapping dictionary
+    return data_array, label_mapping
+
+
