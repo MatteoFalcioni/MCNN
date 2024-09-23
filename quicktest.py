@@ -20,7 +20,7 @@ sampled_array = remapped_array[np.random.choice(data_array.shape[0], 10000, repl
 args = parse_arguments()
 
 start_time = time.time()
-generate_multiscale_grids(data_array=remapped_array, window_sizes=args.windows_sizes, grid_resolution=128, channels=10, save_dir='tests/test_grid_gen_onPC', save=True)
+generate_multiscale_grids(data_array=sampled_array, window_sizes=args.windows_sizes, grid_resolution=128, channels=10, save_dir='tests/test_grid_gen_onPC', save=True)
 end_time = time.time()
 print(f"Total time: {end_time - start_time:.2f} seconds")
 
