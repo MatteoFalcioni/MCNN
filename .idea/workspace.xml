@@ -4,10 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="trying to correct errors from tests">
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="corrected train loss output (it was always zero)">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/optimized_pc_to_img.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/optimized_pc_to_img.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/runtime_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/runtime_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/device_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/device_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,13 +64,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00099" summary="storing both grids and labels in the same dictionary">
-      <created>1726821116920</created>
-      <option name="number" value="00099" />
-      <option name="presentableId" value="LOCAL-00099" />
-      <option name="project" value="LOCAL" />
-      <updated>1726821116920</updated>
     </task>
     <task id="LOCAL-00100" summary="changed dict keys for clarity">
       <created>1726823619899</created>
@@ -406,7 +401,14 @@
       <option name="project" value="LOCAL" />
       <updated>1727089966665</updated>
     </task>
-    <option name="localTasksCounter" value="148" />
+    <task id="LOCAL-00148" summary="corrected train loss output (it was always zero)">
+      <created>1727094310392</created>
+      <option name="number" value="00148" />
+      <option name="presentableId" value="LOCAL-00148" />
+      <option name="project" value="LOCAL" />
+      <updated>1727094310392</updated>
+    </task>
+    <option name="localTasksCounter" value="149" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -421,7 +423,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="updated tests for change lists --&gt; np arrays" />
     <MESSAGE value="remapping labels before generating grids" />
     <MESSAGE value="fixeed parameters settings" />
     <MESSAGE value="added windows sizes as parameters" />
@@ -446,6 +447,7 @@
     <MESSAGE value="corrected vriable name mistake" />
     <MESSAGE value="read_las_file to np returns 2 values" />
     <MESSAGE value="trying to correct errors from tests" />
-    <option name="LAST_COMMIT_MESSAGE" value="trying to correct errors from tests" />
+    <MESSAGE value="corrected train loss output (it was always zero)" />
+    <option name="LAST_COMMIT_MESSAGE" value="corrected train loss output (it was always zero)" />
   </component>
 </project>

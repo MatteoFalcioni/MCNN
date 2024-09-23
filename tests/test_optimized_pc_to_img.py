@@ -15,7 +15,7 @@ class TestOptimizedGridGeneration(unittest.TestCase):
         self.sampled_array = self.data_array[np.random.choice(self.data_array.shape[0], 400, replace=False)]
         self.window_sizes = [('small', 2.5), ('medium', 5.0), ('large', 10.0)]
         self.grid_resolution = 128
-        self.channels = 10
+        self.channels = 5
         self.save_dir = 'tests/test_feature_imgs/test_optimized_grids'
         self.save = True
 
