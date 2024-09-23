@@ -4,10 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="fixing unnecessary back and forth between cpu and gpu">
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="adding verbose checks for testing">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/optimized_pc_to_img.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/optimized_pc_to_img.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_optimized_pc_to_img.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_optimized_pc_to_img.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/device_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/device_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -63,13 +62,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00108" summary="splitting the train data into the 3 scales">
-      <created>1726845634480</created>
-      <option name="number" value="00108" />
-      <option name="presentableId" value="LOCAL-00108" />
-      <option name="project" value="LOCAL" />
-      <updated>1726845634480</updated>
     </task>
     <task id="LOCAL-00109" summary="dividing dataloader in training and eval">
       <created>1726846381066</created>
@@ -407,7 +399,14 @@
       <option name="project" value="LOCAL" />
       <updated>1727103153016</updated>
     </task>
-    <option name="localTasksCounter" value="157" />
+    <task id="LOCAL-00157" summary="adding verbose checks for testing">
+      <created>1727103635913</created>
+      <option name="number" value="00157" />
+      <option name="presentableId" value="LOCAL-00157" />
+      <option name="project" value="LOCAL" />
+      <updated>1727103635913</updated>
+    </task>
+    <option name="localTasksCounter" value="158" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -443,10 +442,10 @@
     <MESSAGE value="corrected train loss output (it was always zero)" />
     <MESSAGE value="adding checks to test better the code" />
     <MESSAGE value="trying to use less channels on our test data" />
-    <MESSAGE value="adding verbose checks for testing" />
     <MESSAGE value="more verbose checks on tests" />
     <MESSAGE value="fixed error in optimized grid creation" />
     <MESSAGE value="fixing unnecessary back and forth between cpu and gpu" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixing unnecessary back and forth between cpu and gpu" />
+    <MESSAGE value="adding verbose checks for testing" />
+    <option name="LAST_COMMIT_MESSAGE" value="adding verbose checks for testing" />
   </component>
 </project>

@@ -92,13 +92,14 @@ def batch_process(data_loader, window_sizes, grid_resolution, channels, device, 
     """
     labeled_grids_dict = {scale_label: {'grids': [], 'class_labels': []} for scale_label, _ in window_sizes}
 
-    for batch_idx, (batch_data, batch_features, batch_labels) in enumerate(data_loader):  # Now also handling features
+    for batch_idx, (batch_data, batch_features, batch_labels) in enumerate(data_loader):
         print(f"Processing batch {batch_idx + 1}/{len(data_loader)} with {len(batch_data)} points")
 
-        for i, data_point in enumerate(batch_data):
-            center_point = data_point[:3].to(device)
-            features = batch_features[i].to(device)  # Get the corresponding features
-            label = batch_labels[i].to(device)
+        # Process each point, its features, and its label together
+        for data_point, features, label in zip(batch_data, batch_features, batch_labels):
+            center_point = data_point.to(device)  # data_point has (x, y, z)
+            features = features.to(device)  # Corresponding features
+            label = label.to(device)  # Corresponding label
 
             for size_label, window_size in window_sizes:
                 print(f"Generating {size_label} grid for point {i} with window size {window_size}...")
