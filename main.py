@@ -3,8 +3,11 @@ import torch.optim as optim
 from models.mcnn import MultiScaleCNN
 from utils.train_data_utils import prepare_dataloader
 from scripts.train import train_epochs
+from scripts.inference import inference
 from utils.config_handler import parse_arguments
-from utils.device_utils import select_device, move_to_device
+from utils.device_utils import select_device
+from utils.point_cloud_data_utils import read_las_file_to_numpy
+import numpy as np
 
 
 def main():
@@ -17,13 +20,17 @@ def main():
 
     # Initialize model (always MCNN)
     print("Initializing MultiScaleCNN (MCNN) model...")
-    model = MultiScaleCNN().to(device)
+    model = MultiScaleCNN(channels=10, classes=5).to(device)  # Make sure to set classes correctly
 
     # Prepare DataLoader
-    # Replace with actual sets when data will be available
     print("Preparing data loaders...")
-    train_loader = prepare_dataloader(args.batch_size)
-    val_loader = prepare_dataloader(args.batch_size)
+    labeled_filepath = 'data/raw/labeled_FSL.las'
+    train_loader, val_loader = prepare_dataloader(
+        batch_size=args.batch_size,
+        data_dir=labeled_filepath,
+        pre_process_data=False,
+        train_split=0.8
+    )
 
     # Set up CrossEntropy loss function
     criterion = nn.CrossEntropyLoss()
@@ -32,7 +39,8 @@ def main():
     optimizer = optim.SGD(model.parameters(), lr=args.learning_rate, momentum=args.momentum)
 
     # Learning rate scheduler
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=args.learning_rate_decay_epochs, gamma=args.learning_rate_decay_factor)
+    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=args.learning_rate_decay_epochs,
+                                          gamma=args.learning_rate_decay_factor)
 
     # Start training with early stopping
     print("Starting training process with early stopping...")
@@ -46,11 +54,28 @@ def main():
         args.epochs,
         args.patience,
         device,
-        args.save_dir,
-        args.save
+        save=True,
+        plot_dir='results/plots/',
+        save_dir="models/saved/"
     )
 
-    print("train ended")
+    print("Training finished")
+
+    # Run inference on a sample
+    print("Starting inference process...")
+    data_array, _ = read_las_file_to_numpy(labeled_filepath)
+    sample_array = data_array[np.random.choice(data_array.shape[0], 200, replace=False)]
+
+    predicted_labels = inference(
+        model,
+        data_array=sample_array,
+        window_sizes=[2.5, 5, 10],
+        grid_resolution=128,
+        channels=10,
+        device=device
+    )
+
+    print(f"Predicted Labels: {predicted_labels}")
 
 
 if __name__ == "__main__":
