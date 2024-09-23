@@ -3,6 +3,7 @@ from scipy.spatial import KDTree
 import numpy as np
 import os
 from torch.utils.data import DataLoader, TensorDataset
+from utils.point_cloud_data_utils import remap_labels
 
 
 def gpu_create_feature_grid(center_point, window_size, grid_resolution=128, channels=3, device=None):
@@ -29,7 +30,15 @@ def gpu_assign_features_to_grid(data_array, grid, x_coords, y_coords, channels=3
     Optimized feature assignment using Torch tensors and KDTree batching.
     """
     points = torch.tensor(data_array[:, :2], device=device)  # x, y coordinates in Torch
-    features = torch.tensor(data_array[:, 3:3+channels], device=device)  # Features in Torch
+
+    num_available_features = data_array.shape[1]-3  # compute how many available features are there in the data
+
+    # ensure we only extract up to 'channels' features
+    features = torch.tensor(data_array[:, 3:3 + min(channels, num_available_features)], device=device)  # Features in Torch
+
+    print(f"Data points shape: {points.shape}")
+    print(f"Features shape: {features.shape}")
+
     tree = KDTree(points.cpu().numpy())  # Build the KDTree on CPU for now
 
     # Iterate over each grid cell in batches
@@ -47,12 +56,24 @@ def gpu_assign_features_to_grid(data_array, grid, x_coords, y_coords, channels=3
     print("Shape of idxs:", idxs.shape)
     print("Shape of grid before assignment:", grid.shape)
 
-    # Assign features to the grid
     if len(idxs) > 0:
-        grid[:, flat_indices[0], flat_indices[1]] = features[idxs].T
+        # Check for valid indices
+        valid_idxs = (idxs >= 0) & (idxs < len(features))  # Ensure we aren't indexing out of bounds
+        if not valid_idxs.all():
+            print(f"Warning: Some indices are out of bounds. Valid indices: {valid_idxs.sum()} / {len(idxs)}")
+
+        print(f"Shape of grid before feature assignment: {grid.shape}")
+
+        # Assign features to the grid
+        try:
+            grid[:, flat_indices[0], flat_indices[1]] = features[idxs].T
+        except Exception as e:
+            print(f"Error during feature assignment: {e}")
+            print(f"Features selected: {features[idxs].T}")
+            print(f"Grid shape: {grid.shape}")
+            raise
     else:
         print("Warning: features[idxs] empty.")
-
 
     return grid
 
@@ -63,14 +84,21 @@ def batch_process(data_loader, window_sizes, grid_resolution, channels, device, 
     """
     labeled_grids_dict = {scale_label: {'grids': [], 'class_labels': []} for scale_label, _ in window_sizes}
 
-    for batch_data, batch_labels in data_loader:
+    for batch_idx, (batch_data, batch_labels) in enumerate(data_loader):
+        print(f"Processing batch {batch_idx + 1}/{len(data_loader)} with {len(batch_data)} points")
+
         for i, data_point in enumerate(batch_data):
             center_point = data_point[:3].to(device)
             label = batch_labels[i].to(device)
 
             for size_label, window_size in window_sizes:
-                grid, _, x_coords, y_coords = gpu_create_feature_grid(center_point, window_size, grid_resolution, channels, device)
-                grid_with_features = gpu_assign_features_to_grid(batch_data.cpu().numpy(), grid, x_coords, y_coords, channels, device)
+                print(f"Generating {size_label} grid for point {i} with window size {window_size}...")
+
+                grid, _, x_coords, y_coords = gpu_create_feature_grid(center_point, window_size, grid_resolution,
+                                                                      channels, device)
+
+                grid_with_features = gpu_assign_features_to_grid(batch_data.cpu().numpy(), grid, x_coords, y_coords,
+                                                                 channels, device)
 
                 labeled_grids_dict[size_label]['grids'].append(grid_with_features)
                 labeled_grids_dict[size_label]['class_labels'].append(label)
@@ -81,6 +109,7 @@ def batch_process(data_loader, window_sizes, grid_resolution, channels, device, 
                     os.makedirs(scale_dir, exist_ok=True)
                     grid_filename = os.path.join(scale_dir, f"grid_{i}_{size_label}_class_{int(label)}.npy")
                     np.save(grid_filename, grid_with_features_np)
+                    print(f"Saved {size_label} grid for point {i} to {grid_filename}")
 
     return labeled_grids_dict
 
@@ -91,6 +120,8 @@ def gpu_generate_multiscale_grids(data_array, window_sizes, grid_resolution, cha
     """
     if save_dir is not None:
         os.makedirs(save_dir, exist_ok=True)
+
+    data_array, _ = remap_labels(data_array)
 
     # Convert data_array into a TensorDataset for batching
     dataset = TensorDataset(torch.tensor(data_array[:, :3]), torch.tensor(data_array[:, -1]))  # Assuming last column is class labels
