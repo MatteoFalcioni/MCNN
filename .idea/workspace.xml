@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="wrong file name">
-      <change afterPath="$PROJECT_DIR$/tests/test_optimized_pc_to_img.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="corrected vriable name mistake">
       <change beforePath="$PROJECT_DIR$/tests/runtime_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/runtime_test.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -63,27 +60,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00094" summary="generate_multiscale_grids now returns the grids (optional saving)">
-      <created>1726819175425</created>
-      <option name="number" value="00094" />
-      <option name="presentableId" value="LOCAL-00094" />
-      <option name="project" value="LOCAL" />
-      <updated>1726819175425</updated>
-    </task>
-    <task id="LOCAL-00095" summary="tested new function">
-      <created>1726819200347</created>
-      <option name="number" value="00095" />
-      <option name="presentableId" value="LOCAL-00095" />
-      <option name="project" value="LOCAL" />
-      <updated>1726819200347</updated>
-    </task>
-    <task id="LOCAL-00096" summary="labels are now saved in grids_file names for each point">
-      <created>1726819943445</created>
-      <option name="number" value="00096" />
-      <option name="presentableId" value="LOCAL-00096" />
-      <option name="project" value="LOCAL" />
-      <updated>1726819943445</updated>
     </task>
     <task id="LOCAL-00097" summary="refactored utils to create device utils for optimization">
       <created>1726820394441</created>
@@ -407,7 +383,28 @@
       <option name="project" value="LOCAL" />
       <updated>1727087181963</updated>
     </task>
-    <option name="localTasksCounter" value="143" />
+    <task id="LOCAL-00143" summary="optimizing more grid generation with parallel processing">
+      <created>1727088797870</created>
+      <option name="number" value="00143" />
+      <option name="presentableId" value="LOCAL-00143" />
+      <option name="project" value="LOCAL" />
+      <updated>1727088797870</updated>
+    </task>
+    <task id="LOCAL-00144" summary="testing gpu optimization">
+      <created>1727088811082</created>
+      <option name="number" value="00144" />
+      <option name="presentableId" value="LOCAL-00144" />
+      <option name="project" value="LOCAL" />
+      <updated>1727088811082</updated>
+    </task>
+    <task id="LOCAL-00145" summary="corrected vriable name mistake">
+      <created>1727088826191</created>
+      <option name="number" value="00145" />
+      <option name="presentableId" value="LOCAL-00145" />
+      <option name="project" value="LOCAL" />
+      <updated>1727088826191</updated>
+    </task>
+    <option name="localTasksCounter" value="146" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -422,9 +419,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="transposing grids to have channels first (Torch standards)" />
-    <MESSAGE value="tested new training pipeline with actual data (not synthetic)" />
-    <MESSAGE value="created inference script" />
     <MESSAGE value="tested inference script" />
     <MESSAGE value="working with np arrays instead of lists for efficiency" />
     <MESSAGE value="updated tests for change lists --&gt; np arrays" />
@@ -447,6 +441,9 @@
     <MESSAGE value="created agnostic environment" />
     <MESSAGE value="separated windows and linux envs" />
     <MESSAGE value="wrong file name" />
-    <option name="LAST_COMMIT_MESSAGE" value="wrong file name" />
+    <MESSAGE value="optimizing more grid generation with parallel processing" />
+    <MESSAGE value="testing gpu optimization" />
+    <MESSAGE value="corrected vriable name mistake" />
+    <option name="LAST_COMMIT_MESSAGE" value="corrected vriable name mistake" />
   </component>
 </project>

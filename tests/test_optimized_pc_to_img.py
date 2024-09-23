@@ -11,7 +11,7 @@ class TestOptimizedGridGeneration(unittest.TestCase):
         """ Set up the test with the necessary data """
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.labeled_filepath = 'data/raw/labeled_FSL.las'
-        self.data_array = read_las_file_to_numpy(self.labeled_filepath)
+        self.data_array, _ = read_las_file_to_numpy(self.labeled_filepath)
         self.sampled_array = self.data_array[np.random.choice(self.data_array.shape[0], 400, replace=False)]
         self.window_sizes = [('small', 2.5), ('medium', 5.0), ('large', 10.0)]
         self.grid_resolution = 128
