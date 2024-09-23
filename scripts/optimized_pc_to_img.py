@@ -43,7 +43,7 @@ def gpu_create_feature_grid(center_points, window_size, grid_resolution=128, cha
     return grids, cell_size, x_coords, y_coords
 
 
-def gpu_assign_features_to_grid(batch_data, batch_features, batch_grids, x_coords, y_coords, channels=3, device=None):
+def gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_coords, channels=3, device=None):
     """
     Optimized feature assignment using Torch tensors and KDTree batching.
     Now accepts 'features' and 'grids' in batches.
@@ -73,26 +73,24 @@ def gpu_assign_features_to_grid(batch_data, batch_features, batch_grids, x_coord
     print(f"Data points shape: {points.shape}")
     print(f"Features shape: {batch_features.shape}")
 
-    # Use KDTree to assign features for the entire batch without looping
-    points_cpu = points.cpu().numpy()  # Convert batch to CPU for KDTree
-    tree = KDTree(points_cpu.reshape(-1, 2))  # Flatten batch for KDTree query (all points together)
+    # Use KDTree to assign features based on nearest points for each batch
+    for i in range(batch_size):
+        points_cpu = points[i].cpu().numpy()  # Convert just for KDTree per batch item
+        tree = KDTree(points_cpu)
 
-    # Flatten grid coordinates for KDTree query
-    flat_coords = torch.stack([x_coords, y_coords], dim=2).reshape(batch_size, -1, 2).cpu().numpy()
+        # Flatten grid coordinates for KDTree query
+        flat_coords = torch.stack([x_coords[i], y_coords[i]], dim=1).cpu().numpy()
 
-    # Query KDTree for the closest points for all batches
-    _, idxs = tree.query(flat_coords.reshape(-1, 2))
+        # Query KDTree for the closest points in batch
+        _, idxs = tree.query(flat_coords)
 
-    # Reshape idxs back to batch size for proper assignment
-    idxs = idxs.reshape(batch_size, -1)
+        if len(idxs) > 0:
+            # Assign features from the batch
+            grids[i] = batch_features[i, idxs].T
+        else:
+            print(f"Warning: No features found for batch {i}")
 
-    if len(idxs) > 0:
-        # Assign features for the entire batch using KDTree indices
-        batch_grids = batch_features[:, idxs].transpose(1, 2)
-    else:
-        print("Warning: No features found.")
-
-    return batch_grids
+    return grids
 
 
 def batch_process(data_loader, window_sizes, grid_resolution, channels, device, save_dir=None, save=False):
@@ -116,8 +114,8 @@ def batch_process(data_loader, window_sizes, grid_resolution, channels, device, 
     labeled_grids_dict = {scale_label: {'grids': [], 'class_labels': []} for scale_label, _ in window_sizes}
 
     # Iterate over batches from the data loader
-    for (batch_data, batch_features, batch_labels) in enumerate(data_loader):
-        # print(f"Processing batch {batch_idx + 1}/{len(data_loader)} with {len(batch_data)} points")
+    for batch_idx, (batch_data, batch_features, batch_labels) in enumerate(data_loader):
+        print(f"Processing batch {batch_idx + 1}/{len(data_loader)} with {len(batch_data)} points")
 
         # Move entire batch to the device
         batch_data = batch_data.to(device)
@@ -125,7 +123,7 @@ def batch_process(data_loader, window_sizes, grid_resolution, channels, device, 
         batch_labels = batch_labels.to(device)
 
         for size_label, window_size in window_sizes:
-            # print(f"Generating {size_label} grid for batch {batch_idx} with window size {window_size}...")
+            print(f"Generating {size_label} grid for batch {batch_idx} with window size {window_size}...")
 
             # Create a batch of grids
             grids, _, x_coords, y_coords = gpu_create_feature_grid(batch_data, window_size, grid_resolution,
@@ -138,7 +136,7 @@ def batch_process(data_loader, window_sizes, grid_resolution, channels, device, 
             labeled_grids_dict[size_label]['grids'].append(grids)
             labeled_grids_dict[size_label]['class_labels'].append(batch_labels)
 
-            """# Optionally save the grids to the disk
+            # Optionally save the grids to the disk
             if save and save_dir is not None:
                 for i, grid in enumerate(grids):
                     grid_with_features_np = grid.cpu().numpy()
@@ -147,7 +145,7 @@ def batch_process(data_loader, window_sizes, grid_resolution, channels, device, 
                     grid_filename = os.path.join(scale_dir,
                                                  f"grid_{batch_idx}_{i}_{size_label}_class_{int(batch_labels[i])}.npy")
                     np.save(grid_filename, grid_with_features_np)
-                    print(f"Saved {size_label} grid for batch {batch_idx}, point {i} to {grid_filename}")"""
+                    print(f"Saved {size_label} grid for batch {batch_idx}, point {i} to {grid_filename}")
 
     return labeled_grids_dict
 
@@ -189,5 +187,7 @@ def gpu_generate_multiscale_grids(data_array, window_sizes, grid_resolution, cha
 # in the batch function we select a batch (batch_index). then we pass it to batch feature assignment,
 # but like this we shouldnt expect the tensors
 # to be 3d, because the batch dim is already selected! then either we don loop inside the batch_idx,
-# or we adjust batch feature assignment to work with a selected batch
+# or we adjust batch feature assignment to work wi
+
+# but probably this was a mistake as well. need to go deeper in the process
 
