@@ -4,17 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="remapping labels before generating grids">
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="refactoring code for clarity">
+      <change afterPath="$PROJECT_DIR$/scripts/optimized_pc_to_img.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/config.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/environment.yml" beforeDir="false" afterPath="$PROJECT_DIR$/environment.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/mcnn.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/mcnn.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/inference.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/inference.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/point_cloud_to_image.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/point_cloud_to_image.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/train.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/runtime_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/runtime_test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/config_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/config_handler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/point_cloud_data_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/point_cloud_data_utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/train_data_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/train_data_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,69 +68,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00075" summary="generated imgs for testing">
-      <created>1726147924242</created>
-      <option name="number" value="00075" />
-      <option name="presentableId" value="LOCAL-00075" />
-      <option name="project" value="LOCAL" />
-      <updated>1726147924242</updated>
-    </task>
-    <task id="LOCAL-00076" summary="refacoring code and uploading segmented files">
-      <created>1726496221712</created>
-      <option name="number" value="00076" />
-      <option name="presentableId" value="LOCAL-00076" />
-      <option name="project" value="LOCAL" />
-      <updated>1726496221714</updated>
-    </task>
-    <task id="LOCAL-00077" summary="refactoring code, cleaned and updated readme file">
-      <created>1726498524391</created>
-      <option name="number" value="00077" />
-      <option name="presentableId" value="LOCAL-00077" />
-      <option name="project" value="LOCAL" />
-      <updated>1726498524391</updated>
-    </task>
-    <task id="LOCAL-00078" summary="refactoring code, cleaned and updated readme file">
-      <created>1726498581383</created>
-      <option name="number" value="00078" />
-      <option name="presentableId" value="LOCAL-00078" />
-      <option name="project" value="LOCAL" />
-      <updated>1726498581383</updated>
-    </task>
-    <task id="LOCAL-00079" summary="cleaned code">
-      <created>1726498612546</created>
-      <option name="number" value="00079" />
-      <option name="presentableId" value="LOCAL-00079" />
-      <option name="project" value="LOCAL" />
-      <updated>1726498612546</updated>
-    </task>
-    <task id="LOCAL-00080" summary="updated readme">
-      <created>1726498703829</created>
-      <option name="number" value="00080" />
-      <option name="presentableId" value="LOCAL-00080" />
-      <option name="project" value="LOCAL" />
-      <updated>1726498703829</updated>
-    </task>
-    <task id="LOCAL-00081" summary="uploading test imgs">
-      <created>1726498733959</created>
-      <option name="number" value="00081" />
-      <option name="presentableId" value="LOCAL-00081" />
-      <option name="project" value="LOCAL" />
-      <updated>1726498733959</updated>
-    </task>
-    <task id="LOCAL-00082" summary="updated readme">
-      <created>1726499231019</created>
-      <option name="number" value="00082" />
-      <option name="presentableId" value="LOCAL-00082" />
-      <option name="project" value="LOCAL" />
-      <updated>1726499231019</updated>
-    </task>
-    <task id="LOCAL-00083" summary="corrected readme structure section">
-      <created>1726499334709</created>
-      <option name="number" value="00083" />
-      <option name="presentableId" value="LOCAL-00083" />
-      <option name="project" value="LOCAL" />
-      <updated>1726499334709</updated>
     </task>
     <task id="LOCAL-00084" summary="errors in naming visual comparison, refactored">
       <created>1726758947933</created>
@@ -413,7 +349,70 @@
       <option name="project" value="LOCAL" />
       <updated>1726936364370</updated>
     </task>
-    <option name="localTasksCounter" value="124" />
+    <task id="LOCAL-00124" summary="fixeed parameters settings">
+      <created>1727080183818</created>
+      <option name="number" value="00124" />
+      <option name="presentableId" value="LOCAL-00124" />
+      <option name="project" value="LOCAL" />
+      <updated>1727080183819</updated>
+    </task>
+    <task id="LOCAL-00125" summary="added windows sizes as parameters">
+      <created>1727080197455</created>
+      <option name="number" value="00125" />
+      <option name="presentableId" value="LOCAL-00125" />
+      <option name="project" value="LOCAL" />
+      <updated>1727080197455</updated>
+    </task>
+    <task id="LOCAL-00126" summary="corrected syntax of yaml file">
+      <created>1727080216042</created>
+      <option name="number" value="00126" />
+      <option name="presentableId" value="LOCAL-00126" />
+      <option name="project" value="LOCAL" />
+      <updated>1727080216042</updated>
+    </task>
+    <task id="LOCAL-00127" summary="renamed variables for clarity">
+      <created>1727080234491</created>
+      <option name="number" value="00127" />
+      <option name="presentableId" value="LOCAL-00127" />
+      <option name="project" value="LOCAL" />
+      <updated>1727080234491</updated>
+    </task>
+    <task id="LOCAL-00128" summary="added default for save_dir">
+      <created>1727080264600</created>
+      <option name="number" value="00128" />
+      <option name="presentableId" value="LOCAL-00128" />
+      <option name="project" value="LOCAL" />
+      <updated>1727080264600</updated>
+    </task>
+    <task id="LOCAL-00129" summary="updated imports">
+      <created>1727080284870</created>
+      <option name="number" value="00129" />
+      <option name="presentableId" value="LOCAL-00129" />
+      <option name="project" value="LOCAL" />
+      <updated>1727080284870</updated>
+    </task>
+    <task id="LOCAL-00130" summary="refactored remap_labels in point_cloud_data_utils.py">
+      <created>1727080303650</created>
+      <option name="number" value="00130" />
+      <option name="presentableId" value="LOCAL-00130" />
+      <option name="project" value="LOCAL" />
+      <updated>1727080303650</updated>
+    </task>
+    <task id="LOCAL-00131" summary="corrected function description">
+      <created>1727080341530</created>
+      <option name="number" value="00131" />
+      <option name="presentableId" value="LOCAL-00131" />
+      <option name="project" value="LOCAL" />
+      <updated>1727080341530</updated>
+    </task>
+    <task id="LOCAL-00132" summary="refactoring code for clarity">
+      <created>1727080354842</created>
+      <option name="number" value="00132" />
+      <option name="presentableId" value="LOCAL-00132" />
+      <option name="project" value="LOCAL" />
+      <updated>1727080354842</updated>
+    </task>
+    <option name="localTasksCounter" value="133" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -428,15 +427,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="storing both grids and labels in the same dictionary" />
-    <MESSAGE value="changed dict keys for clarity" />
-    <MESSAGE value="tested multiscale generation and saving with dictionary" />
-    <MESSAGE value="Dataloader with user choice of preprocessing data or use existing data" />
-    <MESSAGE value="Refactoring: now pc--&gt;image is in scripts" />
-    <MESSAGE value="Adding user options for using preprocessed data or process raw data" />
-    <MESSAGE value="corrected printing error" />
-    <MESSAGE value="corrected parser" />
-    <MESSAGE value="added some verbose checks" />
     <MESSAGE value="splitting the train data into the 3 scales" />
     <MESSAGE value="dividing dataloader in training and eval" />
     <MESSAGE value="dataloader has been tested" />
@@ -453,6 +443,15 @@
     <MESSAGE value="working with np arrays instead of lists for efficiency" />
     <MESSAGE value="updated tests for change lists --&gt; np arrays" />
     <MESSAGE value="remapping labels before generating grids" />
-    <option name="LAST_COMMIT_MESSAGE" value="remapping labels before generating grids" />
+    <MESSAGE value="fixeed parameters settings" />
+    <MESSAGE value="added windows sizes as parameters" />
+    <MESSAGE value="corrected syntax of yaml file" />
+    <MESSAGE value="renamed variables for clarity" />
+    <MESSAGE value="added default for save_dir" />
+    <MESSAGE value="updated imports" />
+    <MESSAGE value="refactored remap_labels in point_cloud_data_utils.py" />
+    <MESSAGE value="corrected function description" />
+    <MESSAGE value="refactoring code for clarity" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactoring code for clarity" />
   </component>
 </project>
