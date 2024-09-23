@@ -3,14 +3,14 @@ from scripts.point_cloud_to_image import generate_multiscale_grids
 import numpy as np
 
 
-def inference(model, point_cloud_array, window_sizes, grid_resolution, channels, device):
+def inference(model, data_array, window_sizes, grid_resolution, channels, device):
     """
     Perform inference with the MCNN model, generating grids from an array of point cloud
     points before classification.
 
     Args:
     - model (nn.Module): The trained MCNN model.
-    - point_cloud_array (np.ndarray): The array of points from the point cloud (e.g., [x, y, z, ...]).
+    - data_array (np.ndarray): The array of points from the point cloud (e.g., [x, y, z, ...]).
     - window_sizes (list): List of window sizes for grid generation.
     - grid_resolution (int): Resolution of the grid (e.g., 128x128).
     - channels (int): Number of channels in the grid.
@@ -21,7 +21,7 @@ def inference(model, point_cloud_array, window_sizes, grid_resolution, channels,
     """
     # Generate multiscale grids for the point cloud
     grids_dict = generate_multiscale_grids(
-        data_array=point_cloud_array,
+        data_array=data_array,
         window_sizes=window_sizes,
         grid_resolution=grid_resolution,
         channels=channels,
