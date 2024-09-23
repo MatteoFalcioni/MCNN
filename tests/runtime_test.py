@@ -1,9 +1,10 @@
 import time
 import cProfile
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 import csv
-import os
+from sklearn.linear_model import LinearRegression
 from data.transforms.point_cloud_to_image import generate_grids_for_training
 
 
@@ -61,11 +62,73 @@ def test_total_grid_generation_runtime(num_points_list, window_sizes, grid_resol
     plt.close()
 
 
-# Set of different window sizes to test
+"""# Set of different window sizes to test
 window_sizes = [2.5, 5, 10]
 
 # List of increasing number of points to test
 num_points_list = [50, 100, 200, 300, 500, 1000, 2000]
 
 # Run the profiling and visualize the time
-cProfile.run('test_total_grid_generation_runtime(num_points_list, window_sizes)')
+cProfile.run('test_total_grid_generation_runtime(num_points_list, window_sizes)')"""
+
+
+def fit_and_predict_runtime_from_csv(csv_file, prediction_point=100000):
+    """
+    Fits a linear model to the grid generation runtime data from a CSV file and predicts
+    the runtime for a larger number of points.
+
+    Args:
+    - csv_file (str): Path to the CSV file with point cloud sizes and runtime data.
+    - prediction_point (int): The number of points to predict runtime for.
+
+    Returns:
+    - predicted_time (float): Predicted runtime for the given number of points.
+    """
+    # Load data from the CSV
+
+    num_points_list = []
+    timings = []
+
+    with open(csv_file, mode='r') as file:
+        reader = csv.reader(file)
+        next(reader)  # Skip header
+
+        for row in reader:
+            num_points_list.append(int(row[0]))
+            timings.append(float(row[1]) / 60)  # Convert to minutes
+
+    # Convert lists to numpy arrays for linear regression
+    X = np.array(num_points_list).reshape(-1, 1)
+    y = np.array(timings)
+
+    # Fit a linear regression model
+    model = LinearRegression()
+    model.fit(X, y)
+
+    # Predict the runtime for the given prediction point
+    predicted_time = model.predict(np.array([[prediction_point]]))
+
+    print(f"Predicted runtime for {prediction_point} points: {predicted_time[0]:.2f} minutes")
+
+    # Plot the data and the linear fit
+    plt.figure(figsize=(10, 6))
+    plt.plot(num_points_list, timings, label="Measured Total Time", marker='o')
+    plt.plot([0, prediction_point], model.predict(np.array([[0], [prediction_point]])),
+             label=f"Linear Fit (predicted for {prediction_point} points)", linestyle="--")
+    plt.xlabel('Number of Points')
+    plt.ylabel('Total Time (minutes)')
+    plt.title('Total Grid Generation Time with Linear Fit, on CPU')
+    plt.legend()
+    plt.grid(True)
+
+    plt.savefig('tests/test_runtime/runtime_linear_regression')
+    plt.show()
+    plt.close()
+
+    return predicted_time[0]
+
+
+csv_file_path = 'tests/test_runtime/grid_generation_total_runtime_data.csv'
+predicted_runtime = fit_and_predict_runtime_from_csv(csv_file_path)
+
+
