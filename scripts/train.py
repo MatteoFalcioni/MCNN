@@ -83,7 +83,7 @@ def validate(model, dataloader, criterion, device):
     return val_loss / len(dataloader)
 
 
-def train_epochs(model, train_loader, val_loader, criterion, optimizer, scheduler, epochs, patience, device, save_dir, plot_dir='results/plots/', save=False):
+def train_epochs(model, train_loader, val_loader, criterion, optimizer, scheduler, epochs, patience, device, save_dir='models/saved/', plot_dir='results/plots/', save=False):
     """
     Trains the MCNN model over multiple epochs with early stopping and applies learning rate decay.
     After each epoch, the model is evaluated on a validation set, and training stops if the validation
