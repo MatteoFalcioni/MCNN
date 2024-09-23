@@ -32,6 +32,7 @@ def gpu_assign_features_to_grid(batch_data, features, grid, x_coords, y_coords, 
     """
     points = batch_data[:, :2]  # x, y coordinates in Torch
 
+    print(f"Features shape: {features.shape}")
     num_available_features = features.shape[1]  # Compute how many features are available
     print(f'number of available features: {num_available_features}')
 
@@ -135,7 +136,6 @@ def gpu_generate_multiscale_grids(data_array, window_sizes, grid_resolution, cha
 
     # Include the features along with the coordinates (x, y, z) in the dataset
     dataset = TensorDataset(torch.tensor(data_array[:, :3]), torch.tensor(data_array[:, 3:3 + channels]), torch.tensor(data_array[:, -1]))  # Including class labels as well
-    print(f'data array converted into TensorDataset, printing it: {dataset}')
     data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
     return batch_process(data_loader, window_sizes, grid_resolution, channels, device, save_dir, save)
