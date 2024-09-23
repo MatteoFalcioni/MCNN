@@ -6,137 +6,179 @@ from torch.utils.data import DataLoader, TensorDataset
 from utils.point_cloud_data_utils import remap_labels
 
 
-def gpu_create_feature_grid(center_point, window_size, grid_resolution=128, channels=3, device=None):
+def gpu_create_feature_grid(center_points, window_size, grid_resolution=128, channels=3, device=None):
     """
-    Optimized to work with Torch tensors for GPU acceleration.
+    Optimized to work with a batch of center points for GPU acceleration.
+    Batch version of the grid generation function.
+
+    Arguments:
+    center_points -- A tensor of shape [batch_size, 3] (x, y, z) for each point in the batch.
+    window_size -- Size of the window to create grids.
+    grid_resolution -- Resolution of the grid (default is 128x128).
+    channels -- Number of feature channels in the grid.
+    device -- The device (GPU or CPU) to run this on.
+
+    Returns:
+    grids -- A tensor of shape [batch_size, channels, grid_resolution, grid_resolution]
+    x_coords -- A tensor of shape [batch_size, grid_resolution] representing x coordinates for each grid cell.
+    y_coords -- A tensor of shape [batch_size, grid_resolution] representing y coordinates for each grid cell.
     """
+    batch_size = center_points.shape[0]
+
     # Calculate the size of each cell in meters
     cell_size = window_size / grid_resolution
 
-    # Initialize the grid with zeros using Torch tensors
-    grid = torch.zeros((channels, grid_resolution, grid_resolution), device=device)
+    # Initialize the grids with zeros using Torch tensors (one grid per batch item)
+    grids = torch.zeros((batch_size, channels, grid_resolution, grid_resolution), device=device)
 
-    # Calculate coordinates using Torch tensors
+    # Calculate half the resolution plus 0.5 to center the grid coordinates
     half_resolution_plus_half = (grid_resolution / 2) + 0.5
 
-    x_coords = center_point[0] - (half_resolution_plus_half - torch.arange(grid_resolution, device=device)) * cell_size
-    y_coords = center_point[1] - (half_resolution_plus_half - torch.arange(grid_resolution, device=device)) * cell_size
+    # Create x and y coordinate grids for each point in the batch
+    x_coords = center_points[:, 0].unsqueeze(1) - (
+                half_resolution_plus_half - torch.arange(grid_resolution, device=device).view(1, -1)) * cell_size
+    y_coords = center_points[:, 1].unsqueeze(1) - (
+                half_resolution_plus_half - torch.arange(grid_resolution, device=device).view(1, -1)) * cell_size
 
-    return grid, cell_size, x_coords, y_coords
+    return grids, cell_size, x_coords, y_coords
 
 
-def gpu_assign_features_to_grid(batch_data, features, grid, x_coords, y_coords, channels=3, device=None):
+def gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_coords, channels=3, device=None):
     """
     Optimized feature assignment using Torch tensors and KDTree batching.
-    Now accepts 'features' as a separate parameter.
-    """
-    points = batch_data[:, :2]  # x, y coordinates in Torch
+    Now accepts 'features' and 'grids' in batches.
 
-    print(f"Features shape: {features.shape}")
-    num_available_features = features.shape[1]  # Compute how many features are available
-    print(f'number of available features: {num_available_features}')
+    Arguments:
+    batch_data -- A tensor of shape [batch_size, num_points, 2] representing the point cloud coordinates.
+    batch_features -- A tensor of shape [batch_size, num_points, num_features] representing the features.
+    grids -- A tensor of shape [batch_size, channels, grid_resolution, grid_resolution].
+    x_coords, y_coords -- Grids of coordinates for each grid cell.
+    channels -- Number of feature channels in the grid.
+    device -- The device (GPU or CPU) to run this on.
+
+    Returns:
+    grids -- The updated grids with features assigned based on KDTree.
+    """
+
+    points = batch_data  # x, y coordinates in Torch
+    batch_size = points.shape[0]
+
+    print(f"Batch Features shape: {batch_features.shape}")
+    num_available_features = batch_features.shape[2]  # Compute how many features are available
+    print(f'Number of available features: {num_available_features}')
 
     # Ensure we only extract up to 'channels' features
-    features = features[:, :min(channels, num_available_features)]  # Use passed 'features'
+    batch_features = batch_features[:, :, :min(channels, num_available_features)]
 
     print(f"Data points shape: {points.shape}")
-    print(f"Features shape: {features.shape}")
+    print(f"Features shape: {batch_features.shape}")
 
-    # Only convert to CPU when necessary for KDTree
-    points_cpu = points.cpu().numpy()  # Convert just for KDTree
-    tree = KDTree(points_cpu)
+    # Use KDTree to assign features based on nearest points for each batch
+    for i in range(batch_size):
+        points_cpu = points[i].cpu().numpy()  # Convert just for KDTree per batch item
+        tree = KDTree(points_cpu)
 
-    # Iterate over each grid cell in batches
+        # Flatten grid coordinates for KDTree query
+        flat_coords = torch.stack([x_coords[i], y_coords[i]], dim=1).cpu().numpy()
 
-    # following needed for debug, can be removed when all working...
-    grid_shape = grid.shape
-    batch_indices = np.indices((grid_shape[1], grid_shape[2]))
-    # ...up to here
+        # Query KDTree for the closest points in batch
+        _, idxs = tree.query(flat_coords)
 
-    # Flatten indices to process them in a batch
-    flat_indices = batch_indices.reshape(2, -1)
-    flat_coords = torch.stack([x_coords[flat_indices[0]], y_coords[flat_indices[1]]], dim=1).cpu().numpy()
+        if len(idxs) > 0:
+            # Assign features from the batch
+            grids[i] = batch_features[i, idxs].T
+        else:
+            print(f"Warning: No features found for batch {i}")
 
-    # Query KDTree in a batch
-    _, idxs = tree.query(flat_coords)
-
-    print("Shape of features:", features.shape)
-    print("Shape of idxs:", idxs.shape)
-    print("Shape of grid before assignment:", grid.shape)
-
-    if len(idxs) > 0:
-        # Check for valid indices
-        valid_idxs = (idxs >= 0) & (idxs < len(features))  # Ensure we aren't indexing out of bounds
-        if not valid_idxs.all():
-            print(f"Warning: Some indices are out of bounds. Valid indices: {valid_idxs.sum()} / {len(idxs)}")
-
-        print(f"Shape of grid before feature assignment: {grid.shape}")
-
-        # Assign features to the grid
-        try:
-            grid[:, flat_indices[0], flat_indices[1]] = features[idxs].T
-        except Exception as e:
-            print(f"Error during feature assignment: {e}")
-            print(f"Features selected: {features[idxs].T}")
-            print(f"Grid shape: {grid.shape}")
-            raise
-    else:
-        print("Warning: features[idxs] empty.")
-
-    return grid
+    return grids
 
 
 def batch_process(data_loader, window_sizes, grid_resolution, channels, device, save_dir=None, save=False):
     """
     Batch processing for GPU-accelerated grid generation.
+    Process the entire batch of data and generate grids with features in parallel.
+
+    Arguments:
+    data_loader -- DataLoader containing batches of point clouds, features, and labels.
+    window_sizes -- List of tuples containing the label and window size (e.g., [('small', 10), ('medium', 20)]).
+    grid_resolution -- Resolution of the grid to create (e.g., 128x128).
+    channels -- Number of feature channels.
+    device -- The device (GPU or CPU) to run this on.
+    save_dir -- Directory to save the grids (if required).
+    save -- Boolean flag to control whether to save grids or not.
+
+    Returns:
+    labeled_grids_dict -- A dictionary with grids and class labels for each scale.
     """
+    # Initialize a dictionary to store grids and class labels for each scale
     labeled_grids_dict = {scale_label: {'grids': [], 'class_labels': []} for scale_label, _ in window_sizes}
 
+    # Iterate over batches from the data loader
     for batch_idx, (batch_data, batch_features, batch_labels) in enumerate(data_loader):
         print(f"Processing batch {batch_idx + 1}/{len(data_loader)} with {len(batch_data)} points")
 
-        # Process each point, its features, and its label together
-        for data_point, features, label in zip(batch_data, batch_features, batch_labels):
-            center_point = data_point.to(device)  # data_point has (x, y, z)
-            features = features.to(device)  # Corresponding features
-            label = label.to(device)  # Corresponding label
+        # Move entire batch to the device
+        batch_data = batch_data.to(device)
+        batch_features = batch_features.to(device)
+        batch_labels = batch_labels.to(device)
 
-            for size_label, window_size in window_sizes:
-                print(f"Generating {size_label} grid for point {i} with window size {window_size}...")
+        for size_label, window_size in window_sizes:
+            print(f"Generating {size_label} grid for batch {batch_idx} with window size {window_size}...")
 
-                grid, _, x_coords, y_coords = gpu_create_feature_grid(center_point, window_size, grid_resolution,
-                                                                      channels, device)
+            # Create a batch of grids
+            grids, _, x_coords, y_coords = gpu_create_feature_grid(batch_data, window_size, grid_resolution,
+                                                                   channels, device)
 
-                # Now pass both batch_data (for coordinates) and features to the assign function
-                # Pass the data as is (still on GPU)
-                grid_with_features = gpu_assign_features_to_grid(batch_data, features, grid, x_coords, y_coords,
-                                                                 channels, device)
+            # Assign features for the entire batch to the grids
+            grids = gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_coords, channels, device)
 
-                labeled_grids_dict[size_label]['grids'].append(grid_with_features)
-                labeled_grids_dict[size_label]['class_labels'].append(label)
+            # Store the grids and labels in the dictionary
+            labeled_grids_dict[size_label]['grids'].append(grids)
+            labeled_grids_dict[size_label]['class_labels'].append(batch_labels)
 
-                if save and save_dir is not None:
-                    grid_with_features_np = grid_with_features.cpu().numpy()
+            # Optionally save the grids to the disk
+            if save and save_dir is not None:
+                for i, grid in enumerate(grids):
+                    grid_with_features_np = grid.cpu().numpy()
                     scale_dir = os.path.join(save_dir, size_label)
                     os.makedirs(scale_dir, exist_ok=True)
-                    grid_filename = os.path.join(scale_dir, f"grid_{i}_{size_label}_class_{int(label)}.npy")
+                    grid_filename = os.path.join(scale_dir,
+                                                 f"grid_{batch_idx}_{i}_{size_label}_class_{int(batch_labels[i])}.npy")
                     np.save(grid_filename, grid_with_features_np)
-                    print(f"Saved {size_label} grid for point {i} to {grid_filename}")
+                    print(f"Saved {size_label} grid for batch {batch_idx}, point {i} to {grid_filename}")
 
     return labeled_grids_dict
 
 
-def gpu_generate_multiscale_grids(data_array, window_sizes, grid_resolution, channels, device, save_dir=None, save=False, batch_size=50, num_workers=4):
+def gpu_generate_multiscale_grids(data_array, window_sizes, grid_resolution, channels, device, save_dir=None,
+                                  save=False, batch_size=50, num_workers=4):
     """
     Optimized multiscale grid generation using Torch tensors with parallel batching.
+
+    Arguments:
+    data_array -- Numpy array of data with features and labels.
+    window_sizes -- List of window sizes to generate grids for different scales.
+    grid_resolution -- Resolution of the grid to create (e.g., 128x128).
+    channels -- Number of feature channels.
+    device -- The device (GPU or CPU) to run this on.
+    save_dir -- Directory to save the generated grids (if required).
+    save -- Boolean flag to control whether to save grids or not.
+    batch_size -- Batch size for processing.
+    num_workers -- Number of workers for parallel data loading.
+
+    Returns:
+    labeled_grids_dict -- Dictionary containing multiscale grids and corresponding labels.
     """
     if save_dir is not None:
         os.makedirs(save_dir, exist_ok=True)
 
+    # Remap labels in the data array (if necessary)
     data_array, _ = remap_labels(data_array)
 
     # Include the features along with the coordinates (x, y, z) in the dataset
-    dataset = TensorDataset(torch.tensor(data_array[:, :3]), torch.tensor(data_array[:, 3:3 + channels]), torch.tensor(data_array[:, -1]))  # Including class labels as well
+    dataset = TensorDataset(torch.tensor(data_array[:, :3]), torch.tensor(data_array[:, 3:3 + channels]),
+                            torch.tensor(data_array[:, -1]))  # Including class labels as well
     data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
+    # Process the data in batches
     return batch_process(data_loader, window_sizes, grid_resolution, channels, device, save_dir, save)

@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="adding verbose checks for testing">
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="using sampled array in quicktest">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/optimized_pc_to_img.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/optimized_pc_to_img.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/device_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/device_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -62,34 +63,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00109" summary="dividing dataloader in training and eval">
-      <created>1726846381066</created>
-      <option name="number" value="00109" />
-      <option name="presentableId" value="LOCAL-00109" />
-      <option name="project" value="LOCAL" />
-      <updated>1726846381066</updated>
-    </task>
-    <task id="LOCAL-00110" summary="dataloader has been tested">
-      <created>1726847657852</created>
-      <option name="number" value="00110" />
-      <option name="presentableId" value="LOCAL-00110" />
-      <option name="project" value="LOCAL" />
-      <updated>1726847657852</updated>
-    </task>
-    <task id="LOCAL-00111" summary="now saving grids in different sub folders based on the scale">
-      <created>1726847710101</created>
-      <option name="number" value="00111" />
-      <option name="presentableId" value="LOCAL-00111" />
-      <option name="project" value="LOCAL" />
-      <updated>1726847710101</updated>
-    </task>
-    <task id="LOCAL-00112" summary="wrongly deleted save_model()">
-      <created>1726848194996</created>
-      <option name="number" value="00112" />
-      <option name="presentableId" value="LOCAL-00112" />
-      <option name="project" value="LOCAL" />
-      <updated>1726848194997</updated>
     </task>
     <task id="LOCAL-00113" summary="refactored training in order to handle 3 scales for MCNN">
       <created>1726848212710</created>
@@ -406,7 +379,35 @@
       <option name="project" value="LOCAL" />
       <updated>1727103635913</updated>
     </task>
-    <option name="localTasksCounter" value="158" />
+    <task id="LOCAL-00158" summary="Still fixing loops in optimized version">
+      <created>1727104553665</created>
+      <option name="number" value="00158" />
+      <option name="presentableId" value="LOCAL-00158" />
+      <option name="project" value="LOCAL" />
+      <updated>1727104553665</updated>
+    </task>
+    <task id="LOCAL-00159" summary="small script to test grid generation on cpu">
+      <created>1727105331767</created>
+      <option name="number" value="00159" />
+      <option name="presentableId" value="LOCAL-00159" />
+      <option name="project" value="LOCAL" />
+      <updated>1727105331767</updated>
+    </task>
+    <task id="LOCAL-00160" summary="error in quicktest params">
+      <created>1727105702997</created>
+      <option name="number" value="00160" />
+      <option name="presentableId" value="LOCAL-00160" />
+      <option name="project" value="LOCAL" />
+      <updated>1727105702997</updated>
+    </task>
+    <task id="LOCAL-00161" summary="using sampled array in quicktest">
+      <created>1727105905531</created>
+      <option name="number" value="00161" />
+      <option name="presentableId" value="LOCAL-00161" />
+      <option name="project" value="LOCAL" />
+      <updated>1727105905531</updated>
+    </task>
+    <option name="localTasksCounter" value="162" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -421,10 +422,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="updated imports" />
-    <MESSAGE value="refactored remap_labels in point_cloud_data_utils.py" />
-    <MESSAGE value="corrected function description" />
-    <MESSAGE value="refactoring code for clarity" />
     <MESSAGE value="added config param to load model" />
     <MESSAGE value="updated environment" />
     <MESSAGE value="replaced view with reshape" />
@@ -446,6 +443,10 @@
     <MESSAGE value="fixed error in optimized grid creation" />
     <MESSAGE value="fixing unnecessary back and forth between cpu and gpu" />
     <MESSAGE value="adding verbose checks for testing" />
-    <option name="LAST_COMMIT_MESSAGE" value="adding verbose checks for testing" />
+    <MESSAGE value="Still fixing loops in optimized version" />
+    <MESSAGE value="small script to test grid generation on cpu" />
+    <MESSAGE value="error in quicktest params" />
+    <MESSAGE value="using sampled array in quicktest" />
+    <option name="LAST_COMMIT_MESSAGE" value="using sampled array in quicktest" />
   </component>
 </project>
