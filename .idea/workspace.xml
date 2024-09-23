@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="corrected vriable name mistake">
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="trying to correct errors from tests">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/optimized_pc_to_img.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/optimized_pc_to_img.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/runtime_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/runtime_test.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -60,20 +62,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00097" summary="refactored utils to create device utils for optimization">
-      <created>1726820394441</created>
-      <option name="number" value="00097" />
-      <option name="presentableId" value="LOCAL-00097" />
-      <option name="project" value="LOCAL" />
-      <updated>1726820394441</updated>
-    </task>
-    <task id="LOCAL-00098" summary="importing smt from device utils">
-      <created>1726820420850</created>
-      <option name="number" value="00098" />
-      <option name="presentableId" value="LOCAL-00098" />
-      <option name="project" value="LOCAL" />
-      <updated>1726820420850</updated>
     </task>
     <task id="LOCAL-00099" summary="storing both grids and labels in the same dictionary">
       <created>1726821116920</created>
@@ -404,7 +392,21 @@
       <option name="project" value="LOCAL" />
       <updated>1727088826191</updated>
     </task>
-    <option name="localTasksCounter" value="146" />
+    <task id="LOCAL-00146" summary="read_las_file to np returns 2 values">
+      <created>1727089374860</created>
+      <option name="number" value="00146" />
+      <option name="presentableId" value="LOCAL-00146" />
+      <option name="project" value="LOCAL" />
+      <updated>1727089374860</updated>
+    </task>
+    <task id="LOCAL-00147" summary="trying to correct errors from tests">
+      <created>1727089966665</created>
+      <option name="number" value="00147" />
+      <option name="presentableId" value="LOCAL-00147" />
+      <option name="project" value="LOCAL" />
+      <updated>1727089966665</updated>
+    </task>
+    <option name="localTasksCounter" value="148" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -419,8 +421,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="tested inference script" />
-    <MESSAGE value="working with np arrays instead of lists for efficiency" />
     <MESSAGE value="updated tests for change lists --&gt; np arrays" />
     <MESSAGE value="remapping labels before generating grids" />
     <MESSAGE value="fixeed parameters settings" />
@@ -444,6 +444,8 @@
     <MESSAGE value="optimizing more grid generation with parallel processing" />
     <MESSAGE value="testing gpu optimization" />
     <MESSAGE value="corrected vriable name mistake" />
-    <option name="LAST_COMMIT_MESSAGE" value="corrected vriable name mistake" />
+    <MESSAGE value="read_las_file to np returns 2 values" />
+    <MESSAGE value="trying to correct errors from tests" />
+    <option name="LAST_COMMIT_MESSAGE" value="trying to correct errors from tests" />
   </component>
 </project>

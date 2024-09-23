@@ -4,22 +4,9 @@ from utils.train_data_utils import save_model
 
 
 def train(model, dataloader, criterion, optimizer, device):
-    """
-    Trains the given model for one epoch on the provided DataLoader. It performs a forward pass, computes
-    the loss, performs backpropagation, and updates the model weights.
-
-    Args:
-    - model (nn.Module): The PyTorch model to be trained.
-    - dataloader (DataLoader): DataLoader object containing the training data.
-    - criterion (nn.Module): The loss function to optimize.
-    - optimizer (optim.Optimizer): The optimizer to use for training.
-    - device (torch.device): The device (CPU or GPU) to perform computations on.
-
-    Returns:
-    - float: The average training loss for the epoch.
-    """
     model.train()  # Set model to training mode
-    running_loss = 0.0
+    total_loss = 0.0  # This will accumulate the loss for the entire epoch
+    running_loss = 0.0  # This will be used for logging every 10 batches
     total_batches = len(dataloader)  # Total number of batches
 
     for i, (small_grids, medium_grids, large_grids, labels) in enumerate(dataloader):
@@ -31,7 +18,6 @@ def train(model, dataloader, criterion, optimizer, device):
         optimizer.zero_grad()
 
         # Forward pass
-        # The MCNN takes 3 different inputs for 3 different scales
         outputs = model(small_grids, medium_grids, large_grids)
 
         # Compute loss
@@ -45,13 +31,15 @@ def train(model, dataloader, criterion, optimizer, device):
         loss.backward()
         optimizer.step()
 
-        running_loss += loss.item()
+        total_loss += loss.item()  # Accumulate total loss
+        running_loss += loss.item()  # Accumulate running loss for logging
+
         if i % 10 == 9:  # Print every 10 batches
             print(f'Batch [{i + 1}/{total_batches}], Loss: {running_loss / 10:.4f}')
-            running_loss = 0.0
+            running_loss = 0.0  # Reset running loss after logging
 
     # Return the average loss over the epoch
-    return running_loss / total_batches
+    return total_loss / total_batches
 
 
 def validate(model, dataloader, criterion, device):
