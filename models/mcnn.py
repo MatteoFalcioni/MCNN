@@ -9,7 +9,7 @@ class MultiScaleCNN(nn.Module):
     combines the outputs of three Single-Scale CNNs (SCNN1, SCNN2, SCNN3) and performs
     classification through fully connected layers.
 
-    Architecture Overview:
+    Architecture Overreshape:
     - Inputs: Three n-channel images of size 128x128.
     - Three SCNNs process each input to generate feature maps.
     - Fully connected layers to combine and classify the features from different scales.
@@ -59,9 +59,9 @@ class MultiScaleCNN(nn.Module):
 
         # Need to fuse together the outputs: we flatten + concatenate
         # Flatten the outputs
-        out1 = out1.view(out1.size(0), -1)  # Flatten: (batch_size, 128 * 8 * 8)
-        out2 = out2.view(out2.size(0), -1)  # Flatten: (batch_size, 128 * 8 * 8)
-        out3 = out3.view(out3.size(0), -1)  # Flatten: (batch_size, 128 * 8 * 8)
+        out1 = out1.reshape(out1.size(0), -1)  # Flatten: (batch_size, 128 * 8 * 8)
+        out2 = out2.reshape(out2.size(0), -1)  # Flatten: (batch_size, 128 * 8 * 8)
+        out3 = out3.reshape(out3.size(0), -1)  # Flatten: (batch_size, 128 * 8 * 8)
 
         # Concatenate the flattened outputs
         combined = torch.cat((out1, out2, out3), dim=1)  # Combined: (batch_size, 3 * 128 * 8 * 8)
