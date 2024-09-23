@@ -40,13 +40,16 @@ def parse_arguments():
                         help='Learning rate decay factor')
     parser.add_argument('--momentum', type=float, default=config.get('momentum', 0.9),
                         help='Momentum factor for the optimizer')
-    parser.add_argument('--save_dir', type=str, default=config.get('save_dir', 'models/saved/'),
+    parser.add_argument('--models_save_dir', type=str, default=config.get('save_dir', 'models/saved/'),
                         help='Directory to save trained models')
     parser.add_argument('--preprocess_data', action='store_true', default=config.get('preprocess_data', False),
                         help='If set, preprocess raw data for training; otherwise use existing pre-processed data.')
     parser.add_argument('--save_model', action='store_true', default=config.get('save_model', False),
                         help='If set, save the trained model.')
     parser.add_argument('--preprocessed_data_dir', type=str, default=config.get('preprocessed_data_dir', 'data/pre_processed_data'),
+                        help='directory where pre-processed data for training is stored.')
+    parser.add_argument('--windows_sizes', type=list,
+                        default=config.get('windows_sizes', [('small', 2.5), ('medium', 5.0), ('large', 10.0)]),
                         help='directory where pre-processed data for training is stored.')
 
     # Parsing arguments
