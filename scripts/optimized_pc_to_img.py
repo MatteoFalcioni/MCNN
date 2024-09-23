@@ -25,17 +25,18 @@ def gpu_create_feature_grid(center_point, window_size, grid_resolution=128, chan
     return grid, cell_size, x_coords, y_coords
 
 
-def gpu_assign_features_to_grid(data_array, grid, x_coords, y_coords, channels=3, device=None):
+def gpu_assign_features_to_grid(data_array, features, grid, x_coords, y_coords, channels=3, device=None):
     """
     Optimized feature assignment using Torch tensors and KDTree batching.
+    Now accepts 'features' as a separate parameter.
     """
     points = torch.tensor(data_array[:, :2], device=device)  # x, y coordinates in Torch
 
-    num_available_features = data_array.shape[1]-3  # compute how many available features are there in the data
+    num_available_features = features.shape[1]  # Compute how many features are available
     print(f'number of available features: {num_available_features}')
 
-    # ensure we only extract up to 'channels' features
-    features = torch.tensor(data_array[:, 3:3 + min(channels, num_available_features)], device=device)  # Features in Torch
+    # Ensure we only extract up to 'channels' features
+    features = features[:, :min(channels, num_available_features)]  # Use passed 'features'
 
     print(f"Data points shape: {points.shape}")
     print(f"Features shape: {features.shape}")
@@ -85,11 +86,12 @@ def batch_process(data_loader, window_sizes, grid_resolution, channels, device, 
     """
     labeled_grids_dict = {scale_label: {'grids': [], 'class_labels': []} for scale_label, _ in window_sizes}
 
-    for batch_idx, (batch_data, batch_labels) in enumerate(data_loader):
+    for batch_idx, (batch_data, batch_features, batch_labels) in enumerate(data_loader):  # Now also handling features
         print(f"Processing batch {batch_idx + 1}/{len(data_loader)} with {len(batch_data)} points")
 
         for i, data_point in enumerate(batch_data):
             center_point = data_point[:3].to(device)
+            features = batch_features[i].to(device)  # Get the corresponding features
             label = batch_labels[i].to(device)
 
             for size_label, window_size in window_sizes:
@@ -98,7 +100,8 @@ def batch_process(data_loader, window_sizes, grid_resolution, channels, device, 
                 grid, _, x_coords, y_coords = gpu_create_feature_grid(center_point, window_size, grid_resolution,
                                                                       channels, device)
 
-                grid_with_features = gpu_assign_features_to_grid(batch_data.cpu().numpy(), grid, x_coords, y_coords,
+                # Now pass both batch_data (for coordinates) and features to the assign function
+                grid_with_features = gpu_assign_features_to_grid(batch_data.cpu().numpy(), features.cpu().numpy(), grid, x_coords, y_coords,
                                                                  channels, device)
 
                 labeled_grids_dict[size_label]['grids'].append(grid_with_features)
@@ -124,8 +127,9 @@ def gpu_generate_multiscale_grids(data_array, window_sizes, grid_resolution, cha
 
     data_array, _ = remap_labels(data_array)
 
-    # Convert data_array into a TensorDataset for batching
-    dataset = TensorDataset(torch.tensor(data_array[:, :3]), torch.tensor(data_array[:, -1]))  # Assuming last column is class labels
+    # Include the features along with the coordinates (x, y, z) in the dataset
+    dataset = TensorDataset(torch.tensor(data_array[:, :3]), torch.tensor(data_array[:, 3:3 + channels]), torch.tensor(data_array[:, -1]))  # Including class labels as well
+    print(f'data array converted into TensorDataset, printing it: {dataset}')
     data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
     return batch_process(data_loader, window_sizes, grid_resolution, channels, device, save_dir, save)

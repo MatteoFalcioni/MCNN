@@ -4,11 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="corrected train loss output (it was always zero)">
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="more verbose checks on tests">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/optimized_pc_to_img.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/optimized_pc_to_img.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/runtime_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/runtime_test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/device_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/device_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -64,48 +63,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00100" summary="changed dict keys for clarity">
-      <created>1726823619899</created>
-      <option name="number" value="00100" />
-      <option name="presentableId" value="LOCAL-00100" />
-      <option name="project" value="LOCAL" />
-      <updated>1726823619899</updated>
-    </task>
-    <task id="LOCAL-00101" summary="tested multiscale generation and saving with dictionary">
-      <created>1726823639836</created>
-      <option name="number" value="00101" />
-      <option name="presentableId" value="LOCAL-00101" />
-      <option name="project" value="LOCAL" />
-      <updated>1726823639836</updated>
-    </task>
-    <task id="LOCAL-00102" summary="Dataloader with user choice of preprocessing data or use existing data">
-      <created>1726831193304</created>
-      <option name="number" value="00102" />
-      <option name="presentableId" value="LOCAL-00102" />
-      <option name="project" value="LOCAL" />
-      <updated>1726831193304</updated>
-    </task>
-    <task id="LOCAL-00103" summary="Refactoring: now pc--&gt;image is in scripts">
-      <created>1726831231355</created>
-      <option name="number" value="00103" />
-      <option name="presentableId" value="LOCAL-00103" />
-      <option name="project" value="LOCAL" />
-      <updated>1726831231355</updated>
-    </task>
-    <task id="LOCAL-00104" summary="Adding user options for using preprocessed data or process raw data">
-      <created>1726831266816</created>
-      <option name="number" value="00104" />
-      <option name="presentableId" value="LOCAL-00104" />
-      <option name="project" value="LOCAL" />
-      <updated>1726831266816</updated>
-    </task>
-    <task id="LOCAL-00105" summary="corrected printing error">
-      <created>1726831314454</created>
-      <option name="number" value="00105" />
-      <option name="presentableId" value="LOCAL-00105" />
-      <option name="project" value="LOCAL" />
-      <updated>1726831314454</updated>
     </task>
     <task id="LOCAL-00106" summary="corrected parser">
       <created>1726839999475</created>
@@ -408,7 +365,49 @@
       <option name="project" value="LOCAL" />
       <updated>1727094310392</updated>
     </task>
-    <option name="localTasksCounter" value="149" />
+    <task id="LOCAL-00149" summary="adding checks to test better the code">
+      <created>1727098975505</created>
+      <option name="number" value="00149" />
+      <option name="presentableId" value="LOCAL-00149" />
+      <option name="project" value="LOCAL" />
+      <updated>1727098975505</updated>
+    </task>
+    <task id="LOCAL-00150" summary="trying to use less channels on our test data">
+      <created>1727099321383</created>
+      <option name="number" value="00150" />
+      <option name="presentableId" value="LOCAL-00150" />
+      <option name="project" value="LOCAL" />
+      <updated>1727099321383</updated>
+    </task>
+    <task id="LOCAL-00151" summary="adding verbose checks for testing">
+      <created>1727099559718</created>
+      <option name="number" value="00151" />
+      <option name="presentableId" value="LOCAL-00151" />
+      <option name="project" value="LOCAL" />
+      <updated>1727099559718</updated>
+    </task>
+    <task id="LOCAL-00152" summary="adding verbose checks for testing">
+      <created>1727099728497</created>
+      <option name="number" value="00152" />
+      <option name="presentableId" value="LOCAL-00152" />
+      <option name="project" value="LOCAL" />
+      <updated>1727099728497</updated>
+    </task>
+    <task id="LOCAL-00153" summary="more verbose checks on tests">
+      <created>1727099923274</created>
+      <option name="number" value="00153" />
+      <option name="presentableId" value="LOCAL-00153" />
+      <option name="project" value="LOCAL" />
+      <updated>1727099923274</updated>
+    </task>
+    <task id="LOCAL-00154" summary="more verbose checks on tests">
+      <created>1727101133841</created>
+      <option name="number" value="00154" />
+      <option name="presentableId" value="LOCAL-00154" />
+      <option name="project" value="LOCAL" />
+      <updated>1727101133841</updated>
+    </task>
+    <option name="localTasksCounter" value="155" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -423,10 +422,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="remapping labels before generating grids" />
-    <MESSAGE value="fixeed parameters settings" />
-    <MESSAGE value="added windows sizes as parameters" />
-    <MESSAGE value="corrected syntax of yaml file" />
     <MESSAGE value="renamed variables for clarity" />
     <MESSAGE value="added default for save_dir" />
     <MESSAGE value="updated imports" />
@@ -448,6 +443,10 @@
     <MESSAGE value="read_las_file to np returns 2 values" />
     <MESSAGE value="trying to correct errors from tests" />
     <MESSAGE value="corrected train loss output (it was always zero)" />
-    <option name="LAST_COMMIT_MESSAGE" value="corrected train loss output (it was always zero)" />
+    <MESSAGE value="adding checks to test better the code" />
+    <MESSAGE value="trying to use less channels on our test data" />
+    <MESSAGE value="adding verbose checks for testing" />
+    <MESSAGE value="more verbose checks on tests" />
+    <option name="LAST_COMMIT_MESSAGE" value="more verbose checks on tests" />
   </component>
 </project>
