@@ -6,9 +6,13 @@ learning_rate: 0.01    # Initial learning rate as mentioned in both articles
 learning_rate_decay_factor: 0.0005   # mentioned in first article
 learning_rate_decay_epochs: 1    # not mentioned, so assuming that lr decay is performed through each epoch
 momentum: 0.9    # used in first article
+window_sizes: [('small', 2.5), ('medium', 5.0), ('large', 10.0)]  # window sizes to be used for grids
+
+# User options
 models_save_dir: "models/saved/"      # Model save path base directory
 save_model: false    # whether to save the model or to discard. Default is False, i.e., discard the trained model.
 preprocess_data: false   # whether to preprocess raw data, or to use existing pre-processed data (if False)
 raw_data_dir: "data/raw"   # directory where raw data (to be eventually processed) is stored
-preprocessed_data_dir: "data/pre_processed_data"   # directory where pre-processed data for training is stored.
-window_sizes: [('small', 2.5), ('medium', 5.0), ('large', 10.0)]  # window sizes to be used for grids
+preprocessed_data_dir: "data/pre_processed_data"   # directory where pre-processed data for training is stored (or is to be stored, if generated).
+load_model: false # whether to use an already trained model for inference or not
+load_model_filepath : "models/saved/mcnn_model_20240922_231624.pth" # file path to the model to load for inference

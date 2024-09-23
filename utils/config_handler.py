@@ -51,6 +51,11 @@ def parse_arguments():
     parser.add_argument('--windows_sizes', type=list,
                         default=config.get('windows_sizes', [('small', 2.5), ('medium', 5.0), ('large', 10.0)]),
                         help='directory where pre-processed data for training is stored.')
+    parser.add_argument('--load_model', action='store_true', default=config.get('load_model', False),
+                        help='If set, loads model from load_model_filepath to perform inference')
+    parser.add_argument('--load_model_filepath', type=str,
+                        default=config.get('load_model_filepath', 'models/saved/mcnn_model_20240922_231624.pth'),
+                        help='directory where pre-processed data for training is stored.')
 
     # Parsing arguments
     args = parser.parse_args()
