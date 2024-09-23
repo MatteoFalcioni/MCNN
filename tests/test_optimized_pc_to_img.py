@@ -34,8 +34,9 @@ class TestOptimizedGridGeneration(unittest.TestCase):
         )
 
         # Check that the grids are generated correctly
-        self.assertEqual(len(grids_dict['small']['grids']), 400)
-        self.assertEqual(grids_dict['small']['grids'].shape[1:],
+        total_grids = sum([len(batch) for batch in grids_dict['small']['grids']])
+        self.assertEqual(total_grids, 400)
+        self.assertEqual(grids_dict['small']['grids'][0].shape[1:],
                          (self.channels, self.grid_resolution, self.grid_resolution))
 
     def test_grid_saving(self):
@@ -66,16 +67,16 @@ class TestOptimizedGridGeneration(unittest.TestCase):
         """ Test that the data is processed in batches """
         print("Testing batch processing (parallel)...")
         batch_size = 100
-        for i in range(0, len(self.sampled_array), batch_size):
-            batch = self.sampled_array[i:i + batch_size]
-            grids_dict = gpu_generate_multiscale_grids(
-                data_array=batch,
-                window_sizes=self.window_sizes,
-                grid_resolution=self.grid_resolution,
-                channels=self.channels,
-                device=self.device,
-                save_dir=self.save_dir,
-                save=False
-            )
+        grids_dict = gpu_generate_multiscale_grids(
+            data_array=self.sampled_array,
+            window_sizes=self.window_sizes,
+            grid_resolution=self.grid_resolution,
+            channels=self.channels,
+            device=self.device,
+            save_dir=self.save_dir,
+            save=False,
+            batch_size=batch_size  # Batch size passed here
+        )
 
-            self.assertEqual(len(grids_dict['small']['grids']), min(batch_size, len(self.sampled_array) - i))
+        total_grids = sum([len(batch) for batch in grids_dict['small']['grids']])
+        self.assertEqual(total_grids, 400)

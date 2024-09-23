@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="using sampled array in quicktest">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="Still fixing gpu optimization. now also create festure grid is batch oriented.">
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/optimized_pc_to_img.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/optimized_pc_to_img.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/device_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/device_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -63,13 +61,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00113" summary="refactored training in order to handle 3 scales for MCNN">
-      <created>1726848212710</created>
-      <option name="number" value="00113" />
-      <option name="presentableId" value="LOCAL-00113" />
-      <option name="project" value="LOCAL" />
-      <updated>1726848212710</updated>
     </task>
     <task id="LOCAL-00114" summary="implemented labels remapping (loss fn needs ints and continous)">
       <created>1726932902192</created>
@@ -407,7 +398,14 @@
       <option name="project" value="LOCAL" />
       <updated>1727105905531</updated>
     </task>
-    <option name="localTasksCounter" value="162" />
+    <task id="LOCAL-00162" summary="Still fixing gpu optimization. now also create festure grid is batch oriented.">
+      <created>1727106507466</created>
+      <option name="number" value="00162" />
+      <option name="presentableId" value="LOCAL-00162" />
+      <option name="project" value="LOCAL" />
+      <updated>1727106507466</updated>
+    </task>
+    <option name="localTasksCounter" value="163" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -422,7 +420,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="added config param to load model" />
     <MESSAGE value="updated environment" />
     <MESSAGE value="replaced view with reshape" />
     <MESSAGE value="need to permute to have standard torch structure" />
@@ -447,6 +444,7 @@
     <MESSAGE value="small script to test grid generation on cpu" />
     <MESSAGE value="error in quicktest params" />
     <MESSAGE value="using sampled array in quicktest" />
-    <option name="LAST_COMMIT_MESSAGE" value="using sampled array in quicktest" />
+    <MESSAGE value="Still fixing gpu optimization. now also create festure grid is batch oriented." />
+    <option name="LAST_COMMIT_MESSAGE" value="Still fixing gpu optimization. now also create festure grid is batch oriented." />
   </component>
 </project>
