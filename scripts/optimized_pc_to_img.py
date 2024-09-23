@@ -32,6 +32,7 @@ def gpu_assign_features_to_grid(data_array, grid, x_coords, y_coords, channels=3
     points = torch.tensor(data_array[:, :2], device=device)  # x, y coordinates in Torch
 
     num_available_features = data_array.shape[1]-3  # compute how many available features are there in the data
+    print(f'number of available features: {num_available_features}')
 
     # ensure we only extract up to 'channels' features
     features = torch.tensor(data_array[:, 3:3 + min(channels, num_available_features)], device=device)  # Features in Torch
