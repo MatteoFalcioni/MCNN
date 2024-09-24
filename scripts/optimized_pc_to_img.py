@@ -84,101 +84,29 @@ def gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_c
     return grids
 
 
-def batch_process(data_loader, window_sizes, grid_resolution, channels, device, save_dir=None, save=False):
+def prepare_grids_dataloader(data_array, channels, batch_size, num_workers, device):
     """
-    Batch processing for GPU-accelerated grid generation.
-    Process the entire batch of data and generate grids with features in parallel.
+    Prepares the DataLoader for batching the point cloud data.
 
-    Arguments:
-    data_loader -- DataLoader containing batches of point clouds, features, and labels.
-    window_sizes -- List of tuples containing the label and window size (e.g., [('small', 10), ('medium', 20)]).
-    grid_resolution -- Resolution of the grid to create (e.g., 128x128).
-    channels -- Number of feature channels.
-    device -- The device (GPU or CPU) to run this on.
-    save_dir -- Directory to save the grids (if required).
-    save -- Boolean flag to control whether to save grids or not.
+    Args:
+    - data_array (np.ndarray): The dataset containing (x, y, z) coordinates, features, and class labels.
+    - channels (int): Number of feature channels in the data.
+    - batch_size (int): The number of points to process in each batch.
+    - num_workers (int): Number of workers for data loading.
+    - device (torch.device): The device to move data to (CPU or GPU).
 
     Returns:
-    labeled_grids_dict -- A dictionary with grids and class labels for each scale.
+    - data_loader (DataLoader): A DataLoader that batches the dataset.
     """
-    # Initialize a dictionary to store grids and class labels for each scale
-    labeled_grids_dict = {scale_label: {'grids': [], 'class_labels': []} for scale_label, _ in window_sizes}
+    # Convert the NumPy array to PyTorch tensors
+    dataset = TensorDataset(
+        torch.tensor(data_array[:, :3], device=device),  # (x, y, z) coordinates
+        torch.tensor(data_array[:, 3:3 + channels], device=device),  # Features
+        torch.tensor(data_array[:, -1], device=device)  # Class labels
+    )
 
-    # Iterate over batches from the data loader
-    for batch_idx, (batch_data, batch_features, batch_labels) in enumerate(data_loader):
-        print(f"Processing batch {batch_idx + 1}/{len(data_loader)} with {len(batch_data)} points")
-
-        # Move entire batch to the device
-        batch_data = batch_data.to(device)
-        batch_features = batch_features.to(device)
-        batch_labels = batch_labels.to(device)
-
-        for size_label, window_size in window_sizes:
-            print(f"Generating {size_label} grid for batch {batch_idx} with window size {window_size}...")
-
-            # Create a batch of grids
-            grids, _, x_coords, y_coords = gpu_create_feature_grid(batch_data, window_size, grid_resolution,
-                                                                   channels, device)
-
-            # Assign features for the entire batch to the grids
-            grids = gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_coords, channels, device)
-
-            # Store the grids and labels in the dictionary
-            labeled_grids_dict[size_label]['grids'].append(grids)
-            labeled_grids_dict[size_label]['class_labels'].append(batch_labels)
-
-            # Optionally save the grids to the disk
-            if save and save_dir is not None:
-                for i, grid in enumerate(grids):
-                    grid_with_features_np = grid.cpu().numpy()
-                    scale_dir = os.path.join(save_dir, size_label)
-                    os.makedirs(scale_dir, exist_ok=True)
-                    grid_filename = os.path.join(scale_dir,
-                                                 f"grid_{batch_idx}_{i}_{size_label}_class_{int(batch_labels[i])}.npy")
-                    np.save(grid_filename, grid_with_features_np)
-                    print(f"Saved {size_label} grid for batch {batch_idx}, point {i} to {grid_filename}")
-
-    return labeled_grids_dict
-
-
-def gpu_generate_multiscale_grids(data_array, window_sizes, grid_resolution, channels, device, save_dir=None,
-                                  save=False, batch_size=50, num_workers=4):
-    """
-    Optimized multiscale grid generation using Torch tensors with parallel batching.
-
-    Arguments:
-    data_array -- Numpy array of data with features and labels.
-    window_sizes -- List of window sizes to generate grids for different scales.
-    grid_resolution -- Resolution of the grid to create (e.g., 128x128).
-    channels -- Number of feature channels.
-    device -- The device (GPU or CPU) to run this on.
-    save_dir -- Directory to save the generated grids (if required).
-    save -- Boolean flag to control whether to save grids or not.
-    batch_size -- Batch size for processing.
-    num_workers -- Number of workers for parallel data loading.
-
-    Returns:
-    labeled_grids_dict -- Dictionary containing multiscale grids and corresponding labels.
-    """
-    if save_dir is not None:
-        os.makedirs(save_dir, exist_ok=True)
-
-    # Remap labels in the data array (if necessary)
-    data_array, _ = remap_labels(data_array)
-
-    # Include the features along with the coordinates (x, y, z) in the dataset
-    dataset = TensorDataset(torch.tensor(data_array[:, :3]), torch.tensor(data_array[:, 3:3 + channels]),
-                            torch.tensor(data_array[:, -1]))  # Including class labels as well
+    # Create a DataLoader for batching
     data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
-    # Process the data in batches
-    return batch_process(data_loader, window_sizes, grid_resolution, channels, device, save_dir, save)
-
-
-# in the batch function we select a batch (batch_index). then we pass it to batch feature assignment,
-# but like this we shouldnt expect the tensors
-# to be 3d, because the batch dim is already selected! then either we don loop inside the batch_idx,
-# or we adjust batch feature assignment to work wi
-
-# but probably this was a mistake as well. need to go deeper in the process
+    return data_loader
 

@@ -4,9 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="need to specify gpu index as 0">
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="sizes of tensor not matching">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/optimization_quicktest.py" beforeDir="false" afterPath="$PROJECT_DIR$/optimization_quicktest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/optimized_pc_to_img.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/optimized_pc_to_img.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_optimized_pc_to_img.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_optimized_pc_to_img.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/device_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/device_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -62,13 +65,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00128" summary="added default for save_dir">
-      <created>1727080264600</created>
-      <option name="number" value="00128" />
-      <option name="presentableId" value="LOCAL-00128" />
-      <option name="project" value="LOCAL" />
-      <updated>1727080264600</updated>
     </task>
     <task id="LOCAL-00129" summary="updated imports">
       <created>1727080284870</created>
@@ -406,7 +402,14 @@
       <option name="project" value="LOCAL" />
       <updated>1727165802574</updated>
     </task>
-    <option name="localTasksCounter" value="177" />
+    <task id="LOCAL-00177" summary="sizes of tensor not matching">
+      <created>1727166153716</created>
+      <option name="number" value="00177" />
+      <option name="presentableId" value="LOCAL-00177" />
+      <option name="project" value="LOCAL" />
+      <updated>1727166153716</updated>
+    </task>
+    <option name="localTasksCounter" value="178" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -421,7 +424,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="trying to correct errors from tests" />
     <MESSAGE value="corrected train loss output (it was always zero)" />
     <MESSAGE value="adding checks to test better the code" />
     <MESSAGE value="trying to use less channels on our test data" />
@@ -446,6 +448,7 @@
     <MESSAGE value="issue on gpu index, maybe fixed?" />
     <MESSAGE value="issue on gpu, maybe fixed?" />
     <MESSAGE value="need to specify gpu index as 0" />
-    <option name="LAST_COMMIT_MESSAGE" value="need to specify gpu index as 0" />
+    <MESSAGE value="sizes of tensor not matching" />
+    <option name="LAST_COMMIT_MESSAGE" value="sizes of tensor not matching" />
   </component>
 </project>

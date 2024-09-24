@@ -2,7 +2,7 @@ import unittest
 import torch
 import os
 from utils.point_cloud_data_utils import read_las_file_to_numpy
-from scripts.optimized_pc_to_img import gpu_generate_multiscale_grids, gpu_create_feature_grid, gpu_assign_features_to_grid
+from scripts.optimized_pc_to_img import gpu_create_feature_grid, gpu_assign_features_to_grid, prepare_grids_dataloader
 
 
 class TestGPUGridBatchingFunctions(unittest.TestCase):
@@ -34,6 +34,13 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
             [[0.1, 0.6, 0.2], [0.3, 0.9, 0.5], [0.7, 0.2, 0.4], [0.6, 0.8, 0.1], [0.4, 0.3, 0.9]],
             [[0.2, 0.7, 0.5], [0.9, 0.3, 0.1], [0.8, 0.6, 0.4], [0.3, 0.5, 0.9], [0.6, 0.2, 0.7]]
         ], device=self.device)
+
+        # Example data_array for DataLoader test
+        self.data_array = torch.tensor([
+            [10.0, 10.0, 0.0, 0.5, 0.3, 0.2, 1],
+            [20.0, 20.0, 0.0, 0.7, 0.8, 0.9, 2],
+            [30.0, 30.0, 0.0, 0.2, 0.4, 0.6, 3]
+        ]).numpy()
 
     def test_gpu_create_feature_grid_batch(self):
         """Test that grids are created correctly for a batch of center points."""
@@ -108,3 +115,14 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
             # Compare the assigned features with the manually expected features
             self.assertTrue(torch.allclose(first_grid_cell_features, expected_features),
                             f"Features do not match for batch {batch_idx}, cell [0,0].")
+
+    def test_prepare_grids_dataloader(self):
+        """Test that DataLoader batches the data correctly."""
+        data_loader = prepare_grids_dataloader(self.data_array, self.channels, self.batch_size, num_workers=1,
+                                         device=self.device)
+
+        # Check that the DataLoader is not empty and the batches are of the correct size
+        for batch_idx, (batch_data, batch_features, batch_labels) in enumerate(data_loader):
+            self.assertEqual(batch_data.shape, (self.batch_size, 3))  # (batch_size, 3) for (x, y, z)
+            self.assertEqual(batch_features.shape, (self.batch_size, self.channels))  # (batch_size, channels)
+            self.assertEqual(batch_labels.shape, (self.batch_size,))  # (batch_size,)
