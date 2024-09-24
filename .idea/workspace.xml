@@ -4,12 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="still trying to make optimization work">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="fixed small error in testing">
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/optimization_quicktest.py" beforeDir="false" afterPath="$PROJECT_DIR$/optimization_quicktest.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/optimized_pc_to_img.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/optimized_pc_to_img.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_optimized_pc_to_img.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_optimized_pc_to_img.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/device_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/device_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -65,27 +62,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00118" summary="tested new training pipeline with actual data (not synthetic)">
-      <created>1726933038979</created>
-      <option name="number" value="00118" />
-      <option name="presentableId" value="LOCAL-00118" />
-      <option name="project" value="LOCAL" />
-      <updated>1726933038979</updated>
-    </task>
-    <task id="LOCAL-00119" summary="created inference script">
-      <created>1726936138513</created>
-      <option name="number" value="00119" />
-      <option name="presentableId" value="LOCAL-00119" />
-      <option name="project" value="LOCAL" />
-      <updated>1726936138513</updated>
-    </task>
-    <task id="LOCAL-00120" summary="tested inference script">
-      <created>1726936155325</created>
-      <option name="number" value="00120" />
-      <option name="presentableId" value="LOCAL-00120" />
-      <option name="project" value="LOCAL" />
-      <updated>1726936155325</updated>
     </task>
     <task id="LOCAL-00121" summary="working with np arrays instead of lists for efficiency">
       <created>1726936180202</created>
@@ -409,7 +385,28 @@
       <option name="project" value="LOCAL" />
       <updated>1727109763428</updated>
     </task>
-    <option name="localTasksCounter" value="167" />
+    <task id="LOCAL-00167" summary="re-starting optimization of grid creation">
+      <created>1727163372862</created>
+      <option name="number" value="00167" />
+      <option name="presentableId" value="LOCAL-00167" />
+      <option name="project" value="LOCAL" />
+      <updated>1727163372862</updated>
+    </task>
+    <task id="LOCAL-00168" summary="first tests of new optimization of grid creation">
+      <created>1727163388774</created>
+      <option name="number" value="00168" />
+      <option name="presentableId" value="LOCAL-00168" />
+      <option name="project" value="LOCAL" />
+      <updated>1727163388774</updated>
+    </task>
+    <task id="LOCAL-00169" summary="fixed small error in testing">
+      <created>1727163964700</created>
+      <option name="number" value="00169" />
+      <option name="presentableId" value="LOCAL-00169" />
+      <option name="project" value="LOCAL" />
+      <updated>1727163964700</updated>
+    </task>
+    <option name="localTasksCounter" value="170" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -424,9 +421,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="updated main with inference and loading models" />
-    <MESSAGE value="optimized grid creation and feature assginment" />
-    <MESSAGE value="created agnostic environment" />
     <MESSAGE value="separated windows and linux envs" />
     <MESSAGE value="wrong file name" />
     <MESSAGE value="optimizing more grid generation with parallel processing" />
@@ -449,6 +443,9 @@
     <MESSAGE value="updated testing for batched processes" />
     <MESSAGE value="restructuring again to enphasize batch processing" />
     <MESSAGE value="still trying to make optimization work" />
-    <option name="LAST_COMMIT_MESSAGE" value="still trying to make optimization work" />
+    <MESSAGE value="re-starting optimization of grid creation" />
+    <MESSAGE value="first tests of new optimization of grid creation" />
+    <MESSAGE value="fixed small error in testing" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed small error in testing" />
   </component>
 </project>

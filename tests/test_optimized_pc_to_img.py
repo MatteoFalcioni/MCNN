@@ -70,3 +70,27 @@ class TestGPUGridFunctions(unittest.TestCase):
 
         # Check if the shape remains correct after assignment
         self.assertEqual(updated_grid.shape, (self.grid_resolution, self.grid_resolution, self.channels))
+
+    def test_feature_assignment_accuracy(self):
+        """Test that features are assigned accurately based on nearest points."""
+        grid, _, x_coords, y_coords, _ = gpu_create_feature_grid(
+            self.center_point, self.window_size, self.grid_resolution, self.channels, device=self.device
+        )
+
+        # Manually calculate expected nearest point for a grid cell (for simplicity, pick the first grid cell)
+        expected_nearest_point = self.point_cloud[0,
+                                 3:3 + self.channels]  # Nearest point feature values for (0.5, 0.3, 0.2)
+
+        # Call the feature assignment function
+        updated_grid = gpu_assign_features_to_grid(
+            self.point_cloud, grid, x_coords, y_coords, self.channels, device=self.device
+        )
+
+        # Check if the first grid cell (or any chosen cell) is assigned the correct features from the nearest point
+        # Let's check the feature values in the grid for the first grid cell (top-left corner)
+        first_grid_cell_features = updated_grid[0, 0,
+                                   :].cpu()  # Get feature values for the first grid cell, convert to CPU for comparison
+
+        # Compare the assigned features with the expected features (from the nearest point)
+        self.assertTrue(torch.allclose(first_grid_cell_features, expected_nearest_point.cpu()),
+                        "The assigned features do not match the nearest point's features.")
