@@ -52,6 +52,7 @@ def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw/labeled_
             print("Generating new grids from raw LAS data...")
             data_array = read_las_file_to_numpy(data_dir)
 
+        # label remapping is in the following function
         grids_dict = generate_multiscale_grids(data_array, window_sizes, grid_resolution, channels, grid_save_dir,
                                                save=save_grids)
 
