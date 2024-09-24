@@ -110,7 +110,7 @@ def prepare_grids_dataloader(data_array, channels, batch_size, num_workers, devi
     return data_loader
 
 
-def generate_multiscale_grids(data_loader, window_sizes, grid_resolution, channels, device, save_dir=None, save=False):
+def gpu_generate_multiscale_grids(data_loader, window_sizes, grid_resolution, channels, device, save_dir=None, save=False):
     """
     Generates grids for multiple scales (small, medium, large) for the entire dataset in batches.
 
