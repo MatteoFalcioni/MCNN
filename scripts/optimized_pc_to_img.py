@@ -60,7 +60,7 @@ def gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_c
     - grids (torch.Tensor): The updated grids with features assigned based on nearest points for the entire batch.
     """
     batch_size = batch_data.shape[0]  # Number of points in the batch
-    num_available_features = batch_features.shape[2]  # How many features are available
+    num_available_features = batch_features.shape[1]  # How many features are available
 
     # Ensure we only extract up to 'channels' features
     batch_features = batch_features[:, :, :min(channels, num_available_features)]

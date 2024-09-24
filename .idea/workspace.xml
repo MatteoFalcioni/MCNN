@@ -4,10 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="fetch data from cpu, then use num_workers!=0">
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="error in file import fixed">
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/optimization_quicktest.py" beforeDir="false" afterPath="$PROJECT_DIR$/optimization_quicktest.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_optimized_pc_to_img.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_optimized_pc_to_img.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/device_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/device_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -63,20 +62,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00132" summary="refactoring code for clarity">
-      <created>1727080354842</created>
-      <option name="number" value="00132" />
-      <option name="presentableId" value="LOCAL-00132" />
-      <option name="project" value="LOCAL" />
-      <updated>1727080354842</updated>
-    </task>
-    <task id="LOCAL-00133" summary="added config param to load model">
-      <created>1727085739948</created>
-      <option name="number" value="00133" />
-      <option name="presentableId" value="LOCAL-00133" />
-      <option name="project" value="LOCAL" />
-      <updated>1727085739948</updated>
     </task>
     <task id="LOCAL-00134" summary="updated environment">
       <created>1727085750692</created>
@@ -407,7 +392,21 @@
       <option name="project" value="LOCAL" />
       <updated>1727167075459</updated>
     </task>
-    <option name="localTasksCounter" value="181" />
+    <task id="LOCAL-00181" summary="upgrading multiscale grids to gpu and testing">
+      <created>1727167489717</created>
+      <option name="number" value="00181" />
+      <option name="presentableId" value="LOCAL-00181" />
+      <option name="project" value="LOCAL" />
+      <updated>1727167489717</updated>
+    </task>
+    <task id="LOCAL-00182" summary="error in file import fixed">
+      <created>1727167551158</created>
+      <option name="number" value="00182" />
+      <option name="presentableId" value="LOCAL-00182" />
+      <option name="project" value="LOCAL" />
+      <updated>1727167551158</updated>
+    </task>
+    <option name="localTasksCounter" value="183" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -422,8 +421,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="trying to use less channels on our test data" />
-    <MESSAGE value="more verbose checks on tests" />
     <MESSAGE value="fixed error in optimized grid creation" />
     <MESSAGE value="fixing unnecessary back and forth between cpu and gpu" />
     <MESSAGE value="adding verbose checks for testing" />
@@ -447,6 +444,8 @@
     <MESSAGE value="sizes of tensor not matching" />
     <MESSAGE value="created dataloader for grids, testing it" />
     <MESSAGE value="fetch data from cpu, then use num_workers!=0" />
-    <option name="LAST_COMMIT_MESSAGE" value="fetch data from cpu, then use num_workers!=0" />
+    <MESSAGE value="upgrading multiscale grids to gpu and testing" />
+    <MESSAGE value="error in file import fixed" />
+    <option name="LAST_COMMIT_MESSAGE" value="error in file import fixed" />
   </component>
 </project>
