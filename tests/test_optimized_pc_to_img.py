@@ -18,7 +18,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         self.window_size = 2.5  # Smaller window size
         self.grid_resolution = 128
         self.channels = 3
-        self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
         # Simulated batch point cloud data: [batch_size, num_points, (x, y, z)] + features
         self.batch_data = torch.tensor([
