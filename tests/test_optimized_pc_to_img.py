@@ -14,7 +14,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         # Common parameters for testing
         self.batch_size = 10
         self.grid_resolution = 128
-        self.channels = 3
+        self.channels = 5
         self.window_size = 2.5
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         # Define window sizes for multiscale grid generation
