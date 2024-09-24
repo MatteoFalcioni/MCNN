@@ -42,10 +42,10 @@ def plot_loss(train_losses, val_losses, save_dir='results/plots/'):
 
 def visualize_grid(grid, channel=0, title="Grid Visualization", save=False, file_path=None):
     """
-    Visualizes a specific channel of the grid.
+    Visualizes a specific channel of the grid, which is expected to be in PyTorch format (channels, H, W).
 
     Args:
-    - grid (numpy.ndarray): A 2D grid array with shape (grid_resolution, grid_resolution, channels).
+    - grid (numpy.ndarray): A 3D grid array with shape (channels, grid_resolution, grid_resolution).
     - channel (int): The channel to visualize (default is 0 for the first channel).
     - title (str): Title for the plot.
     - save (bool): If True, saves the plot to a file instead of showing it.
@@ -55,13 +55,13 @@ def visualize_grid(grid, channel=0, title="Grid Visualization", save=False, file
     - None: Displays the plot.
     """
     if grid.ndim != 3:
-        raise ValueError("Grid must be a 3D array with shape (grid_resolution, grid_resolution, channels).")
+        raise ValueError("Grid must be a 3D array with shape (channels, grid_resolution, grid_resolution).")
 
-    if channel >= grid.shape[2]:
-        raise ValueError(f"Channel {channel} is out of bounds for this grid with {grid.shape[2]} channels.")
+    if channel >= grid.shape[0]:
+        raise ValueError(f"Channel {channel} is out of bounds for this grid with {grid.shape[0]} channels.")
 
-    # Extract the specified channel
-    grid_channel = grid[:, :, channel]
+    # Extract the specified channel in the (H, W) format
+    grid_channel = grid[channel, :, :]
 
     # Plotting the grid using a heatmap
     plt.figure(figsize=(8, 8))
@@ -83,7 +83,6 @@ def visualize_grid(grid, channel=0, title="Grid Visualization", save=False, file
         plt.show()
     elif not save:
         plt.show()
-
 
 def visualize_dtm(dtm_data):
     """
