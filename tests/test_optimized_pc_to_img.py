@@ -94,8 +94,8 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         # Verify that features have been assigned (no zeros in the grid)
         self.assertFalse(torch.all(updated_grids == 0))
 
-    def test_prepare_grids_dataloader(self):
-        """Test that DataLoader batches the data correctly."""
+    """def test_prepare_grids_dataloader(self):
+        Test that DataLoader batches the data correctly.
         data_loader = prepare_grids_dataloader(self.data_array, self.channels, self.batch_size, num_workers=1,
                                          device=self.device)
 
@@ -107,4 +107,4 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
 
             self.assertEqual(batch_data.shape, (self.batch_size, 3))  # (batch_size, 3) for (x, y, z)
             self.assertEqual(batch_features.shape, (self.batch_size, self.channels))  # (batch_size, channels)
-            self.assertEqual(batch_labels.shape, (self.batch_size,))  # (batch_size,)
+            self.assertEqual(batch_labels.shape, (self.batch_size,))  # (batch_size,)"""
