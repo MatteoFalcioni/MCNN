@@ -61,6 +61,7 @@ def gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_c
     """
     batch_size = batch_data.shape[0]  # Number of points in the batch
     num_available_features = batch_features.shape[1]  # How many features are available
+    grid_resolution = grids.shape[2]    # will usually be 128
 
     # Ensure we only extract up to 'channels' features
     batch_features = batch_features[:, :min(channels, num_available_features)].to(device)
@@ -80,9 +81,8 @@ def gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_c
 
         # Assign features to the grid for the i-th batch based on the closest points
         for channel in range(channels):
-            # Fetch the features for the closest points and assign them to the grid
-            grids[i, channel, :] = batch_features[closest_points_idx, channel]
-
+            for cell_idx in range(grid_resolution):  # Iterate over each grid cell
+                grids[i, channel, cell_idx] = batch_features[i, closest_points_idx[cell_idx], channel]
     return grids
 
 

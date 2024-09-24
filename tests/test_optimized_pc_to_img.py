@@ -28,7 +28,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         np.random.seed(42)  # For reproducibility
         self.sampled_data = self.full_data[np.random.choice(self.full_data.shape[0], self.sample_size, replace=False)]
         self.sampled_data, _ = remap_labels(self.sampled_data)
-        self.save_dir_real_data = 'tests/test_optimized_grids_real_data'
+        self.save_dir_real_data = 'tests/test_optimized_grids_real_data/'
 
         # Simulated batch of center points (x, y, z)
         self.center_points = torch.tensor([
@@ -210,6 +210,40 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
                     self.assertEqual(loaded_grid.shape, (self.channels, self.grid_resolution, self.grid_resolution),
                                      f"Loaded grid {file} has incorrect shape.")
 
+    def test_assign_features_with_real_data(self):
+        """Test that features are correctly assigned to grids with real data."""
+        # Prepare the DataLoader
+        data_loader = prepare_grids_dataloader(self.sampled_data, self.channels, batch_size=50, num_workers=4)
+
+        # Process the DataLoader batches
+        for batch_idx, (batch_data, batch_features, batch_labels) in enumerate(data_loader):
+            print(f"Processing batch {batch_idx + 1}/{len(data_loader)}...")
+
+            # Move data to the correct device (GPU or CPU)
+            batch_data = batch_data.to(self.device)
+            batch_features = batch_features.to(self.device)
+
+            # Create grids
+            grids, _, x_coords, y_coords = gpu_create_feature_grid(batch_data, self.window_size, self.grid_resolution,
+                                                                   self.channels, self.device)
+
+            # Assign features to the grids
+            updated_grids = gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_coords,
+                                                        self.channels, self.device)
+
+            # Check that features have been assigned (e.g., grid values are not all zeros)
+            self.assertFalse(torch.all(updated_grids == 0),
+                             "Features were not correctly assigned. All grid values are zero.")
+
+            # Check that the grids are not identical (check for variability)
+            grid_differences = torch.mean(updated_grids,
+                                          dim=(2, 3))  # Mean over the height and width to compare channels
+            self.assertFalse(torch.all(grid_differences[0] == grid_differences),
+                             "All grids are identical. No feature variability found.")
+
+            # Optionally, print or log values for further analysis
+            print(f"Feature assignment successful for batch {batch_idx}.")
+
     def test_generate_and_save_multiscale_grids_with_real_data(self):
         """Test multiscale grid generation with a real dataset sample."""
         # Prepare the DataLoader with sampled data
@@ -237,4 +271,6 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
 
                 # Visualize the grid
                 print(f"Visualizing {file}")
-                visualize_grid(loaded_grid, channel=2, title=f"Visualization of {file}", save=False)
+                channel = 2
+                feature_name = self.feature_names[channel]
+                visualize_grid(loaded_grid, channel=2, title=f"Visualization of {file}", save=False, file_path=file)
