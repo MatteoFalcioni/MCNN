@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="corrected wrong shapes: [batch sizes, ...] already selects num_points.">
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="testing saving and loading of optimized grids">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/optimization_quicktest.py" beforeDir="false" afterPath="$PROJECT_DIR$/optimization_quicktest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/point_cloud_to_image.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/point_cloud_to_image.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/test_optimized_pc_to_img.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_optimized_pc_to_img.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/device_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/device_utils.py" afterDir="false" />
     </list>
@@ -63,125 +65,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00137" summary="updated main with inference and loading models">
-      <created>1727086150352</created>
-      <option name="number" value="00137" />
-      <option name="presentableId" value="LOCAL-00137" />
-      <option name="project" value="LOCAL" />
-      <updated>1727086150352</updated>
-    </task>
-    <task id="LOCAL-00138" summary="optimized grid creation and feature assginment">
-      <created>1727086176953</created>
-      <option name="number" value="00138" />
-      <option name="presentableId" value="LOCAL-00138" />
-      <option name="project" value="LOCAL" />
-      <updated>1727086176953</updated>
-    </task>
-    <task id="LOCAL-00139" summary="created agnostic environment">
-      <created>1727086683235</created>
-      <option name="number" value="00139" />
-      <option name="presentableId" value="LOCAL-00139" />
-      <option name="project" value="LOCAL" />
-      <updated>1727086683235</updated>
-    </task>
-    <task id="LOCAL-00140" summary="separated windows and linux envs">
-      <created>1727087099866</created>
-      <option name="number" value="00140" />
-      <option name="presentableId" value="LOCAL-00140" />
-      <option name="project" value="LOCAL" />
-      <updated>1727087099866</updated>
-    </task>
-    <task id="LOCAL-00141" summary="separated windows and linux envs">
-      <created>1727087110214</created>
-      <option name="number" value="00141" />
-      <option name="presentableId" value="LOCAL-00141" />
-      <option name="project" value="LOCAL" />
-      <updated>1727087110214</updated>
-    </task>
-    <task id="LOCAL-00142" summary="wrong file name">
-      <created>1727087181963</created>
-      <option name="number" value="00142" />
-      <option name="presentableId" value="LOCAL-00142" />
-      <option name="project" value="LOCAL" />
-      <updated>1727087181963</updated>
-    </task>
-    <task id="LOCAL-00143" summary="optimizing more grid generation with parallel processing">
-      <created>1727088797870</created>
-      <option name="number" value="00143" />
-      <option name="presentableId" value="LOCAL-00143" />
-      <option name="project" value="LOCAL" />
-      <updated>1727088797870</updated>
-    </task>
-    <task id="LOCAL-00144" summary="testing gpu optimization">
-      <created>1727088811082</created>
-      <option name="number" value="00144" />
-      <option name="presentableId" value="LOCAL-00144" />
-      <option name="project" value="LOCAL" />
-      <updated>1727088811082</updated>
-    </task>
-    <task id="LOCAL-00145" summary="corrected vriable name mistake">
-      <created>1727088826191</created>
-      <option name="number" value="00145" />
-      <option name="presentableId" value="LOCAL-00145" />
-      <option name="project" value="LOCAL" />
-      <updated>1727088826191</updated>
-    </task>
-    <task id="LOCAL-00146" summary="read_las_file to np returns 2 values">
-      <created>1727089374860</created>
-      <option name="number" value="00146" />
-      <option name="presentableId" value="LOCAL-00146" />
-      <option name="project" value="LOCAL" />
-      <updated>1727089374860</updated>
-    </task>
-    <task id="LOCAL-00147" summary="trying to correct errors from tests">
-      <created>1727089966665</created>
-      <option name="number" value="00147" />
-      <option name="presentableId" value="LOCAL-00147" />
-      <option name="project" value="LOCAL" />
-      <updated>1727089966665</updated>
-    </task>
-    <task id="LOCAL-00148" summary="corrected train loss output (it was always zero)">
-      <created>1727094310392</created>
-      <option name="number" value="00148" />
-      <option name="presentableId" value="LOCAL-00148" />
-      <option name="project" value="LOCAL" />
-      <updated>1727094310392</updated>
-    </task>
-    <task id="LOCAL-00149" summary="adding checks to test better the code">
-      <created>1727098975505</created>
-      <option name="number" value="00149" />
-      <option name="presentableId" value="LOCAL-00149" />
-      <option name="project" value="LOCAL" />
-      <updated>1727098975505</updated>
-    </task>
-    <task id="LOCAL-00150" summary="trying to use less channels on our test data">
-      <created>1727099321383</created>
-      <option name="number" value="00150" />
-      <option name="presentableId" value="LOCAL-00150" />
-      <option name="project" value="LOCAL" />
-      <updated>1727099321383</updated>
-    </task>
-    <task id="LOCAL-00151" summary="adding verbose checks for testing">
-      <created>1727099559718</created>
-      <option name="number" value="00151" />
-      <option name="presentableId" value="LOCAL-00151" />
-      <option name="project" value="LOCAL" />
-      <updated>1727099559718</updated>
-    </task>
-    <task id="LOCAL-00152" summary="adding verbose checks for testing">
-      <created>1727099728497</created>
-      <option name="number" value="00152" />
-      <option name="presentableId" value="LOCAL-00152" />
-      <option name="project" value="LOCAL" />
-      <updated>1727099728497</updated>
-    </task>
-    <task id="LOCAL-00153" summary="more verbose checks on tests">
-      <created>1727099923274</created>
-      <option name="number" value="00153" />
-      <option name="presentableId" value="LOCAL-00153" />
-      <option name="project" value="LOCAL" />
-      <updated>1727099923274</updated>
     </task>
     <task id="LOCAL-00154" summary="more verbose checks on tests">
       <created>1727101133841</created>
@@ -407,7 +290,126 @@
       <option name="project" value="LOCAL" />
       <updated>1727169801513</updated>
     </task>
-    <option name="localTasksCounter" value="186" />
+    <task id="LOCAL-00186" summary="corrected shapes in testing.">
+      <created>1727170222476</created>
+      <option name="number" value="00186" />
+      <option name="presentableId" value="LOCAL-00186" />
+      <option name="project" value="LOCAL" />
+      <updated>1727170222476</updated>
+    </task>
+    <task id="LOCAL-00187" summary="corrected shapes in testing.">
+      <created>1727170323271</created>
+      <option name="number" value="00187" />
+      <option name="presentableId" value="LOCAL-00187" />
+      <option name="project" value="LOCAL" />
+      <updated>1727170323271</updated>
+    </task>
+    <task id="LOCAL-00188" summary="corrected to_device missing">
+      <created>1727170430927</created>
+      <option name="number" value="00188" />
+      <option name="presentableId" value="LOCAL-00188" />
+      <option name="project" value="LOCAL" />
+      <updated>1727170430927</updated>
+    </task>
+    <task id="LOCAL-00189" summary="corrected to_device missing">
+      <created>1727170507924</created>
+      <option name="number" value="00189" />
+      <option name="presentableId" value="LOCAL-00189" />
+      <option name="project" value="LOCAL" />
+      <updated>1727170507924</updated>
+    </task>
+    <task id="LOCAL-00190" summary="updating dataloader tests">
+      <created>1727171480252</created>
+      <option name="number" value="00190" />
+      <option name="presentableId" value="LOCAL-00190" />
+      <option name="project" value="LOCAL" />
+      <updated>1727171480252</updated>
+    </task>
+    <task id="LOCAL-00191" summary="testing grids dataloader">
+      <created>1727171865596</created>
+      <option name="number" value="00191" />
+      <option name="presentableId" value="LOCAL-00191" />
+      <option name="project" value="LOCAL" />
+      <updated>1727171865596</updated>
+    </task>
+    <task id="LOCAL-00192" summary="removed device from dataloader (torch standards)">
+      <created>1727171921015</created>
+      <option name="number" value="00192" />
+      <option name="presentableId" value="LOCAL-00192" />
+      <option name="project" value="LOCAL" />
+      <updated>1727171921015</updated>
+    </task>
+    <task id="LOCAL-00193" summary="wrong call to shape(), just use .shape">
+      <created>1727172008623</created>
+      <option name="number" value="00193" />
+      <option name="presentableId" value="LOCAL-00193" />
+      <option name="project" value="LOCAL" />
+      <updated>1727172008623</updated>
+    </task>
+    <task id="LOCAL-00194" summary="correct shape for scalars is (..., )">
+      <created>1727172074974</created>
+      <option name="number" value="00194" />
+      <option name="presentableId" value="LOCAL-00194" />
+      <option name="project" value="LOCAL" />
+      <updated>1727172074974</updated>
+    </task>
+    <task id="LOCAL-00195" summary="corrected to(device) method">
+      <created>1727172189044</created>
+      <option name="number" value="00195" />
+      <option name="presentableId" value="LOCAL-00195" />
+      <option name="project" value="LOCAL" />
+      <updated>1727172189044</updated>
+    </task>
+    <task id="LOCAL-00196" summary="forgot to call .device">
+      <created>1727172297368</created>
+      <option name="number" value="00196" />
+      <option name="presentableId" value="LOCAL-00196" />
+      <option name="project" value="LOCAL" />
+      <updated>1727172297368</updated>
+    </task>
+    <task id="LOCAL-00197" summary="added saving back into multiscale grids">
+      <created>1727173037893</created>
+      <option name="number" value="00197" />
+      <option name="presentableId" value="LOCAL-00197" />
+      <option name="project" value="LOCAL" />
+      <updated>1727173037893</updated>
+    </task>
+    <task id="LOCAL-00198" summary="added tests for multiscale">
+      <created>1727173227500</created>
+      <option name="number" value="00198" />
+      <option name="presentableId" value="LOCAL-00198" />
+      <option name="project" value="LOCAL" />
+      <updated>1727173227500</updated>
+    </task>
+    <task id="LOCAL-00199" summary="no need for z in grid gen">
+      <created>1727173448117</created>
+      <option name="number" value="00199" />
+      <option name="presentableId" value="LOCAL-00199" />
+      <option name="project" value="LOCAL" />
+      <updated>1727173448117</updated>
+    </task>
+    <task id="LOCAL-00200" summary="no need for z in grid gen">
+      <created>1727173533376</created>
+      <option name="number" value="00200" />
+      <option name="presentableId" value="LOCAL-00200" />
+      <option name="project" value="LOCAL" />
+      <updated>1727173533376</updated>
+    </task>
+    <task id="LOCAL-00201" summary="testing saving and loading of optimized grids">
+      <created>1727173870579</created>
+      <option name="number" value="00201" />
+      <option name="presentableId" value="LOCAL-00201" />
+      <option name="project" value="LOCAL" />
+      <updated>1727173870579</updated>
+    </task>
+    <task id="LOCAL-00202" summary="testing saving and loading of optimized grids">
+      <created>1727173891276</created>
+      <option name="number" value="00202" />
+      <option name="presentableId" value="LOCAL-00202" />
+      <option name="project" value="LOCAL" />
+      <updated>1727173891276</updated>
+    </task>
+    <option name="localTasksCounter" value="203" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -422,19 +424,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Still fixing loops in optimized version" />
-    <MESSAGE value="small script to test grid generation on cpu" />
-    <MESSAGE value="error in quicktest params" />
-    <MESSAGE value="using sampled array in quicktest" />
-    <MESSAGE value="Still fixing gpu optimization. now also create festure grid is batch oriented." />
-    <MESSAGE value="updated testing for batched processes" />
-    <MESSAGE value="restructuring again to enphasize batch processing" />
-    <MESSAGE value="still trying to make optimization work" />
-    <MESSAGE value="re-starting optimization of grid creation" />
-    <MESSAGE value="first tests of new optimization of grid creation" />
-    <MESSAGE value="fixed small error in testing" />
-    <MESSAGE value="more thorough testing for assigning features" />
-    <MESSAGE value="introducing batching step by step" />
     <MESSAGE value="testing introduction of batching step by step" />
     <MESSAGE value="issue on gpu index, maybe fixed?" />
     <MESSAGE value="issue on gpu, maybe fixed?" />
@@ -447,6 +436,19 @@
     <MESSAGE value="corrected wrong tensor shape" />
     <MESSAGE value="corrected wrong tensor shape again" />
     <MESSAGE value="corrected wrong shapes: [batch sizes, ...] already selects num_points." />
-    <option name="LAST_COMMIT_MESSAGE" value="corrected wrong shapes: [batch sizes, ...] already selects num_points." />
+    <MESSAGE value="corrected shapes in testing." />
+    <MESSAGE value="corrected to_device missing" />
+    <MESSAGE value="updating dataloader tests" />
+    <MESSAGE value="testing grids dataloader" />
+    <MESSAGE value="removed device from dataloader (torch standards)" />
+    <MESSAGE value="wrong call to shape(), just use .shape" />
+    <MESSAGE value="correct shape for scalars is (..., )" />
+    <MESSAGE value="corrected to(device) method" />
+    <MESSAGE value="forgot to call .device" />
+    <MESSAGE value="added saving back into multiscale grids" />
+    <MESSAGE value="added tests for multiscale" />
+    <MESSAGE value="no need for z in grid gen" />
+    <MESSAGE value="testing saving and loading of optimized grids" />
+    <option name="LAST_COMMIT_MESSAGE" value="testing saving and loading of optimized grids" />
   </component>
 </project>

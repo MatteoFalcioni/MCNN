@@ -5,6 +5,7 @@ from utils.point_cloud_data_utils import read_las_file_to_numpy
 from scripts.optimized_pc_to_img import gpu_create_feature_grid, gpu_assign_features_to_grid, prepare_grids_dataloader, gpu_generate_multiscale_grids
 import numpy as np
 
+
 class TestGPUGridBatchingFunctions(unittest.TestCase):
 
     def setUp(self):
@@ -16,7 +17,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         # Define window sizes for multiscale grid generation
         self.window_sizes = [('small', 2.5), ('medium', 5.0), ('large', 10.0)]
-        self.save_dir = 'tests/test_optimized_grids'    # dir to dave generated grids
+        self.save_dir = 'tests/test_optimized_grids/'    # dir to dave generated grids
 
         # Simulated batch of center points (x, y, z)
         self.center_points = torch.tensor([
@@ -163,7 +164,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
 
         # Generate and save multiscale grids
         gpu_generate_multiscale_grids(data_loader, self.window_sizes, self.grid_resolution, self.channels, self.device,
-                                  save_dir=self.save_dir)
+                                        save=True, save_dir=self.save_dir)
 
         # Check if grids are saved in the appropriate directory
         for size_label, _ in self.window_sizes:
