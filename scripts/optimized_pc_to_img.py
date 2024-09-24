@@ -43,46 +43,47 @@ def gpu_create_feature_grid(center_points, window_size, grid_resolution=128, cha
     return grids, cell_size, x_coords, y_coords
 
 
-def gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_coords, channels=3, device=None):
+def gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_coords, full_data, channels=3, device=None):
     """
-    Assign features from the nearest point to each cell in the grid for a batch of points.
+    Assign features from the nearest point to each cell in the grid for a batch of points using KDTree.
 
     Args:
-    - batch_data (torch.Tensor): A tensor of shape [batch_size, 2] representing the (x, y) coordinates of points.
-    - batch_features (torch.Tensor): A tensor of shape [batch_size, num_features] representing the features for each point.
+    - batch_data (torch.Tensor): A tensor of shape [batch_size, 2] representing the (x, y) coordinates of points in the batch.
+    - batch_features (torch.Tensor): A tensor of shape [batch_size, num_features] representing the features.
     - grids (torch.Tensor): A tensor of shape [batch_size, channels, grid_resolution, grid_resolution].
     - x_coords (torch.Tensor): A tensor of shape [batch_size, grid_resolution] containing x coordinates for each grid cell.
     - y_coords (torch.Tensor): A tensor of shape [batch_size, grid_resolution] containing y coordinates for each grid cell.
+    - full_data (np.ndarray): A numpy array representing the entire point cloud's (x, y) coordinates for the KDTree.
     - channels (int): Number of feature channels in the grid (default is 3 for RGB).
     - device (torch.device): The device (CPU or GPU) to run this on.
 
     Returns:
-    - grids (torch.Tensor): The updated grids with features assigned based on nearest points for the entire batch.
+    - grids (torch.Tensor): The updated grids with features assigned based on the nearest points from the full point cloud.
     """
     batch_size = batch_data.shape[0]  # Number of points in the batch
     num_available_features = batch_features.shape[1]  # How many features are available
-    grid_resolution = grids.shape[2]    # will usually be 128
 
     # Ensure we only extract up to 'channels' features
     batch_features = batch_features[:, :min(channels, num_available_features)].to(device)
 
-    # Iterate through each batch
+    # Build a KDTree for the full point cloud using the full_data (assumes full_data is numpy array with shape [N, 2])
+    tree = KDTree(full_data[:, :2])  # We use only x, y coordinates
+
+    # Iterate through each batch point and its grid
     for i in range(batch_size):
         # Flatten grid coordinates for the i-th batch (grid_resolution cells)
-        grid_coords = torch.stack([x_coords[i], y_coords[i]], dim=1).to(device)  # [grid_resolution, 2]
+        grid_coords = torch.stack([x_coords[i], y_coords[i]], dim=1).cpu().numpy()  # Convert grid coords to numpy for KDTree search
 
-        # Use torch.cdist to compute distances between grid cells and points
-        points = batch_data[i].to(device)  # Points (x, y) for the i-th batch
-        dists = torch.cdist(grid_coords.unsqueeze(0),
-                            points.unsqueeze(0)).to(device)  # Compute pairwise distances [1, grid_resolution, batch_size]
+        # Query the KDTree to find the nearest point in the full point cloud for each grid cell
+        _, closest_points_idxs = tree.query(grid_coords)  # closest_points_idxs has shape [grid_resolution]
 
-        # Find the closest point for each grid cell
-        closest_points_idx = torch.argmin(dists, dim=2).squeeze(0).to(device)  # Indices of the closest points [grid_resolution]
-
-        # Assign features to the grid for the i-th batch based on the closest points
+        # Assign features to the grid for the i-th batch based on the closest points from the full point cloud
         for channel in range(channels):
-            for cell_idx in range(grid_resolution):  # Iterate over each grid cell
-                grids[i, channel, cell_idx] = batch_features[i, closest_points_idx[cell_idx], channel]
+            for cell_idx in range(grids.shape[2]):  # Loop over grid_resolution (cells)
+                # Assign the features of the closest point to the grid cell
+                closest_point_idx = closest_points_idxs[cell_idx]
+                grids[i, channel, cell_idx] = batch_features[closest_point_idx, channel]
+
     return grids
 
 
