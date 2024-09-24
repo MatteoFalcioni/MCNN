@@ -1,9 +1,11 @@
 import unittest
 import torch
 import os
-from utils.point_cloud_data_utils import read_las_file_to_numpy
+from utils.point_cloud_data_utils import read_las_file_to_numpy, remap_labels
 from scripts.optimized_pc_to_img import gpu_create_feature_grid, gpu_assign_features_to_grid, prepare_grids_dataloader, gpu_generate_multiscale_grids
 import numpy as np
+import random
+from utils.plot_utils import visualize_grid
 
 
 class TestGPUGridBatchingFunctions(unittest.TestCase):
@@ -18,6 +20,14 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         # Define window sizes for multiscale grid generation
         self.window_sizes = [('small', 2.5), ('medium', 5.0), ('large', 10.0)]
         self.save_dir = 'tests/test_optimized_grids/'    # dir to dave generated grids
+
+        self.las_file_path = 'data/raw/labeled_FSL.las'     # Path to the LAS file
+        self.sample_size = 500  # Number of points to sample for the test
+        self.full_data, self.feature_names = read_las_file_to_numpy(self.las_file_path)     # Load LAS file, get the data and feature names
+        # Random sampling from the full dataset for testing
+        np.random.seed(42)  # For reproducibility
+        self.sampled_data = self.full_data[np.random.choice(self.full_data.shape[0], self.sample_size, replace=False)]
+        self.sampled_data, _ = remap_labels(self.sampled_data)
 
         # Simulated batch of center points (x, y, z)
         self.center_points = torch.tensor([
@@ -198,3 +208,32 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
                     # Check the shape of the loaded grid
                     self.assertEqual(loaded_grid.shape, (self.channels, self.grid_resolution, self.grid_resolution),
                                      f"Loaded grid {file} has incorrect shape.")
+
+    def test_generate_and_save_multiscale_grids_with_real_data(self):
+        """Test multiscale grid generation with a real dataset sample."""
+        # Prepare the DataLoader with sampled data
+        data_loader = prepare_grids_dataloader(self.sampled_data, self.channels, batch_size=50, num_workers=4)
+
+        # Generate and save multiscale grids
+        gpu_generate_multiscale_grids(data_loader, self.window_sizes, self.grid_resolution, self.channels, self.device,
+                                  save_dir=self.save_dir)
+
+        for size_label, _ in self.window_sizes:
+            scale_dir = os.path.join(self.save_dir, size_label)
+            self.assertTrue(os.path.exists(scale_dir), f"Directory {scale_dir} does not exist.")
+
+            # Load saved .npy files from the directory
+            saved_files = [f for f in os.listdir(scale_dir) if f.endswith('.npy')]
+            self.assertGreater(len(saved_files), 0, f"No grids found in directory {scale_dir}.")
+
+            # Randomly select a few grids to visualize
+            selected_files = random.sample(saved_files, min(3, len(saved_files)))  # Choose up to 3 files
+            for file in selected_files:
+                grid_filepath = os.path.join(scale_dir, file)
+
+                # Load the grid from the .npy file
+                loaded_grid = np.load(grid_filepath)
+
+                # Visualize the grid (using channel 0 for simplicity)
+                print(f"Visualizing {file}")
+                visualize_grid(loaded_grid, channel=0, title=f"Visualization of {file}", save=False)

@@ -4,11 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="testing saving and loading of optimized grids">
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="trying to fix saving of grids">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/optimization_quicktest.py" beforeDir="false" afterPath="$PROJECT_DIR$/optimization_quicktest.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/point_cloud_to_image.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/point_cloud_to_image.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/test_optimized_pc_to_img.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_optimized_pc_to_img.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/device_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/device_utils.py" afterDir="false" />
     </list>
@@ -65,27 +64,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00154" summary="more verbose checks on tests">
-      <created>1727101133841</created>
-      <option name="number" value="00154" />
-      <option name="presentableId" value="LOCAL-00154" />
-      <option name="project" value="LOCAL" />
-      <updated>1727101133841</updated>
-    </task>
-    <task id="LOCAL-00155" summary="fixed error in optimized grid creation">
-      <created>1727102682324</created>
-      <option name="number" value="00155" />
-      <option name="presentableId" value="LOCAL-00155" />
-      <option name="project" value="LOCAL" />
-      <updated>1727102682324</updated>
-    </task>
-    <task id="LOCAL-00156" summary="fixing unnecessary back and forth between cpu and gpu">
-      <created>1727103153016</created>
-      <option name="number" value="00156" />
-      <option name="presentableId" value="LOCAL-00156" />
-      <option name="project" value="LOCAL" />
-      <updated>1727103153016</updated>
     </task>
     <task id="LOCAL-00157" summary="adding verbose checks for testing">
       <created>1727103635913</created>
@@ -409,7 +387,28 @@
       <option name="project" value="LOCAL" />
       <updated>1727173891276</updated>
     </task>
-    <option name="localTasksCounter" value="203" />
+    <task id="LOCAL-00203" summary="needed to add save=true">
+      <created>1727174052837</created>
+      <option name="number" value="00203" />
+      <option name="presentableId" value="LOCAL-00203" />
+      <option name="project" value="LOCAL" />
+      <updated>1727174052837</updated>
+    </task>
+    <task id="LOCAL-00204" summary="trying to fix saving of grids">
+      <created>1727174392381</created>
+      <option name="number" value="00204" />
+      <option name="presentableId" value="LOCAL-00204" />
+      <option name="project" value="LOCAL" />
+      <updated>1727174392381</updated>
+    </task>
+    <task id="LOCAL-00205" summary="trying to fix saving of grids">
+      <created>1727174410416</created>
+      <option name="number" value="00205" />
+      <option name="presentableId" value="LOCAL-00205" />
+      <option name="project" value="LOCAL" />
+      <updated>1727174410416</updated>
+    </task>
+    <option name="localTasksCounter" value="206" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -424,8 +423,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="testing introduction of batching step by step" />
-    <MESSAGE value="issue on gpu index, maybe fixed?" />
     <MESSAGE value="issue on gpu, maybe fixed?" />
     <MESSAGE value="need to specify gpu index as 0" />
     <MESSAGE value="sizes of tensor not matching" />
@@ -449,6 +446,8 @@
     <MESSAGE value="added tests for multiscale" />
     <MESSAGE value="no need for z in grid gen" />
     <MESSAGE value="testing saving and loading of optimized grids" />
-    <option name="LAST_COMMIT_MESSAGE" value="testing saving and loading of optimized grids" />
+    <MESSAGE value="needed to add save=true" />
+    <MESSAGE value="trying to fix saving of grids" />
+    <option name="LAST_COMMIT_MESSAGE" value="trying to fix saving of grids" />
   </component>
 </project>
