@@ -23,6 +23,8 @@ def gpu_create_feature_grid(center_points, window_size, grid_resolution=128, cha
     - x_coords (torch.Tensor): A tensor of shape [batch_size, grid_resolution] for x coordinates of grid cells.
     - y_coords (torch.Tensor): A tensor of shape [batch_size, grid_resolution] for y coordinates of grid cells.
     """
+
+    center_points = center_points.to(device)    # additional check to avoid cpu usage
     batch_size = center_points.shape[0]  # Number of points in the batch
 
     # Calculate the size of each cell in meters
