@@ -48,8 +48,8 @@ def gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_c
     Assign features from the nearest point to each cell in the grid for a batch of points.
 
     Args:
-    - batch_data (torch.Tensor): A tensor of shape [batch_size, num_points, 2] representing the (x, y) coordinates of point cloud.
-    - batch_features (torch.Tensor): A tensor of shape [batch_size, num_points, num_features] representing the features.
+    - batch_data (torch.Tensor): A tensor of shape [batch_size, 2] representing the (x, y) coordinates of points.
+    - batch_features (torch.Tensor): A tensor of shape [batch_size, num_features] representing the features for each point.
     - grids (torch.Tensor): A tensor of shape [batch_size, channels, grid_resolution, grid_resolution].
     - x_coords (torch.Tensor): A tensor of shape [batch_size, grid_resolution] containing x coordinates for each grid cell.
     - y_coords (torch.Tensor): A tensor of shape [batch_size, grid_resolution] containing y coordinates for each grid cell.
@@ -65,21 +65,23 @@ def gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_c
     # Ensure we only extract up to 'channels' features
     batch_features = batch_features[:, :min(channels, num_available_features)]
 
+    # Iterate through each batch
     for i in range(batch_size):
-        # Flatten grid coordinates for the i-th batch
-        grid_coords = torch.stack([x_coords[i].reshape(-1), y_coords[i].reshape(-1)], dim=1).to(
-            device)  # [grid_resolution^2, 2]
+        # Flatten grid coordinates for the i-th batch (grid_resolution cells)
+        grid_coords = torch.stack([x_coords[i], y_coords[i]], dim=1).to(device)  # [grid_resolution, 2]
 
-        # Use torch.cdist to compute distances between grid cells and points in the batch
+        # Use torch.cdist to compute distances between grid cells and points
         points = batch_data[i].to(device)  # Points (x, y) for the i-th batch
-        dists = torch.cdist(grid_coords, points)  # Compute pairwise distances
+        dists = torch.cdist(grid_coords.unsqueeze(0),
+                            points.unsqueeze(0))  # Compute pairwise distances [1, grid_resolution, batch_size]
 
-        # Find the nearest points for each grid cell
-        closest_points_idx = torch.argmin(dists, dim=1)
+        # Find the closest point for each grid cell
+        closest_points_idx = torch.argmin(dists, dim=2).squeeze(0)  # Indices of the closest points [grid_resolution]
 
-        # Assign features to the grid for the i-th batch
+        # Assign features to the grid for the i-th batch based on the closest points
         for channel in range(channels):
-            grids[i, channel, :, :] = batch_features[i, closest_points_idx, channel]
+            # Fetch the features for the closest points and assign them to the grid
+            grids[i, channel, :] = batch_features[closest_points_idx, channel]
 
     return grids
 

@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="error in file import fixed">
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="corrected wrong tensor shape again">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/optimization_quicktest.py" beforeDir="false" afterPath="$PROJECT_DIR$/optimization_quicktest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/optimized_pc_to_img.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/optimized_pc_to_img.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/device_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/device_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -62,20 +64,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00134" summary="updated environment">
-      <created>1727085750692</created>
-      <option name="number" value="00134" />
-      <option name="presentableId" value="LOCAL-00134" />
-      <option name="project" value="LOCAL" />
-      <updated>1727085750692</updated>
-    </task>
-    <task id="LOCAL-00135" summary="replaced view with reshape">
-      <created>1727085866253</created>
-      <option name="number" value="00135" />
-      <option name="presentableId" value="LOCAL-00135" />
-      <option name="project" value="LOCAL" />
-      <updated>1727085866253</updated>
     </task>
     <task id="LOCAL-00136" summary="need to permute to have standard torch structure">
       <created>1727085890996</created>
@@ -406,7 +394,21 @@
       <option name="project" value="LOCAL" />
       <updated>1727167551158</updated>
     </task>
-    <option name="localTasksCounter" value="183" />
+    <task id="LOCAL-00183" summary="corrected wrong tensor shape">
+      <created>1727168007087</created>
+      <option name="number" value="00183" />
+      <option name="presentableId" value="LOCAL-00183" />
+      <option name="project" value="LOCAL" />
+      <updated>1727168007087</updated>
+    </task>
+    <task id="LOCAL-00184" summary="corrected wrong tensor shape again">
+      <created>1727168087893</created>
+      <option name="number" value="00184" />
+      <option name="presentableId" value="LOCAL-00184" />
+      <option name="project" value="LOCAL" />
+      <updated>1727168087893</updated>
+    </task>
+    <option name="localTasksCounter" value="185" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -421,8 +423,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="fixed error in optimized grid creation" />
-    <MESSAGE value="fixing unnecessary back and forth between cpu and gpu" />
     <MESSAGE value="adding verbose checks for testing" />
     <MESSAGE value="Still fixing loops in optimized version" />
     <MESSAGE value="small script to test grid generation on cpu" />
@@ -446,6 +446,8 @@
     <MESSAGE value="fetch data from cpu, then use num_workers!=0" />
     <MESSAGE value="upgrading multiscale grids to gpu and testing" />
     <MESSAGE value="error in file import fixed" />
-    <option name="LAST_COMMIT_MESSAGE" value="error in file import fixed" />
+    <MESSAGE value="corrected wrong tensor shape" />
+    <MESSAGE value="corrected wrong tensor shape again" />
+    <option name="LAST_COMMIT_MESSAGE" value="corrected wrong tensor shape again" />
   </component>
 </project>
