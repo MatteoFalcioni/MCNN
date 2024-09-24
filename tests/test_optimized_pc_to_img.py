@@ -14,6 +14,8 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         self.channels = 3
         self.window_size = 2.5
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+        # Define window sizes for multiscale grid generation
+        self.window_sizes = [('small', 2.5), ('medium', 5.0), ('large', 10.0)]
 
         # Simulated batch of center points (x, y, z)
         self.center_points = torch.tensor([
@@ -68,7 +70,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
             [30.0, 30.0, 3.0, 0.2, 0.4, 0.6, 3]
         ]).numpy()
 
-    def test_create_feature_grid(self):
+    def test_gpu_create_feature_grid(self):
         """Test the gpu_create_feature_grid function."""
         grids, cell_size, x_coords, y_coords = gpu_create_feature_grid(
             self.center_points, self.window_size, self.grid_resolution, self.channels, device=self.device
@@ -85,7 +87,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         self.assertEqual(x_coords.shape, (self.batch_size, self.grid_resolution))
         self.assertEqual(y_coords.shape, (self.batch_size, self.grid_resolution))
 
-    def test_assign_features_to_grid(self):
+    def test_gpu_assign_features_to_grid(self):
         """Test the gpu_assign_features_to_grid function."""
         # First, create a batch of grids using the gpu_create_feature_grid function
         grids, cell_size, x_coords, y_coords = gpu_create_feature_grid(
@@ -128,3 +130,30 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         self.assertEqual(batch_data.device, self.device)
         self.assertEqual(batch_features.device, self.device)
         self.assertEqual(batch_labels.device, self.device)
+
+    def test_gpu_generate_multiscale_grids(self):
+        """Test that multiscale grids are generated correctly for batches."""
+        # Prepare the DataLoader
+        data_loader = prepare_grids_dataloader(self.data_array, self.channels, self.batch_size, num_workers=1)
+
+        # Generate multiscale grids without saving
+        labeled_grids_dict = gpu_generate_multiscale_grids(data_loader, self.window_sizes, self.grid_resolution,
+                                                       self.channels, self.device)
+
+        # Check that grids and labels are generated for all scales
+        for size_label, window_size in self.window_sizes:
+            grids = labeled_grids_dict[size_label]['grids']
+            class_labels = labeled_grids_dict[size_label]['class_labels']
+
+            # Ensure we have grids for each batch
+            self.assertEqual(len(grids), len(class_labels))
+            self.assertGreater(len(grids), 0, f"No grids generated for scale {size_label}")
+
+            # Check the shape of the grids
+            for batch_grids in grids:
+                for grid in batch_grids:
+                    self.assertEqual(grid.shape, (self.channels, self.grid_resolution, self.grid_resolution),
+                                     f"Incorrect grid shape for scale {size_label}")
+
+
+
