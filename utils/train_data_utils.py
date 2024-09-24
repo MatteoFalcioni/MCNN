@@ -44,8 +44,14 @@ def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw/labeled_
         if not window_sizes or not grid_resolution or not channels:
             raise ValueError("Window sizes, grid resolution, and channels must be provided when generating grids.")
 
-        print("Generating new grids from raw data...")
-        data_array = read_las_file_to_numpy(data_dir)
+        # Check if the data is already in .npy format
+        if data_dir.endswith('.npy'):
+            print("Loading pre-saved .npy data...")
+            data_array = np.load(data_dir)
+        else:
+            print("Generating new grids from raw LAS data...")
+            data_array = read_las_file_to_numpy(data_dir)
+
         grids_dict = generate_multiscale_grids(data_array, window_sizes, grid_resolution, channels, grid_save_dir,
                                                save=save_grids)
 

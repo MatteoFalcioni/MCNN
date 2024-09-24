@@ -2,6 +2,7 @@ import laspy
 import numpy as np
 import pandas as pd
 import os
+from tqdm import tqdm
 
 
 def load_las_data(file_path):
@@ -176,7 +177,8 @@ def combine_and_save_csv_files(csv_files, save=False, save_dir='data/combined_da
     combined_data = []
 
     # Loop through each CSV file and read its contents
-    for file in csv_files:
+    print("Reading CSV files:")
+    for file in tqdm(csv_files, desc="Reading", unit="file"):
         # Read the CSV file into a NumPy array
         data = pd.read_csv(file).values
         combined_data.append(data)

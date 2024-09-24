@@ -4,7 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="cleaning code, adding reading of csv files" />
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="adding reading of csv files">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/point_cloud_data_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/point_cloud_data_utils.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -58,13 +62,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00180" summary="fetch data from cpu, then use num_workers!=0">
-      <created>1727167075459</created>
-      <option name="number" value="00180" />
-      <option name="presentableId" value="LOCAL-00180" />
-      <option name="project" value="LOCAL" />
-      <updated>1727167075459</updated>
     </task>
     <task id="LOCAL-00181" summary="upgrading multiscale grids to gpu and testing">
       <created>1727167489717</created>
@@ -402,7 +399,14 @@
       <option name="project" value="LOCAL" />
       <updated>1727187666402</updated>
     </task>
-    <option name="localTasksCounter" value="229" />
+    <task id="LOCAL-00229" summary="adding reading of csv files">
+      <created>1727187972246</created>
+      <option name="number" value="00229" />
+      <option name="presentableId" value="LOCAL-00229" />
+      <option name="project" value="LOCAL" />
+      <updated>1727187972246</updated>
+    </task>
+    <option name="localTasksCounter" value="230" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -417,7 +421,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="testing grids dataloader" />
     <MESSAGE value="removed device from dataloader (torch standards)" />
     <MESSAGE value="wrong call to shape(), just use .shape" />
     <MESSAGE value="correct shape for scalars is (..., )" />
@@ -442,6 +445,7 @@
     <MESSAGE value="correcting tests" />
     <MESSAGE value="correcting grid creation" />
     <MESSAGE value="cleaning code, adding reading of csv files" />
-    <option name="LAST_COMMIT_MESSAGE" value="cleaning code, adding reading of csv files" />
+    <MESSAGE value="adding reading of csv files" />
+    <option name="LAST_COMMIT_MESSAGE" value="adding reading of csv files" />
   </component>
 </project>

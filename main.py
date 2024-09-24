@@ -24,7 +24,7 @@ def main():
 
     # Prepare DataLoader
     print("Preparing data loaders...")
-    labeled_filepath = 'data/raw/labeled_FSL.las'
+    labeled_filepath = 'data/combined/data'
     train_loader, val_loader = prepare_dataloader(
         batch_size=args.batch_size,
         data_dir=labeled_filepath,
