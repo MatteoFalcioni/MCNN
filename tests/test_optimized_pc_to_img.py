@@ -22,7 +22,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         self.save_dir = 'tests/test_optimized_grids/'    # dir to dave generated grids
 
         self.las_file_path = 'data/raw/labeled_FSL.las'     # Path to the LAS file
-        self.sample_size = 500  # Number of points to sample for the test
+        self.sample_size = 1000  # Number of points to sample for the test
         self.full_data, self.feature_names = read_las_file_to_numpy(self.las_file_path)     # Load LAS file, get the data and feature names
         # Random sampling from the full dataset for testing
         np.random.seed(42)  # For reproducibility
@@ -216,7 +216,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
 
         # Generate and save multiscale grids
         gpu_generate_multiscale_grids(data_loader, self.window_sizes, self.grid_resolution, self.channels, self.device,
-                                  save_dir=self.save_dir)
+                                  save_dir='tests/test_optimized_grids_real_data')
 
         for size_label, _ in self.window_sizes:
             scale_dir = os.path.join(self.save_dir, size_label)
