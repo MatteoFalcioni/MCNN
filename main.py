@@ -11,9 +11,6 @@ import numpy as np
 
 
 def main():
-    sample_data('data/combined_data/combined_data.npy', 20000, file_type='npy', save=True,
-                save_dir='data/combined_data/sampled')
-    """
     # Parse arguments with defaults from config.yaml
     args = parse_arguments()
 
@@ -28,7 +25,7 @@ def main():
     # Prepare DataLoader
     print("Preparing data loaders...")
 
-    labeled_filepath = 'data/combined_data/combined_data.npy'
+    labeled_filepath = 'data/combined_data/sampled/sampled_data20000.npy'
 
     train_loader, val_loader = prepare_dataloader(
         batch_size=args.batch_size,
@@ -66,7 +63,7 @@ def main():
 
     print("Training finished")
 
-    # Run inference on a sample
+"""    # Run inference on a sample
     print("Starting inference process...")
     data_array, _ = read_las_file_to_numpy(labeled_filepath)
     # need to remap labels to match the ones in training. Maybe consider remapping already when doing las -> numpy ?
