@@ -86,7 +86,8 @@ def gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_c
     return grids
 
 
-def prepare_grids_dataloader(data_array, channels, batch_size, num_workers, device):
+# ----------------------------------------tested up to here-----------------------------------------------
+def prepare_grids_dataloader(data_array, channels, batch_size, num_workers):
     """
     Prepares the DataLoader for batching the point cloud data.
 
@@ -95,7 +96,6 @@ def prepare_grids_dataloader(data_array, channels, batch_size, num_workers, devi
     - channels (int): Number of feature channels in the data.
     - batch_size (int): The number of points to process in each batch.
     - num_workers (int): Number of workers for data loading.
-    - device (torch.device): The device to move data to (CPU or GPU).
 
     Returns:
     - data_loader (DataLoader): A DataLoader that batches the dataset.
@@ -108,6 +108,9 @@ def prepare_grids_dataloader(data_array, channels, batch_size, num_workers, devi
 
     # Set num_workers > 0 to enable multiprocessing
     data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
+
+    # careful: we cannot pass tensors to device already to avoid problems with num_workers != 0
+    # so we'll need to pass the data to device after calling the dataloader!
 
     return data_loader
 
