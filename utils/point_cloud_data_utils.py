@@ -196,3 +196,48 @@ def combine_and_save_csv_files(csv_files, save=False, save_dir='data/combined_da
     return combined_array
 
 
+def sample_data(input_file, sample_size, file_type='csv', save=False, save_dir='data/sampled_data'):
+    """
+    Samples a subset of the data from a CSV or NumPy file.
+
+    Args:
+    - input_file (str): Path to the input file (either a CSV or NumPy file).
+    - sample_size (int): The number of samples to extract.
+    - file_type (str): The type of the input file ('csv' or 'npy').
+    - save (bool): Whether to save the sampled data to a file. Default is False.
+    - save_dir (str): Directory where the sampled data will be saved. Default is 'data/sampled_data'.
+
+    Returns:
+    - np.ndarray: The sampled subset of the data.
+    """
+    # Load the data based on file type
+    if file_type == 'csv':
+        print("Reading data from CSV file...")
+        data = []
+        for file in tqdm(input_file, desc="Loading CSV files", unit="file"):
+            df = pd.read_csv(file).values
+            data.append(df)
+        data = np.vstack(data)
+    elif file_type == 'npy':
+        print("Reading data from NumPy file...")
+        data = np.load(input_file)
+    else:
+        raise ValueError("Unsupported file type. Please specify 'csv' or 'npy'.")
+
+    # Check if sample_size is greater than the dataset size
+    if sample_size > data.shape[0]:
+        raise ValueError(f"Sample size {sample_size} is larger than the dataset size {data.shape[0]}.")
+
+    # Sample the data
+    print(f"Sampling {sample_size} rows from the dataset...")
+    sampled_data = data[np.random.choice(data.shape[0], sample_size, replace=False)]
+
+    # Optionally save the sampled data
+    if save:
+        os.makedirs(save_dir, exist_ok=True)
+        output_file_path = os.path.join(save_dir, f'sampled_data_{sample_size}.npy')
+        np.save(output_file_path, sampled_data)
+        print(f"Sampled data saved to {output_file_path}")
+
+    return sampled_data
+

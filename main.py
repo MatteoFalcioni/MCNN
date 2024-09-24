@@ -24,7 +24,7 @@ def main():
 
     # Prepare DataLoader
     print("Preparing data loaders...")
-    labeled_filepath = 'data/combined/data'
+    labeled_filepath = 'data/combined_data/combined_data.npy'
     train_loader, val_loader = prepare_dataloader(
         batch_size=args.batch_size,
         data_dir=labeled_filepath,
