@@ -109,3 +109,51 @@ def prepare_grids_dataloader(data_array, channels, batch_size, num_workers, devi
 
     return data_loader
 
+
+def generate_multiscale_grids(data_loader, window_sizes, grid_resolution, channels, device, save_dir=None, save=False):
+    """
+    Generates grids for multiple scales (small, medium, large) for the entire dataset in batches.
+
+    Args:
+    - data_loader (DataLoader): A DataLoader that batches the dataset.
+    - window_sizes (list of tuples): List of window sizes for each scale (e.g., [('small', 2.5), ('medium', 5.0)]).
+    - grid_resolution (int): The grid resolution (e.g., 128x128).
+    - channels (int): Number of feature channels in the grid (e.g., 3 for RGB).
+    - device (torch.device): The device to run on (CPU or GPU).
+    - save_dir (str): Directory to save the generated grids (optional).
+    - save (bool): Whether to save the grids to disk (default is False).
+
+    Returns:
+    - labeled_grids_dict (dict): Dictionary containing the generated grids and corresponding labels for each scale.
+    """
+
+    # Create a dictionary to hold grids and class labels for each scale
+    labeled_grids_dict = {scale_label: {'grids': [], 'class_labels': []} for scale_label, _ in window_sizes}
+
+    # Iterate over the DataLoader batches
+    for batch_idx, (batch_data, batch_features, batch_labels) in enumerate(data_loader):
+        print(f"Processing batch {batch_idx + 1}/{len(data_loader)}...")
+
+        # Move data to the correct device (GPU or CPU)
+        batch_data = batch_data.to(device)
+        batch_features = batch_features.to(device)
+        batch_labels = batch_labels.to(device)
+
+        # For each scale, generate the grids and assign features
+        for size_label, window_size in window_sizes:
+            print(f"Generating {size_label} grid for batch {batch_idx} with window size {window_size}...")
+
+            # Create a batch of grids
+            grids, _, x_coords, y_coords = gpu_create_feature_grid(batch_data, window_size, grid_resolution, channels, device)
+
+            # Assign features to the grids
+            grids = gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_coords, channels, device)
+
+            # Append the grids and labels to the dictionary
+            labeled_grids_dict[size_label]['grids'].append(grids.cpu().numpy())  # Store as numpy arrays
+            labeled_grids_dict[size_label]['class_labels'].append(batch_labels.cpu().numpy())
+
+    return labeled_grids_dict
+
+
+

@@ -2,7 +2,7 @@ import unittest
 import torch
 import os
 from utils.point_cloud_data_utils import read_las_file_to_numpy
-from scripts.optimized_pc_to_img import gpu_create_feature_grid, gpu_assign_features_to_grid, prepare_grids_dataloader
+from scripts.optimized_pc_to_img import gpu_create_feature_grid, gpu_assign_features_to_grid, prepare_grids_dataloader, gpu_generate_multiscale_grids
 
 
 class TestGPUGridBatchingFunctions(unittest.TestCase):
@@ -20,6 +20,9 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         self.channels = 3
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         print(f'using device: {self.device}')
+
+        # Define window sizes for multiscale grid generation
+        self.window_sizes = [('small', 2.5), ('medium', 5.0), ('large', 10.0)]
 
         # Simulated batch point cloud data: [batch_size, num_points, (x, y, z)] + features
         self.batch_data = torch.tensor([
@@ -130,3 +133,28 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
             self.assertEqual(batch_data.shape, (self.batch_size, 3))  # (batch_size, 3) for (x, y, z)
             self.assertEqual(batch_features.shape, (self.batch_size, self.channels))  # (batch_size, channels)
             self.assertEqual(batch_labels.shape, (self.batch_size,))  # (batch_size,)
+
+    def test_generate_multiscale_grids(self):
+        """Test that multiscale grids are generated correctly for batches."""
+        # Prepare the DataLoader
+        data_loader = prepare_grids_dataloader(self.data_array, self.channels, self.batch_size, num_workers=1,
+                                         device=self.device)
+
+        # Generate multiscale grids
+        labeled_grids_dict = gpu_generate_multiscale_grids(data_loader, self.window_sizes, self.grid_resolution,
+                                                       self.channels, device=self.device, save=False)
+
+        # Check that grids and labels are generated for all scales
+        for scale_label, window_size in self.window_sizes:
+            grids = labeled_grids_dict[scale_label]['grids']
+            class_labels = labeled_grids_dict[scale_label]['class_labels']
+
+            # Ensure we have grids for each batch
+            self.assertEqual(len(grids), len(class_labels))
+            self.assertGreater(len(grids), 0, f"No grids generated for scale {scale_label}")
+
+            # Check the shape of the grids
+            for batch_grids in grids:
+                self.assertEqual(batch_grids.shape[1:], (self.channels, self.grid_resolution, self.grid_resolution),
+                                 f"Incorrect grid shape for scale {scale_label}")
+
