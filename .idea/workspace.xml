@@ -4,11 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="corrected wrong tensor shape again">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="corrected wrong shapes: [batch sizes, ...] already selects num_points.">
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/optimization_quicktest.py" beforeDir="false" afterPath="$PROJECT_DIR$/optimization_quicktest.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/optimized_pc_to_img.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/optimized_pc_to_img.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_optimized_pc_to_img.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_optimized_pc_to_img.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/device_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/device_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -64,13 +63,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00136" summary="need to permute to have standard torch structure">
-      <created>1727085890996</created>
-      <option name="number" value="00136" />
-      <option name="presentableId" value="LOCAL-00136" />
-      <option name="project" value="LOCAL" />
-      <updated>1727085890996</updated>
     </task>
     <task id="LOCAL-00137" summary="updated main with inference and loading models">
       <created>1727086150352</created>
@@ -408,7 +400,14 @@
       <option name="project" value="LOCAL" />
       <updated>1727168087893</updated>
     </task>
-    <option name="localTasksCounter" value="185" />
+    <task id="LOCAL-00185" summary="corrected wrong shapes: [batch sizes, ...] already selects num_points.">
+      <created>1727169801513</created>
+      <option name="number" value="00185" />
+      <option name="presentableId" value="LOCAL-00185" />
+      <option name="project" value="LOCAL" />
+      <updated>1727169801513</updated>
+    </task>
+    <option name="localTasksCounter" value="186" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -423,7 +422,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="adding verbose checks for testing" />
     <MESSAGE value="Still fixing loops in optimized version" />
     <MESSAGE value="small script to test grid generation on cpu" />
     <MESSAGE value="error in quicktest params" />
@@ -448,6 +446,7 @@
     <MESSAGE value="error in file import fixed" />
     <MESSAGE value="corrected wrong tensor shape" />
     <MESSAGE value="corrected wrong tensor shape again" />
-    <option name="LAST_COMMIT_MESSAGE" value="corrected wrong tensor shape again" />
+    <MESSAGE value="corrected wrong shapes: [batch sizes, ...] already selects num_points." />
+    <option name="LAST_COMMIT_MESSAGE" value="corrected wrong shapes: [batch sizes, ...] already selects num_points." />
   </component>
 </project>
