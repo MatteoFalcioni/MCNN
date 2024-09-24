@@ -16,6 +16,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         # Define window sizes for multiscale grid generation
         self.window_sizes = [('small', 2.5), ('medium', 5.0), ('large', 10.0)]
+        self.save_dir = 'tests/test_optimized_grids'    # dir to dave generated grids
 
         # Simulated batch of center points (x, y, z)
         self.center_points = torch.tensor([
@@ -123,7 +124,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         batch_labels = batch_labels.to(self.device)
 
         # verify that the data batch has the expected sizes and shapes
-        self.assertEqual(batch_data.shape, (self.batch_size, 2))   # (batch_size, 3 for (x,y))
+        self.assertEqual(batch_data.shape, (self.batch_size, 2))   # (batch_size, 2 for (x,y))
         self.assertEqual(batch_features.shape, (self.batch_size, self.channels))  # (batch_size, channels)
         self.assertEqual(batch_labels.shape, (self.batch_size, ))     # (batch,size, )
 
@@ -155,5 +156,44 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
                     self.assertEqual(grid.shape, (self.channels, self.grid_resolution, self.grid_resolution),
                                      f"Incorrect grid shape for scale {size_label}")
 
+    def test_save_multiscale_grids(self):
+        """Test that grids are correctly saved to the specified directory."""
+        # Prepare the DataLoader
+        data_loader = prepare_grids_dataloader(self.data_array, self.channels, self.batch_size, num_workers=1)
 
+        # Generate and save multiscale grids
+        gpu_generate_multiscale_grids(data_loader, self.window_sizes, self.grid_resolution, self.channels, self.device,
+                                  save_dir=self.save_dir)
 
+        # Check if grids are saved in the appropriate directory
+        for size_label, _ in self.window_sizes:
+            scale_dir = os.path.join(self.save_dir, size_label)
+            self.assertTrue(os.path.exists(scale_dir), f"Directory {scale_dir} does not exist.")
+
+            # Check if there are any saved grids in the directory
+            saved_files = os.listdir(scale_dir)
+            self.assertGreater(len(saved_files), 0, f"No grids saved in directory {scale_dir}.")
+            for file in saved_files:
+                self.assertTrue(file.endswith('.npy'), f"File {file} is not a .npy file.")
+
+    def test_load_multiscale_grids(self):
+        """Test that saved grids can be correctly loaded from disk."""
+        # Iterate over each scale (small, medium, large)
+        for size_label, _ in self.window_sizes:
+            scale_dir = os.path.join(self.save_dir, size_label)
+            self.assertTrue(os.path.exists(scale_dir), f"Directory {scale_dir} does not exist.")
+
+            # Load and check each .npy file in the directory
+            saved_files = os.listdir(scale_dir)
+            self.assertGreater(len(saved_files), 0, f"No grids found in directory {scale_dir}.")
+
+            for file in saved_files:
+                if file.endswith('.npy'):
+                    grid_filepath = os.path.join(scale_dir, file)
+
+                    # Load the grid from the .npy file
+                    loaded_grid = np.load(grid_filepath)
+
+                    # Check the shape of the loaded grid
+                    self.assertEqual(loaded_grid.shape, (self.channels, self.grid_resolution, self.grid_resolution),
+                                     f"Loaded grid {file} has incorrect shape.")
