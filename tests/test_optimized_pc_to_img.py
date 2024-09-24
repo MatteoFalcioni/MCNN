@@ -49,11 +49,23 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
             [0.7, 0.6, 0.8]
         ])
 
-        # Example data_array for DataLoader test
+        # Example data_array for DataLoader test (x,y,z + features + labels)
         self.data_array = torch.tensor([
-            [10.0, 10.0, 0.0, 0.5, 0.3, 0.2, 1],
-            [20.0, 20.0, 0.0, 0.7, 0.8, 0.9, 2],
-            [30.0, 30.0, 0.0, 0.2, 0.4, 0.6, 3]
+            [10.0, 10.0, 5.0, 0.5, 0.3, 0.2, 1],
+            [20.0, 20.0, 6.0, 0.7, 0.8, 0.9, 2],
+            [30.0, 30.0, 3.0, 0.2, 0.4, 0.6, 3],
+            [10.0, 10.0, 5.0, 0.5, 0.3, 0.2, 1],
+            [20.0, 20.0, 6.0, 0.7, 0.8, 0.9, 2],
+            [30.0, 30.0, 3.0, 0.2, 0.4, 0.6, 3],
+            [10.0, 10.0, 5.0, 0.5, 0.3, 0.2, 1],
+            [20.0, 20.0, 6.0, 0.7, 0.8, 0.9, 2],
+            [30.0, 30.0, 3.0, 0.2, 0.4, 0.6, 3],
+            [10.0, 10.0, 5.0, 0.5, 0.3, 0.2, 1],
+            [20.0, 20.0, 6.0, 0.7, 0.8, 0.9, 2],
+            [30.0, 30.0, 3.0, 0.2, 0.4, 0.6, 3],
+            [10.0, 10.0, 5.0, 0.5, 0.3, 0.2, 1],
+            [20.0, 20.0, 6.0, 0.7, 0.8, 0.9, 2],
+            [30.0, 30.0, 3.0, 0.2, 0.4, 0.6, 3]
         ]).numpy()
 
     def test_create_feature_grid(self):
@@ -94,17 +106,20 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         # Verify that features have been assigned (no zeros in the grid)
         self.assertFalse(torch.all(updated_grids == 0))
 
-    """def test_prepare_grids_dataloader(self):
-        Test that DataLoader batches the data correctly.
-        data_loader = prepare_grids_dataloader(self.data_array, self.channels, self.batch_size, num_workers=1,
-                                         device=self.device)
+    def test_prepare_grids_dataloader(self):
+        data_loader = prepare_grids_dataloader(self.data_array, self.channels, self.batch_size, num_workers=4)
 
-        # Check that the DataLoader is not empty and the batches are of the correct size
-        for batch_idx, (batch_data, batch_features, batch_labels) in enumerate(data_loader):
-            batch_data = batch_data.to(self.device)
-            batch_features = batch_features.to(self.device)
-            batch_labels = batch_labels.to(self.device)
+        # check that the dataloader is not empty
+        data_iter = iter(data_loader)
+        batch = next(data_iter)
 
-            self.assertEqual(batch_data.shape, (self.batch_size, 3))  # (batch_size, 3) for (x, y, z)
-            self.assertEqual(batch_features.shape, (self.batch_size, self.channels))  # (batch_size, channels)
-            self.assertEqual(batch_labels.shape, (self.batch_size,))  # (batch_size,)"""
+        batch_data, batch_features, batch_labels = batch
+
+        # verify that the data batch has the expected sizes and shapes
+        self.assertEqual(batch_data.shape(), (self.batch_size, 3))   # (batch_size, 3 for (x,y,z))
+        self.assertEqual(batch_features.shape(), (self.batch_size, self.channels))  # (batch_size, channels)
+        self.assertEqual(batch_labels.shape(), self.batch_size)     # (batch,size, )
+
+        self.assertEqual(batch_data.device(), self.device)
+        self.assertEqual(batch_features.device(), self.device)
+        self.assertEqual(batch_labels.device(), self.device)
