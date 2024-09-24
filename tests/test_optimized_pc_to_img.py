@@ -20,6 +20,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         # Define window sizes for multiscale grid generation
         self.window_sizes = [('small', 2.5), ('medium', 5.0), ('large', 10.0)]
         self.save_dir = 'tests/test_optimized_grids/'    # dir to dave generated grids
+        os.makedirs(self.save_dir, exist_ok=True)
 
         self.las_file_path = 'data/raw/labeled_FSL.las'     # Path to the LAS file
         self.sample_size = 1000  # Number of points to sample for the test
@@ -29,6 +30,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         self.sampled_data = self.full_data[np.random.choice(self.full_data.shape[0], self.sample_size, replace=False)]
         self.sampled_data, _ = remap_labels(self.sampled_data)
         self.save_dir_real_data = 'tests/test_optimized_grids_real_data/'
+        os.makedirs(self.save_dir_real_data, exist_ok=True)
 
         # Simulated batch of center points (x, y, z)
         self.center_points = torch.tensor([
@@ -160,7 +162,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
     def test_generate_and_save_multiscale_grids_with_real_data(self):
         """Test multiscale grid generation with a real dataset sample."""
         # Prepare the DataLoader with sampled data
-        data_loader = prepare_grids_dataloader(self.sampled_data, self.channels, batch_size=50, num_workers=4)
+        data_loader = prepare_grids_dataloader(self.sampled_data, self.channels, batch_size=50, num_workers=10)
 
         # Generate and save multiscale grids
         grids_dict = gpu_generate_multiscale_grids(data_loader, self.window_sizes, self.grid_resolution, self.channels, self.device,
