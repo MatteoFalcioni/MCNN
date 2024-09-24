@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="introducing batching step by step">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="issue on gpu index, maybe fixed?">
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/optimization_quicktest.py" beforeDir="false" afterPath="$PROJECT_DIR$/optimization_quicktest.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_optimized_pc_to_img.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_optimized_pc_to_img.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/device_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/device_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -64,27 +62,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00123" summary="remapping labels before generating grids">
-      <created>1726936364370</created>
-      <option name="number" value="00123" />
-      <option name="presentableId" value="LOCAL-00123" />
-      <option name="project" value="LOCAL" />
-      <updated>1726936364370</updated>
-    </task>
-    <task id="LOCAL-00124" summary="fixeed parameters settings">
-      <created>1727080183818</created>
-      <option name="number" value="00124" />
-      <option name="presentableId" value="LOCAL-00124" />
-      <option name="project" value="LOCAL" />
-      <updated>1727080183819</updated>
-    </task>
-    <task id="LOCAL-00125" summary="added windows sizes as parameters">
-      <created>1727080197455</created>
-      <option name="number" value="00125" />
-      <option name="presentableId" value="LOCAL-00125" />
-      <option name="project" value="LOCAL" />
-      <updated>1727080197455</updated>
     </task>
     <task id="LOCAL-00126" summary="corrected syntax of yaml file">
       <created>1727080216042</created>
@@ -408,7 +385,28 @@
       <option name="project" value="LOCAL" />
       <updated>1727164677081</updated>
     </task>
-    <option name="localTasksCounter" value="172" />
+    <task id="LOCAL-00172" summary="testing introduction of batching step by step">
+      <created>1727165183840</created>
+      <option name="number" value="00172" />
+      <option name="presentableId" value="LOCAL-00172" />
+      <option name="project" value="LOCAL" />
+      <updated>1727165183840</updated>
+    </task>
+    <task id="LOCAL-00173" summary="issue on gpu index, maybe fixed?">
+      <created>1727165311634</created>
+      <option name="number" value="00173" />
+      <option name="presentableId" value="LOCAL-00173" />
+      <option name="project" value="LOCAL" />
+      <updated>1727165311634</updated>
+    </task>
+    <task id="LOCAL-00174" summary="issue on gpu index, maybe fixed?">
+      <created>1727165543624</created>
+      <option name="number" value="00174" />
+      <option name="presentableId" value="LOCAL-00174" />
+      <option name="project" value="LOCAL" />
+      <updated>1727165543624</updated>
+    </task>
+    <option name="localTasksCounter" value="175" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -423,8 +421,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="optimizing more grid generation with parallel processing" />
-    <MESSAGE value="testing gpu optimization" />
     <MESSAGE value="corrected vriable name mistake" />
     <MESSAGE value="read_las_file to np returns 2 values" />
     <MESSAGE value="trying to correct errors from tests" />
@@ -448,6 +444,8 @@
     <MESSAGE value="fixed small error in testing" />
     <MESSAGE value="more thorough testing for assigning features" />
     <MESSAGE value="introducing batching step by step" />
-    <option name="LAST_COMMIT_MESSAGE" value="introducing batching step by step" />
+    <MESSAGE value="testing introduction of batching step by step" />
+    <MESSAGE value="issue on gpu index, maybe fixed?" />
+    <option name="LAST_COMMIT_MESSAGE" value="issue on gpu index, maybe fixed?" />
   </component>
 </project>
