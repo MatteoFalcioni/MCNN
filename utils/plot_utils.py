@@ -84,6 +84,7 @@ def visualize_grid(grid, channel=0, title="Grid Visualization", save=False, file
     elif not save:
         plt.show()
 
+
 def visualize_dtm(dtm_data):
     """
     Visualizza il Digital Terrain Model (DTM) con una legenda.

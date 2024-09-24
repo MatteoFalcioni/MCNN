@@ -3,7 +3,7 @@ from scipy.spatial import KDTree
 import numpy as np
 import os
 from torch.utils.data import DataLoader, TensorDataset
-from utils.point_cloud_data_utils import remap_labels
+from scipy.spatial import KDTree
 
 
 def gpu_create_feature_grid(center_points, window_size, grid_resolution=128, channels=3, device=None):
@@ -67,7 +67,7 @@ def gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_c
     batch_features = batch_features[:, :min(channels, num_available_features)].to(device)
 
     # Build a KDTree for the full point cloud using the full_data (assumes full_data is numpy array with shape [N, 2])
-    tree = KDTree(full_data[:, :2])  # We use only x, y coordinates
+    tree = KDTree(full_data[:, :2])  # We use only x, y coordinates (additional check)
 
     # Iterate through each batch point and its grid
     for i in range(batch_size):
@@ -115,7 +115,7 @@ def prepare_grids_dataloader(data_array, channels, batch_size, num_workers):
     return data_loader
 
 
-def gpu_generate_multiscale_grids(data_loader, window_sizes, grid_resolution, channels, device, save_dir=None, save=False):
+def gpu_generate_multiscale_grids(data_loader, window_sizes, grid_resolution, channels, device, full_data, save_dir=None, save=False):
     """
     Generates grids for multiple scales (small, medium, large) for the entire dataset in batches.
 
@@ -125,6 +125,7 @@ def gpu_generate_multiscale_grids(data_loader, window_sizes, grid_resolution, ch
     - grid_resolution (int): The grid resolution (e.g., 128x128).
     - channels (int): Number of feature channels in the grid (e.g., 3 for RGB).
     - device (torch.device): The device to run on (CPU or GPU).
+    - full_data (np.ndarray): The entire point cloud's data to build the KDTree for nearest neighbor search.
     - save_dir (str): Directory to save the generated grids (optional).
     - save (bool): Whether to save the grids to disk (default is False).
 
@@ -152,7 +153,7 @@ def gpu_generate_multiscale_grids(data_loader, window_sizes, grid_resolution, ch
             grids, _, x_coords, y_coords = gpu_create_feature_grid(batch_data, window_size, grid_resolution, channels, device)
 
             # Assign features to the grids
-            grids = gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_coords, channels, device)
+            grids = gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_coords, full_data, channels, device)
 
             # Append the grids and labels to the dictionary
             labeled_grids_dict[size_label]['grids'].append(grids.cpu().numpy())  # Store as numpy arrays

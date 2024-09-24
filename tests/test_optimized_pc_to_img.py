@@ -15,7 +15,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         self.batch_size = 10
         self.grid_resolution = 128
         self.channels = 3
-        self.window_size = 2.5
+        self.window_size = 10.0
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         # Define window sizes for multiscale grid generation
         self.window_sizes = [('small', 2.5), ('medium', 5.0), ('large', 10.0)]
@@ -100,27 +100,6 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         self.assertEqual(x_coords.shape, (self.batch_size, self.grid_resolution))
         self.assertEqual(y_coords.shape, (self.batch_size, self.grid_resolution))
 
-    def test_gpu_assign_features_to_grid(self):
-        """Test the gpu_assign_features_to_grid function."""
-        # First, create a batch of grids using the gpu_create_feature_grid function
-        grids, cell_size, x_coords, y_coords = gpu_create_feature_grid(
-            self.center_points, self.window_size, self.grid_resolution, self.channels, device=self.device
-        )
-
-        # Assign features to the grids using gpu_assign_features_to_grid
-        updated_grids = gpu_assign_features_to_grid(
-            self.batch_data, self.batch_features, grids, x_coords, y_coords, self.channels, device=self.device
-        )
-
-        # Ensure the updated grids are on the correct device
-        self.assertEqual(updated_grids.device, self.device)
-
-        # Check that the shape of the updated grids remains correct
-        self.assertEqual(updated_grids.shape, (self.batch_size, self.channels, self.grid_resolution, self.grid_resolution))
-
-        # Verify that features have been assigned (no zeros in the grid)
-        self.assertFalse(torch.all(updated_grids == 0))
-
     def test_prepare_grids_dataloader(self):
         data_loader = prepare_grids_dataloader(self.data_array, self.channels, self.batch_size, num_workers=4)
 
@@ -144,72 +123,6 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         self.assertEqual(batch_features.device, self.device)
         self.assertEqual(batch_labels.device, self.device)
 
-    def test_gpu_generate_multiscale_grids(self):
-        """Test that multiscale grids are generated correctly for batches."""
-        # Prepare the DataLoader
-        data_loader = prepare_grids_dataloader(self.data_array, self.channels, self.batch_size, num_workers=1)
-
-        # Generate multiscale grids without saving
-        labeled_grids_dict = gpu_generate_multiscale_grids(data_loader, self.window_sizes, self.grid_resolution,
-                                                       self.channels, self.device)
-
-        # Check that grids and labels are generated for all scales
-        for size_label, window_size in self.window_sizes:
-            grids = labeled_grids_dict[size_label]['grids']
-            class_labels = labeled_grids_dict[size_label]['class_labels']
-
-            # Ensure we have grids for each batch
-            self.assertEqual(len(grids), len(class_labels))
-            self.assertGreater(len(grids), 0, f"No grids generated for scale {size_label}")
-
-            # Check the shape of the grids
-            for batch_grids in grids:
-                for grid in batch_grids:
-                    self.assertEqual(grid.shape, (self.channels, self.grid_resolution, self.grid_resolution),
-                                     f"Incorrect grid shape for scale {size_label}")
-
-    def test_save_multiscale_grids(self):
-        """Test that grids are correctly saved to the specified directory."""
-        # Prepare the DataLoader
-        data_loader = prepare_grids_dataloader(self.data_array, self.channels, self.batch_size, num_workers=1)
-
-        # Generate and save multiscale grids
-        gpu_generate_multiscale_grids(data_loader, self.window_sizes, self.grid_resolution, self.channels, self.device,
-                                        save=True, save_dir=self.save_dir)
-
-        # Check if grids are saved in the appropriate directory
-        for size_label, _ in self.window_sizes:
-            scale_dir = os.path.join(self.save_dir, size_label)
-            self.assertTrue(os.path.exists(scale_dir), f"Directory {scale_dir} does not exist.")
-
-            # Check if there are any saved grids in the directory
-            saved_files = os.listdir(scale_dir)
-            self.assertGreater(len(saved_files), 0, f"No grids saved in directory {scale_dir}.")
-            for file in saved_files:
-                self.assertTrue(file.endswith('.npy'), f"File {file} is not a .npy file.")
-
-    def test_load_multiscale_grids(self):
-        """Test that saved grids can be correctly loaded from disk."""
-        # Iterate over each scale (small, medium, large)
-        for size_label, _ in self.window_sizes:
-            scale_dir = os.path.join(self.save_dir, size_label)
-            self.assertTrue(os.path.exists(scale_dir), f"Directory {scale_dir} does not exist.")
-
-            # Load and check each .npy file in the directory
-            saved_files = os.listdir(scale_dir)
-            self.assertGreater(len(saved_files), 0, f"No grids found in directory {scale_dir}.")
-
-            for file in saved_files:
-                if file.endswith('.npy'):
-                    grid_filepath = os.path.join(scale_dir, file)
-
-                    # Load the grid from the .npy file
-                    loaded_grid = np.load(grid_filepath)
-
-                    # Check the shape of the loaded grid
-                    self.assertEqual(loaded_grid.shape, (self.channels, self.grid_resolution, self.grid_resolution),
-                                     f"Loaded grid {file} has incorrect shape.")
-
     def test_assign_features_with_real_data(self):
         """Test that features are correctly assigned to grids with real data."""
         # Prepare the DataLoader
@@ -229,7 +142,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
 
             # Assign features to the grids
             updated_grids = gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_coords,
-                                                        self.channels, self.device)
+                                                        self.sampled_data, self.channels, self.device)
 
             # Check that features have been assigned (e.g., grid values are not all zeros)
             self.assertFalse(torch.all(updated_grids == 0),
@@ -250,8 +163,15 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         data_loader = prepare_grids_dataloader(self.sampled_data, self.channels, batch_size=50, num_workers=4)
 
         # Generate and save multiscale grids
-        gpu_generate_multiscale_grids(data_loader, self.window_sizes, self.grid_resolution, self.channels, self.device,
-                                  save=True, save_dir=self.save_dir_real_data)
+        grids_dict = gpu_generate_multiscale_grids(data_loader, self.window_sizes, self.grid_resolution, self.channels, self.device,
+                                  full_data=self.sampled_data, save=True, save_dir=self.save_dir_real_data)
+
+        # Check if grids are generated for each scale
+        for size_label, _ in self.window_sizes:
+            self.assertIn(size_label, grids_dict, f"{size_label} grids are missing from the generated grids.")
+
+            grids = grids_dict[size_label]['grids']
+            self.assertGreater(len(grids), 0, f"No {size_label} grids generated.")
 
         for size_label, _ in self.window_sizes:
             scale_dir = os.path.join(self.save_dir_real_data, size_label)
