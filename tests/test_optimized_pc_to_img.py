@@ -125,6 +125,6 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         self.assertEqual(batch_features.shape, (self.batch_size, self.channels))  # (batch_size, channels)
         self.assertEqual(batch_labels.shape, (self.batch_size, ))     # (batch,size, )
 
-        self.assertEqual(batch_data.device(), self.device)
-        self.assertEqual(batch_features.device(), self.device)
-        self.assertEqual(batch_labels.device(), self.device)
+        self.assertEqual(batch_data, self.device)
+        self.assertEqual(batch_features, self.device)
+        self.assertEqual(batch_labels, self.device)
