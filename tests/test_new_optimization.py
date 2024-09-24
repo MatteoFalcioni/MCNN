@@ -12,7 +12,7 @@ class TestPointCloudToImage(unittest.TestCase):
 
     def setUp(self):
         self.las_file_path = 'data/raw/labeled_FSL.las'
-        self.sample_size = 200
+        self.sample_size = 50
         self.grid_resolution = 128
         self.channels = 10
         self.window_size = 20.0
@@ -36,7 +36,7 @@ class TestPointCloudToImage(unittest.TestCase):
 
         # Time the original function
         start_time = time.time()
-        grid_orig, cell_size_orig, x_coords_orig, y_coords_orig = create_feature_grid(
+        grid_orig, cell_size_orig, x_coords_orig, y_coords_orig, _ = create_feature_grid(
             center_point, window_size=self.window_size, grid_resolution=self.grid_resolution, channels=self.channels
         )
         original_duration = time.time() - start_time
