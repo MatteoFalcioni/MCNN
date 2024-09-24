@@ -100,7 +100,7 @@ def prepare_grids_dataloader(data_array, channels, batch_size, num_workers):
     - data_loader (DataLoader): A DataLoader that batches the dataset.
     """
     dataset = TensorDataset(
-        torch.tensor(data_array[:, :3]),  # Center points (x, y, z)
+        torch.tensor(data_array[:, :2]),  # Center points (x, y)
         torch.tensor(data_array[:, 3:3 + channels]),  # Features
         torch.tensor(data_array[:, -1])  # Class labels
     )
