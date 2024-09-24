@@ -160,12 +160,21 @@ def gpu_generate_multiscale_grids(data_loader, window_sizes, grid_resolution, ch
             # Save the grid if save_dir is provided
             if save and save_dir is not None:
                 for i, (grid, label) in enumerate(zip(grids, batch_labels)):
-                    grid_with_features = grid.cpu().numpy()
-                    scale_dir = os.path.join(save_dir, size_label)
-                    os.makedirs(scale_dir, exist_ok=True)
-                    grid_filename = os.path.join(scale_dir, f"grid_{batch_idx}_{i}_{size_label}_class_{int(label)}.npy")
-                    np.save(grid_filename, grid_with_features)
-                    print(f"Saved {size_label} grid for batch {batch_idx}, point {i} to {grid_filename}")
+                    try:
+                        # Convert grid to numpy and save
+                        grid_with_features = grid.cpu().numpy()
+
+                        # Ensure the save directory exists
+                        scale_dir = os.path.join(save_dir, size_label)
+                        os.makedirs(scale_dir, exist_ok=True)
+
+                        # Construct the filename and save the file
+                        grid_filename = os.path.join(scale_dir,
+                                                     f"grid_{batch_idx}_{i}_{size_label}_class_{int(label)}.npy")
+                        np.save(grid_filename, grid_with_features)
+                        print(f"Saved {size_label} grid for batch {batch_idx}, point {i} to {grid_filename}")
+                    except Exception as e:
+                        print(f"Error saving grid {i} in batch {batch_idx}: {str(e)}")
             elif save and save_dir is None:
                 print('Warning: unspecified save directory for generated grids. Grids cannot be saved.')
 
