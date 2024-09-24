@@ -1,6 +1,7 @@
 import laspy
 import numpy as np
 import pandas as pd
+import os
 
 
 def load_las_data(file_path):
@@ -158,5 +159,38 @@ def remap_labels(data_array, label_column_index=-1):
 
     # Return the remapped data array and the mapping dictionary
     return data_array, label_mapping
+
+
+def combine_and_save_csv_files(csv_files, save=False, save_dir='data/combined_data'):
+    """
+    Combines multiple CSV files into a single NumPy array and optionally saves the combined data to a file.
+
+    Args:
+    - csv_files (list of str): List of paths to CSV files.
+    - save (bool): Whether to save the combined data to a file. Default is False.
+    - save_dir (str): Directory where the combined NumPy array will be saved. Default is 'combined_data'.
+
+    Returns:
+    - np.ndarray: Combined data from all CSV files as a NumPy array.
+    """
+    combined_data = []
+
+    # Loop through each CSV file and read its contents
+    for file in csv_files:
+        # Read the CSV file into a NumPy array
+        data = pd.read_csv(file).values
+        combined_data.append(data)
+
+    # Combine all data into a single NumPy array
+    combined_array = np.vstack(combined_data)
+
+    # Optionally save the combined data
+    if save:
+        os.makedirs(save_dir, exist_ok=True)
+        output_file_path = os.path.join(save_dir, 'combined_data.npy')
+        np.save(output_file_path, combined_array)
+        print(f"Combined data saved to {output_file_path}")
+
+    return combined_array
 
 

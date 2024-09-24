@@ -6,7 +6,6 @@ from utils.train_data_utils import prepare_dataloader
 from scripts.train import train_epochs
 from scripts.inference import inference
 from utils.config_handler import parse_arguments
-from utils.device_utils import select_device
 from utils.point_cloud_data_utils import read_las_file_to_numpy, remap_labels
 import numpy as np
 
@@ -16,7 +15,7 @@ def main():
     args = parse_arguments()
 
     # Set device (GPU if available)
-    device = select_device()
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
 
     # Initialize model (always MCNN)
@@ -62,7 +61,7 @@ def main():
 
     print("Training finished")
 
-    # Run inference on a sample
+"""    # Run inference on a sample
     print("Starting inference process...")
     data_array, _ = read_las_file_to_numpy(labeled_filepath)
     # need to remap labels to match the ones in training. Maybe consider remapping already when doing las -> numpy ?
@@ -90,7 +89,7 @@ def main():
         true_labels=ground_truth_labels
     )
 
-    print(f"Predicted Labels: {predicted_labels}")
+    print(f"Predicted Labels: {predicted_labels}")"""
 
 
 if __name__ == "__main__":
@@ -100,3 +99,7 @@ if __name__ == "__main__":
 # important: sometimes you use window sizes as list like window_sizes=[2.5, 5, 10], sometimes as tuples like
 # window_sizes = [('small', 2.5), ('medium', 5.0), ('large', 10.0)]). Most importantly, in multiscale_grids and
 # in the dataloader it's  a tuple, while in inference or training it's not. Use same standard for everything.
+
+# Also, we might want to change the channels parameter to a list of features chosen by the user. that way we can
+# get channels from the lenght of features_to_train (for example) and avoid hard coding it everytime.
+

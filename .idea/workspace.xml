@@ -4,9 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="implementing simpler optimization">
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="correcting grid creation">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/environment_linux.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/environment_windows.yml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/optimization_quicktest.py" beforeDir="false" afterPath="$PROJECT_DIR$/optimization_quicktest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/optimization_quicktest.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/device_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/device_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -62,34 +65,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00175" summary="issue on gpu, maybe fixed?">
-      <created>1727165713744</created>
-      <option name="number" value="00175" />
-      <option name="presentableId" value="LOCAL-00175" />
-      <option name="project" value="LOCAL" />
-      <updated>1727165713744</updated>
-    </task>
-    <task id="LOCAL-00176" summary="need to specify gpu index as 0">
-      <created>1727165802574</created>
-      <option name="number" value="00176" />
-      <option name="presentableId" value="LOCAL-00176" />
-      <option name="project" value="LOCAL" />
-      <updated>1727165802574</updated>
-    </task>
-    <task id="LOCAL-00177" summary="sizes of tensor not matching">
-      <created>1727166153716</created>
-      <option name="number" value="00177" />
-      <option name="presentableId" value="LOCAL-00177" />
-      <option name="project" value="LOCAL" />
-      <updated>1727166153716</updated>
-    </task>
-    <task id="LOCAL-00178" summary="created dataloader for grids, testing it">
-      <created>1727166678937</created>
-      <option name="number" value="00178" />
-      <option name="presentableId" value="LOCAL-00178" />
-      <option name="project" value="LOCAL" />
-      <updated>1727166678937</updated>
     </task>
     <task id="LOCAL-00179" summary="fetch data from cpu, then use num_workers!=0">
       <created>1727167003332</created>
@@ -406,7 +381,35 @@
       <option name="project" value="LOCAL" />
       <updated>1727186141667</updated>
     </task>
-    <option name="localTasksCounter" value="224" />
+    <task id="LOCAL-00224" summary="correcting tests">
+      <created>1727186294664</created>
+      <option name="number" value="00224" />
+      <option name="presentableId" value="LOCAL-00224" />
+      <option name="project" value="LOCAL" />
+      <updated>1727186294664</updated>
+    </task>
+    <task id="LOCAL-00225" summary="correcting grid creation">
+      <created>1727186499257</created>
+      <option name="number" value="00225" />
+      <option name="presentableId" value="LOCAL-00225" />
+      <option name="project" value="LOCAL" />
+      <updated>1727186499257</updated>
+    </task>
+    <task id="LOCAL-00226" summary="correcting grid creation">
+      <created>1727186686868</created>
+      <option name="number" value="00226" />
+      <option name="presentableId" value="LOCAL-00226" />
+      <option name="project" value="LOCAL" />
+      <updated>1727186686868</updated>
+    </task>
+    <task id="LOCAL-00227" summary="correcting grid creation">
+      <created>1727186810998</created>
+      <option name="number" value="00227" />
+      <option name="presentableId" value="LOCAL-00227" />
+      <option name="project" value="LOCAL" />
+      <updated>1727186810998</updated>
+    </task>
+    <option name="localTasksCounter" value="228" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -421,8 +424,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="corrected shapes in testing." />
-    <MESSAGE value="corrected to_device missing" />
     <MESSAGE value="updating dataloader tests" />
     <MESSAGE value="testing grids dataloader" />
     <MESSAGE value="removed device from dataloader (torch standards)" />
@@ -446,6 +447,8 @@
     <MESSAGE value="ensure existing folders to save tests' data" />
     <MESSAGE value="add more chans in tests" />
     <MESSAGE value="implementing simpler optimization" />
-    <option name="LAST_COMMIT_MESSAGE" value="implementing simpler optimization" />
+    <MESSAGE value="correcting tests" />
+    <MESSAGE value="correcting grid creation" />
+    <option name="LAST_COMMIT_MESSAGE" value="correcting grid creation" />
   </component>
 </project>
