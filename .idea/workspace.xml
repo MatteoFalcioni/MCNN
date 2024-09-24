@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="fixed small error in testing">
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="introducing batching step by step">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/optimization_quicktest.py" beforeDir="false" afterPath="$PROJECT_DIR$/optimization_quicktest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_optimized_pc_to_img.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_optimized_pc_to_img.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/device_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/device_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -62,20 +64,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00121" summary="working with np arrays instead of lists for efficiency">
-      <created>1726936180202</created>
-      <option name="number" value="00121" />
-      <option name="presentableId" value="LOCAL-00121" />
-      <option name="project" value="LOCAL" />
-      <updated>1726936180202</updated>
-    </task>
-    <task id="LOCAL-00122" summary="updated tests for change lists --&gt; np arrays">
-      <created>1726936198064</created>
-      <option name="number" value="00122" />
-      <option name="presentableId" value="LOCAL-00122" />
-      <option name="project" value="LOCAL" />
-      <updated>1726936198064</updated>
     </task>
     <task id="LOCAL-00123" summary="remapping labels before generating grids">
       <created>1726936364370</created>
@@ -406,7 +394,21 @@
       <option name="project" value="LOCAL" />
       <updated>1727163964700</updated>
     </task>
-    <option name="localTasksCounter" value="170" />
+    <task id="LOCAL-00170" summary="more thorough testing for assigning features">
+      <created>1727164229677</created>
+      <option name="number" value="00170" />
+      <option name="presentableId" value="LOCAL-00170" />
+      <option name="project" value="LOCAL" />
+      <updated>1727164229678</updated>
+    </task>
+    <task id="LOCAL-00171" summary="introducing batching step by step">
+      <created>1727164677081</created>
+      <option name="number" value="00171" />
+      <option name="presentableId" value="LOCAL-00171" />
+      <option name="project" value="LOCAL" />
+      <updated>1727164677081</updated>
+    </task>
+    <option name="localTasksCounter" value="172" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -421,8 +423,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="separated windows and linux envs" />
-    <MESSAGE value="wrong file name" />
     <MESSAGE value="optimizing more grid generation with parallel processing" />
     <MESSAGE value="testing gpu optimization" />
     <MESSAGE value="corrected vriable name mistake" />
@@ -446,6 +446,8 @@
     <MESSAGE value="re-starting optimization of grid creation" />
     <MESSAGE value="first tests of new optimization of grid creation" />
     <MESSAGE value="fixed small error in testing" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixed small error in testing" />
+    <MESSAGE value="more thorough testing for assigning features" />
+    <MESSAGE value="introducing batching step by step" />
+    <option name="LAST_COMMIT_MESSAGE" value="introducing batching step by step" />
   </component>
 </project>
