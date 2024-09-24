@@ -49,9 +49,6 @@ def parse_arguments():
                         help='If set, save the trained model.')
     parser.add_argument('--preprocessed_data_dir', type=str, default=config.get('preprocessed_data_dir', 'data/pre_processed_data'),
                         help='directory where pre-processed data for training is stored.')
-    parser.add_argument('--windows_sizes', type=list,
-                        default=config.get('windows_sizes', [('small', 2.5), ('medium', 5.0), ('large', 10.0)]),
-                        help='directory where pre-processed data for training is stored.')
     parser.add_argument('--load_model', action='store_true', default=config.get('load_model', False),
                         help='If set, loads model from load_model_filepath to perform inference')
     parser.add_argument('--load_model_filepath', type=str,
