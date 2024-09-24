@@ -14,7 +14,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         # Common parameters for testing
         self.batch_size = 10
         self.grid_resolution = 128
-        self.channels = 3
+        self.channels = 10
         self.window_size = 10.0
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         # Define window sizes for multiscale grid generation
@@ -202,4 +202,4 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
 
             # Visualize the loaded grid for verification
             print(f"Visualizing {saved_files[0]}")
-            visualize_grid(loaded_grid, channel=0, title=f"Visualization of {saved_files[0]}", save=False)
+            visualize_grid(loaded_grid, channel=7, title=f"Visualization of {saved_files[0]}", save=False)
