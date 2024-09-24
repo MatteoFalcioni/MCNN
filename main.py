@@ -30,7 +30,12 @@ def main():
     train_loader, val_loader = prepare_dataloader(
         batch_size=args.batch_size,
         data_dir=labeled_filepath,
-        pre_process_data=False,
+        grid_save_dir='data/pre_processed_data_new',
+        pre_process_data=True,
+        window_sizes=args.window_sizes,
+        grid_resolution=128,
+        channels=7,
+        save_grids=True,
         train_split=0.8
     )
 
