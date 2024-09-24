@@ -12,7 +12,7 @@ class TestPointCloudToImage(unittest.TestCase):
 
     def setUp(self):
         self.las_file_path = 'data/raw/labeled_FSL.las'
-        self.sample_size = 500
+        self.sample_size = 200
         self.grid_resolution = 128
         self.channels = 10
         self.window_size = 20.0

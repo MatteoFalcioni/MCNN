@@ -12,28 +12,28 @@ def opt_create_feature_grid(center_point, window_size, grid_resolution=128, chan
     Args:
     - center_point (tuple): The (x, y, z) coordinates of the center point of the grid.
     - window_size (float): The size of the square window around the center point (in meters).
-    - grid_resolution (int): The number of cells in one dimension of the grid (e.g., 128 for a 128x128 grid). Default is 128 to match article to replicate.
+    - grid_resolution (int): The number of cells in one dimension of the grid (e.g., 128 for a 128x128 grid).
     - channels (int): The number of channels in the resulting image. Default is 3 for RGB.
 
     Returns:
-    - grid (numpy.ndarray): A 2D grid initialized to zeros, which will store feature values.
+    - grid (torch.Tensor): A 2D grid initialized to zeros, which will store feature values.
     - cell_size (float): The size of each cell in meters.
-    - x_coords (numpy.ndarray): Array of x coordinates for the centers of the grid cells.
-    - y_coords (numpy.ndarray): Array of y coordinates for the centers of the grid cells.
+    - x_coords (torch.Tensor): Tensor of x coordinates for the centers of the grid cells.
+    - y_coords (torch.Tensor): Tensor of y coordinates for the centers of the grid cells.
     """
     # Calculate the size of each cell in meters
     cell_size = window_size / grid_resolution
 
-    # Initialize the grid to zeros; each cell will eventually hold feature values
-    grid = []
+    # Initialize the grid to zeros (channels are the last dimension)
+    grid = torch.zeros((grid_resolution, grid_resolution, channels))
 
-    # Generate cell coordinates for the grid based on the center point
-    i_indices = np.arange(grid_resolution)
-    j_indices = np.arange(grid_resolution)
+    # Generate grid coordinates dynamically
+    i_indices = torch.arange(grid_resolution)
+    j_indices = torch.arange(grid_resolution)
 
     half_resolution_plus_half = (grid_resolution / 2) + 0.5
 
-    # following x_k = x_pk - (64.5 - j) * w
+    # Calculate x and y coordinates for the grid centers
     x_coords = center_point[0] - (half_resolution_plus_half - j_indices) * cell_size
     y_coords = center_point[1] - (half_resolution_plus_half - i_indices) * cell_size
 
