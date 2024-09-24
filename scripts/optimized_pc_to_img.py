@@ -79,8 +79,7 @@ def gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_c
 
         # Assign features to the grid for the i-th batch
         for channel in range(channels):
-            grids[i, channel, :, :] = batch_features[i, closest_points_idx, channel].view(grids.shape[2],
-                                                                                          grids.shape[3])
+            grids[i, channel, :, :] = batch_features[i, closest_points_idx, channel]
 
     return grids
 

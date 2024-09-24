@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="issue on gpu index, maybe fixed?">
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="need to specify gpu index as 0">
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/optimization_quicktest.py" beforeDir="false" afterPath="$PROJECT_DIR$/optimization_quicktest.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/device_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/device_utils.py" afterDir="false" />
@@ -62,20 +62,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00126" summary="corrected syntax of yaml file">
-      <created>1727080216042</created>
-      <option name="number" value="00126" />
-      <option name="presentableId" value="LOCAL-00126" />
-      <option name="project" value="LOCAL" />
-      <updated>1727080216042</updated>
-    </task>
-    <task id="LOCAL-00127" summary="renamed variables for clarity">
-      <created>1727080234491</created>
-      <option name="number" value="00127" />
-      <option name="presentableId" value="LOCAL-00127" />
-      <option name="project" value="LOCAL" />
-      <updated>1727080234491</updated>
     </task>
     <task id="LOCAL-00128" summary="added default for save_dir">
       <created>1727080264600</created>
@@ -406,7 +392,21 @@
       <option name="project" value="LOCAL" />
       <updated>1727165543624</updated>
     </task>
-    <option name="localTasksCounter" value="175" />
+    <task id="LOCAL-00175" summary="issue on gpu, maybe fixed?">
+      <created>1727165713744</created>
+      <option name="number" value="00175" />
+      <option name="presentableId" value="LOCAL-00175" />
+      <option name="project" value="LOCAL" />
+      <updated>1727165713744</updated>
+    </task>
+    <task id="LOCAL-00176" summary="need to specify gpu index as 0">
+      <created>1727165802574</created>
+      <option name="number" value="00176" />
+      <option name="presentableId" value="LOCAL-00176" />
+      <option name="project" value="LOCAL" />
+      <updated>1727165802574</updated>
+    </task>
+    <option name="localTasksCounter" value="177" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -421,8 +421,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="corrected vriable name mistake" />
-    <MESSAGE value="read_las_file to np returns 2 values" />
     <MESSAGE value="trying to correct errors from tests" />
     <MESSAGE value="corrected train loss output (it was always zero)" />
     <MESSAGE value="adding checks to test better the code" />
@@ -446,6 +444,8 @@
     <MESSAGE value="introducing batching step by step" />
     <MESSAGE value="testing introduction of batching step by step" />
     <MESSAGE value="issue on gpu index, maybe fixed?" />
-    <option name="LAST_COMMIT_MESSAGE" value="issue on gpu index, maybe fixed?" />
+    <MESSAGE value="issue on gpu, maybe fixed?" />
+    <MESSAGE value="need to specify gpu index as 0" />
+    <option name="LAST_COMMIT_MESSAGE" value="need to specify gpu index as 0" />
   </component>
 </project>
