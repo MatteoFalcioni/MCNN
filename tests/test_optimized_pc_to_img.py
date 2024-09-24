@@ -13,7 +13,7 @@ class TestGPUGridFunctions(unittest.TestCase):
         self.window_size = 2.5
         self.grid_resolution = 128
         self.channels = 3
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
         # Simulated point cloud data: 10 points with (x, y, z) and 3 feature values
         self.point_cloud = torch.tensor([
