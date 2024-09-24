@@ -53,7 +53,7 @@ def gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_c
     - grids (torch.Tensor): A tensor of shape [batch_size, channels, grid_resolution, grid_resolution].
     - x_coords (torch.Tensor): A tensor of shape [batch_size, grid_resolution] containing x coordinates for each grid cell.
     - y_coords (torch.Tensor): A tensor of shape [batch_size, grid_resolution] containing y coordinates for each grid cell.
-    - full_data (np.ndarray): A numpy array representing the entire point cloud's (x, y) coordinates for the KDTree.
+    - full_data (np.ndarray): A numpy array representing the entire point cloud's (x, y) coordinates AND features for the KDTree.
     - channels (int): Number of feature channels in the grid (default is 3 for RGB).
     - device (torch.device): The device (CPU or GPU) to run this on.
 
@@ -64,10 +64,10 @@ def gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_c
     num_available_features = batch_features.shape[1]  # How many features are available
 
     # Ensure we only extract up to 'channels' features
-    batch_features = batch_features[:, :min(channels, num_available_features)].to(device)
+    # batch_features = batch_features[:, :min(channels, num_available_features)].to(device)
 
     # Build a KDTree for the full point cloud using the full_data (assumes full_data is numpy array with shape [N, 2])
-    tree = KDTree(full_data[:, :2])  # We use only x, y coordinates (additional check)
+    tree = KDTree(full_data[:, :2])  # We use only x, y coordinates
 
     # Iterate through each batch point and its grid
     for i in range(batch_size):
@@ -82,7 +82,10 @@ def gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_c
             for cell_idx in range(grids.shape[2]):  # Loop over grid_resolution (cells)
                 # Assign the features of the closest point to the grid cell
                 closest_point_idx = closest_points_idxs[cell_idx]
-                grids[i, channel, cell_idx] = batch_features[closest_point_idx, channel]
+                # Get the features from the full point cloud, not the batch
+                # Assuming full_data has shape [N, 3+num_features] where first 3 columns are (x, y, z)
+                grids[i, channel, cell_idx] = full_data[
+                    closest_point_idx, 3 + channel]  # Fetch the correct feature channel from full_data
 
     return grids
 
