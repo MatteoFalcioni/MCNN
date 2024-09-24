@@ -115,7 +115,7 @@ def opt_generate_multiscale_grids(data_array, window_sizes, grid_resolution, cha
             print(f"Generating {size_label} grid for point {i} with window size {window_size}...")
 
             # Create a grid around the current center point
-            grid, _, x_coords, y_coords = create_feature_grid(center_point, window_size, grid_resolution, channels)
+            grid, _, x_coords, y_coords = opt_create_feature_grid(center_point, window_size, grid_resolution, channels)
 
             # Pre-allocate grid for features
             grid_tensor = torch.zeros((grid_resolution, grid_resolution, channels), device=device)
