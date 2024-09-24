@@ -4,11 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="ensure existing folders to save tests' data">
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="add more chans in tests">
+      <change afterPath="$PROJECT_DIR$/scripts/new_optimization.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/optimization_quicktest.py" beforeDir="false" afterPath="$PROJECT_DIR$/optimization_quicktest.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_optimized_pc_to_img.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_optimized_pc_to_img.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/device_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/device_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -64,20 +64,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00172" summary="testing introduction of batching step by step">
-      <created>1727165183840</created>
-      <option name="number" value="00172" />
-      <option name="presentableId" value="LOCAL-00172" />
-      <option name="project" value="LOCAL" />
-      <updated>1727165183840</updated>
-    </task>
-    <task id="LOCAL-00173" summary="issue on gpu index, maybe fixed?">
-      <created>1727165311634</created>
-      <option name="number" value="00173" />
-      <option name="presentableId" value="LOCAL-00173" />
-      <option name="project" value="LOCAL" />
-      <updated>1727165311634</updated>
     </task>
     <task id="LOCAL-00174" summary="issue on gpu index, maybe fixed?">
       <created>1727165543624</created>
@@ -408,7 +394,21 @@
       <option name="project" value="LOCAL" />
       <updated>1727184030400</updated>
     </task>
-    <option name="localTasksCounter" value="221" />
+    <task id="LOCAL-00221" summary="ensure existing folders to save tests' data">
+      <created>1727184398736</created>
+      <option name="number" value="00221" />
+      <option name="presentableId" value="LOCAL-00221" />
+      <option name="project" value="LOCAL" />
+      <updated>1727184398736</updated>
+    </task>
+    <task id="LOCAL-00222" summary="add more chans in tests">
+      <created>1727184517032</created>
+      <option name="number" value="00222" />
+      <option name="presentableId" value="LOCAL-00222" />
+      <option name="project" value="LOCAL" />
+      <updated>1727184517032</updated>
+    </task>
+    <option name="localTasksCounter" value="223" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -423,7 +423,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="corrected wrong tensor shape again" />
     <MESSAGE value="corrected wrong shapes: [batch sizes, ...] already selects num_points." />
     <MESSAGE value="corrected shapes in testing." />
     <MESSAGE value="corrected to_device missing" />
@@ -448,6 +447,7 @@
     <MESSAGE value="important error: not going through all points for nearest neighbour to cells, only looking in batch" />
     <MESSAGE value="updated with use of kd tree" />
     <MESSAGE value="ensure existing folders to save tests' data" />
-    <option name="LAST_COMMIT_MESSAGE" value="ensure existing folders to save tests' data" />
+    <MESSAGE value="add more chans in tests" />
+    <option name="LAST_COMMIT_MESSAGE" value="add more chans in tests" />
   </component>
 </project>
