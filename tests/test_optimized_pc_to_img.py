@@ -234,6 +234,6 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
                 # Load the grid from the .npy file
                 loaded_grid = np.load(grid_filepath)
 
-                # Visualize the grid (using channel 0 for simplicity)
+                # Visualize the grid
                 print(f"Visualizing {file}")
-                visualize_grid(loaded_grid, channel=0, title=f"Visualization of {file}", save=False)
+                visualize_grid(loaded_grid, channel=3, title=f"Visualization of {file}", save=False)
