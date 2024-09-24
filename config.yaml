@@ -6,7 +6,7 @@ learning_rate: 0.01    # Initial learning rate as mentioned in both articles
 learning_rate_decay_factor: 0.0005   # mentioned in first article
 learning_rate_decay_epochs: 1    # not mentioned, so assuming that lr decay is performed through each epoch
 momentum: 0.9    # used in first article
-window_sizes: [('small', 2.5), ('medium', 5.0), ('large', 10.0)]  # window sizes to be used for grids
+windows_sizes: [('small', 2.5), ('medium', 5.0), ('large', 10.0)]  # window sizes to be used for grids
 
 # User options
 models_save_dir: "models/saved/"      # Model save path base directory
