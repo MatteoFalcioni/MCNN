@@ -1,4 +1,5 @@
 from utils.point_cloud_data_utils import load_las_data, load_asc_data, read_las_file_to_numpy, numpy_to_dataframe
+from utils.point_cloud_data_utils import combine_and_save_csv_files
 import os
 import pandas as pd
 import unittest
@@ -14,6 +15,9 @@ class TestPointCloudDataUtils(unittest.TestCase):
                                     'ndvi', 'ndwi', 'ssi', 'l1_b', 'l2_b', 'l3_b', 'planarity_b', 'sphericity_b',
                                     'linearity_b', 'entropy_b', 'theta_b', 'theta_variance_b', 'mad_b', 'delta_z_b',
                                     'N_h', 'delta_z_fl']
+        self.csv_files = ['data/classes/buildings.csv', 'data/classes/cars.csv', 'data/classes/grass.csv',
+                          'data/classes/rail.csv', 'data/classes/roads.csv', 'data/classes/trees.csv']
+        self.csv_save_dir = 'data/combined_data'  # Directory to save combined data
 
     def test_load_las_data(self):
         # Test loading LAS data
@@ -90,4 +94,29 @@ class TestPointCloudDataUtils(unittest.TestCase):
         # Print sample data for manual verification
         print("Sample data from DataFrame (first 5 rows):")
         print(df.head())
+
+    def test_combine_and_save_csv_files(self):
+        """ Test combining and saving CSV files into a single NumPy array. """
+
+        # Test combining without saving
+        combined_data = combine_and_save_csv_files(self.csv_files, save=False)
+
+        # Check that the result is a NumPy array
+        self.assertIsInstance(combined_data, np.ndarray, "The result is not a NumPy array.")
+
+        # Ensure that the array has some rows
+        self.assertGreater(combined_data.shape[0], 0, "Combined array is unexpectedly empty.")
+
+        # Test combining with saving
+        combined_data_saved = combine_and_save_csv_files(self.csv_files, save=True, save_dir=self.csv_save_dir)
+
+        # Ensure the combined data was saved
+        saved_file_path = os.path.join(self.csv_save_dir, 'combined_data.npy')
+        self.assertTrue(os.path.exists(saved_file_path), "Combined data was not saved correctly.")
+
+        # Load the saved file and compare it with the original combined data
+        loaded_data = np.load(saved_file_path)
+        np.testing.assert_array_almost_equal(combined_data_saved, loaded_data, decimal=6,
+                                             err_msg="Loaded data does not match the originally combined data.")
+
 
