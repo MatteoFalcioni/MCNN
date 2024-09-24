@@ -32,7 +32,7 @@ def main():
         data_dir=labeled_filepath,
         grid_save_dir='data/pre_processed_data_new',
         pre_process_data=True,
-        window_sizes=args.windows_sizes,
+        window_sizes=[('small', 2.5), ('medium', 5.0), ('large', 10.0)],
         grid_resolution=128,
         channels=7,
         save_grids=True,
