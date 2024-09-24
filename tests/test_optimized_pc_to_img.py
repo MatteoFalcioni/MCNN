@@ -3,7 +3,7 @@ import torch
 import os
 from utils.point_cloud_data_utils import read_las_file_to_numpy
 from scripts.optimized_pc_to_img import gpu_create_feature_grid, gpu_assign_features_to_grid, prepare_grids_dataloader, gpu_generate_multiscale_grids
-
+import numpy as np
 
 class TestGPUGridBatchingFunctions(unittest.TestCase):
 
