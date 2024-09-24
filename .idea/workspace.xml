@@ -4,10 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="adding reading of csv files">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="mistake in param now fixed">
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils/point_cloud_data_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/point_cloud_data_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -62,62 +60,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00181" summary="upgrading multiscale grids to gpu and testing">
-      <created>1727167489717</created>
-      <option name="number" value="00181" />
-      <option name="presentableId" value="LOCAL-00181" />
-      <option name="project" value="LOCAL" />
-      <updated>1727167489717</updated>
-    </task>
-    <task id="LOCAL-00182" summary="error in file import fixed">
-      <created>1727167551158</created>
-      <option name="number" value="00182" />
-      <option name="presentableId" value="LOCAL-00182" />
-      <option name="project" value="LOCAL" />
-      <updated>1727167551158</updated>
-    </task>
-    <task id="LOCAL-00183" summary="corrected wrong tensor shape">
-      <created>1727168007087</created>
-      <option name="number" value="00183" />
-      <option name="presentableId" value="LOCAL-00183" />
-      <option name="project" value="LOCAL" />
-      <updated>1727168007087</updated>
-    </task>
-    <task id="LOCAL-00184" summary="corrected wrong tensor shape again">
-      <created>1727168087893</created>
-      <option name="number" value="00184" />
-      <option name="presentableId" value="LOCAL-00184" />
-      <option name="project" value="LOCAL" />
-      <updated>1727168087893</updated>
-    </task>
-    <task id="LOCAL-00185" summary="corrected wrong shapes: [batch sizes, ...] already selects num_points.">
-      <created>1727169801513</created>
-      <option name="number" value="00185" />
-      <option name="presentableId" value="LOCAL-00185" />
-      <option name="project" value="LOCAL" />
-      <updated>1727169801513</updated>
-    </task>
-    <task id="LOCAL-00186" summary="corrected shapes in testing.">
-      <created>1727170222476</created>
-      <option name="number" value="00186" />
-      <option name="presentableId" value="LOCAL-00186" />
-      <option name="project" value="LOCAL" />
-      <updated>1727170222476</updated>
-    </task>
-    <task id="LOCAL-00187" summary="corrected shapes in testing.">
-      <created>1727170323271</created>
-      <option name="number" value="00187" />
-      <option name="presentableId" value="LOCAL-00187" />
-      <option name="project" value="LOCAL" />
-      <updated>1727170323271</updated>
-    </task>
-    <task id="LOCAL-00188" summary="corrected to_device missing">
-      <created>1727170430927</created>
-      <option name="number" value="00188" />
-      <option name="presentableId" value="LOCAL-00188" />
-      <option name="project" value="LOCAL" />
-      <updated>1727170430927</updated>
     </task>
     <task id="LOCAL-00189" summary="corrected to_device missing">
       <created>1727170507924</created>
@@ -406,7 +348,63 @@
       <option name="project" value="LOCAL" />
       <updated>1727187972246</updated>
     </task>
-    <option name="localTasksCounter" value="230" />
+    <task id="LOCAL-00230" summary="allow for loading numpy pre saved data, not only las">
+      <created>1727188541506</created>
+      <option name="number" value="00230" />
+      <option name="presentableId" value="LOCAL-00230" />
+      <option name="project" value="LOCAL" />
+      <updated>1727188541506</updated>
+    </task>
+    <task id="LOCAL-00231" summary="addeed sampling from dataset because it was too big for training">
+      <created>1727188731488</created>
+      <option name="number" value="00231" />
+      <option name="presentableId" value="LOCAL-00231" />
+      <option name="project" value="LOCAL" />
+      <updated>1727188731488</updated>
+    </task>
+    <task id="LOCAL-00232" summary="checked for label remapping">
+      <created>1727188825053</created>
+      <option name="number" value="00232" />
+      <option name="presentableId" value="LOCAL-00232" />
+      <option name="project" value="LOCAL" />
+      <updated>1727188825053</updated>
+    </task>
+    <task id="LOCAL-00233" summary="need to sample data for training">
+      <created>1727189016849</created>
+      <option name="number" value="00233" />
+      <option name="presentableId" value="LOCAL-00233" />
+      <option name="project" value="LOCAL" />
+      <updated>1727189016849</updated>
+    </task>
+    <task id="LOCAL-00234" summary="ready for training">
+      <created>1727189117141</created>
+      <option name="number" value="00234" />
+      <option name="presentableId" value="LOCAL-00234" />
+      <option name="project" value="LOCAL" />
+      <updated>1727189117141</updated>
+    </task>
+    <task id="LOCAL-00235" summary="now actually ready for training">
+      <created>1727189334333</created>
+      <option name="number" value="00235" />
+      <option name="presentableId" value="LOCAL-00235" />
+      <option name="project" value="LOCAL" />
+      <updated>1727189334333</updated>
+    </task>
+    <task id="LOCAL-00236" summary="mistake in param now fixed">
+      <created>1727189410943</created>
+      <option name="number" value="00236" />
+      <option name="presentableId" value="LOCAL-00236" />
+      <option name="project" value="LOCAL" />
+      <updated>1727189410943</updated>
+    </task>
+    <task id="LOCAL-00237" summary="mistake in param now fixed">
+      <created>1727189668207</created>
+      <option name="number" value="00237" />
+      <option name="presentableId" value="LOCAL-00237" />
+      <option name="project" value="LOCAL" />
+      <updated>1727189668207</updated>
+    </task>
+    <option name="localTasksCounter" value="238" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -421,13 +419,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="removed device from dataloader (torch standards)" />
-    <MESSAGE value="wrong call to shape(), just use .shape" />
-    <MESSAGE value="correct shape for scalars is (..., )" />
-    <MESSAGE value="corrected to(device) method" />
-    <MESSAGE value="forgot to call .device" />
-    <MESSAGE value="added saving back into multiscale grids" />
-    <MESSAGE value="added tests for multiscale" />
     <MESSAGE value="no need for z in grid gen" />
     <MESSAGE value="testing saving and loading of optimized grids" />
     <MESSAGE value="needed to add save=true" />
@@ -446,6 +437,13 @@
     <MESSAGE value="correcting grid creation" />
     <MESSAGE value="cleaning code, adding reading of csv files" />
     <MESSAGE value="adding reading of csv files" />
-    <option name="LAST_COMMIT_MESSAGE" value="adding reading of csv files" />
+    <MESSAGE value="allow for loading numpy pre saved data, not only las" />
+    <MESSAGE value="addeed sampling from dataset because it was too big for training" />
+    <MESSAGE value="checked for label remapping" />
+    <MESSAGE value="need to sample data for training" />
+    <MESSAGE value="ready for training" />
+    <MESSAGE value="now actually ready for training" />
+    <MESSAGE value="mistake in param now fixed" />
+    <option name="LAST_COMMIT_MESSAGE" value="mistake in param now fixed" />
   </component>
 </project>
