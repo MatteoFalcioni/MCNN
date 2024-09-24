@@ -6,91 +6,77 @@ from torch.utils.data import DataLoader, TensorDataset
 from utils.point_cloud_data_utils import remap_labels
 
 
-def gpu_create_feature_grid(center_points, window_size, grid_resolution=128, channels=3, device=None):
+def gpu_create_feature_grid(center_point, window_size, grid_resolution=128, channels=3, device=None):
     """
-    Optimized to work with a batch of center points for GPU acceleration.
-    Batch version of the grid generation function.
+    Creates a grid around the center point and initializes cells to store feature values on the GPU or CPU.
 
-    Arguments:
-    center_points -- A tensor of shape [batch_size, 3] (x, y, z) for each point in the batch.
-    window_size -- Size of the window to create grids.
-    grid_resolution -- Resolution of the grid (default is 128x128).
-    channels -- Number of feature channels in the grid.
-    device -- The device (GPU or CPU) to run this on.
+    Args:
+    - center_point (tuple): The (x, y, z) coordinates of the center point of the grid.
+    - window_size (float): The size of the square window around the center point (in meters).
+    - grid_resolution (int): The number of cells in one dimension of the grid (e.g., 128 for a 128x128 grid). Default is 128.
+    - channels (int): The number of channels in the resulting image. Default is 3.
+    - device (torch.device): The device to create tensors on (CPU or GPU).
 
     Returns:
-    grids -- A tensor of shape [batch_size, channels, grid_resolution, grid_resolution]
-    x_coords -- A tensor of shape [batch_size, grid_resolution] representing x coordinates for each grid cell.
-    y_coords -- A tensor of shape [batch_size, grid_resolution] representing y coordinates for each grid cell.
+    - grid (torch.Tensor): A 2D grid initialized to zeros, which will store feature values.
+    - cell_size (float): The size of each cell in meters.
+    - x_coords (torch.Tensor): Tensor of x coordinates for the centers of the grid cells.
+    - y_coords (torch.Tensor): Tensor of y coordinates for the centers of the grid cells.
+    - z_coords (torch.Tensor): Tensor of z coordinates for the centers of the grid cells.
     """
-    batch_size = center_points.shape[0]
-
     # Calculate the size of each cell in meters
     cell_size = window_size / grid_resolution
 
-    # Initialize the grids with zeros using Torch tensors (one grid per batch item)
-    grids = torch.zeros((batch_size, channels, grid_resolution, grid_resolution), device=device)
+    # Initialize the grid to zeros; each cell will eventually hold feature values (using torch)
+    grid = torch.zeros((grid_resolution, grid_resolution, channels), device=device)
 
-    # Calculate half the resolution plus 0.5 to center the grid coordinates
+    # Generate cell coordinates for the grid based on the center point
+    i_indices = torch.arange(grid_resolution, device=device)
+    j_indices = torch.arange(grid_resolution, device=device)
+
     half_resolution_plus_half = (grid_resolution / 2) + 0.5
 
-    # Create x and y coordinate grids for each point in the batch
-    x_coords = center_points[:, 0].unsqueeze(1) - (
-                half_resolution_plus_half - torch.arange(grid_resolution, device=device).view(1, -1)) * cell_size
-    y_coords = center_points[:, 1].unsqueeze(1) - (
-                half_resolution_plus_half - torch.arange(grid_resolution, device=device).view(1, -1)) * cell_size
+    # following x_k = x_pk - (64.5 - j) * w
+    x_coords = center_point[0] - (half_resolution_plus_half - j_indices) * cell_size
+    y_coords = center_point[1] - (half_resolution_plus_half - i_indices) * cell_size
+    z_coords = torch.full((grid_resolution, grid_resolution), center_point[2], device=device)  # Z coordinate is constant for all cells
 
-    return grids, cell_size, x_coords, y_coords
+    return grid, cell_size, x_coords, y_coords, z_coords
 
 
-def gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_coords, channels=3, device=None):
+def gpu_assign_features_to_grid(data_tensor, grid, x_coords, y_coords, channels=3, device=None):
     """
-    Optimized feature assignment using Torch tensors and KDTree batching.
-    Now accepts 'features' and 'grids' in batches.
+    Assign features from the nearest point to each cell in the grid using PyTorch.
 
-    Arguments:
-    batch_data -- A tensor of shape [batch_size, num_points, 2] representing the point cloud coordinates.
-    batch_features -- A tensor of shape [batch_size, num_points, num_features] representing the features.
-    grids -- A tensor of shape [batch_size, channels, grid_resolution, grid_resolution].
-    x_coords, y_coords -- Grids of coordinates for each grid cell.
-    channels -- Number of feature channels in the grid.
-    device -- The device (GPU or CPU) to run this on.
+    Args:
+    - data_tensor (torch.Tensor): Tensor where each row represents a point with its x, y, z coordinates and features.
+    - grid (torch.Tensor): A 2D grid initialized to zeros, which will store feature values.
+    - x_coords (torch.Tensor): Tensor of x coordinates for the centers of the grid cells.
+    - y_coords (torch.Tensor): Tensor of y coordinates for the centers of the grid cells.
+    - channels (int): Number of feature channels to assign to each grid cell (default is 3 for RGB).
+    - device (torch.device): The device to run this on (CPU or GPU).
 
     Returns:
-    grids -- The updated grids with features assigned based on KDTree.
+    - grid (torch.Tensor): Grid populated with feature values.
     """
+    # Extract point coordinates (x, y) and features for KDTree equivalent with PyTorch
+    points = data_tensor[:, :2]  # Assuming x, y are the first two columns
+    features = data_tensor[:, 3:3 + channels]  # Assuming features start from the 4th column (index 3)
 
-    points = batch_data  # x, y coordinates in Torch
-    batch_size = points.shape[0]
+    # Stack the coordinates into a 2D grid for comparison
+    grid_coords = torch.stack(torch.meshgrid(x_coords, y_coords), dim=-1).view(-1, 2)  # Flattened grid coordinates
 
-    print(f"Batch Features shape: {batch_features.shape}")
-    num_available_features = batch_features.shape[2]  # Compute how many features are available
-    print(f'Number of available features: {num_available_features}')
+    # Compute distances between each point in the point cloud and each grid cell using torch.cdist
+    dists = torch.cdist(grid_coords.to(device), points.to(device))  # Compute pairwise distances
 
-    # Ensure we only extract up to 'channels' features
-    batch_features = batch_features[:, :, :min(channels, num_available_features)]
+    # Find the index of the closest point for each grid cell
+    closest_points_idx = torch.argmin(dists, dim=1)
 
-    print(f"Data points shape: {points.shape}")
-    print(f"Features shape: {batch_features.shape}")
+    # Reshape the closest points into the grid shape and assign features
+    for channel in range(channels):
+        grid[:, :, channel] = features[closest_points_idx, channel].view(grid.shape[0], grid.shape[1])
 
-    # Use KDTree to assign features based on nearest points for each batch
-    for i in range(batch_size):
-        points_cpu = points[i].cpu().numpy()  # Convert just for KDTree per batch item
-        tree = KDTree(points_cpu)
-
-        # Flatten grid coordinates for KDTree query
-        flat_coords = torch.stack([x_coords[i], y_coords[i]], dim=1).cpu().numpy()
-
-        # Query KDTree for the closest points in batch
-        _, idxs = tree.query(flat_coords)
-
-        if len(idxs) > 0:
-            # Assign features from the batch
-            grids[i] = batch_features[i, idxs].T
-        else:
-            print(f"Warning: No features found for batch {i}")
-
-    return grids
+    return grid
 
 
 def batch_process(data_loader, window_sizes, grid_resolution, channels, device, save_dir=None, save=False):

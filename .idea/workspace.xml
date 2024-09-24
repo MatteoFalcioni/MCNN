@@ -4,11 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="restructuring again to enphasize batch processing">
-      <change afterPath="$PROJECT_DIR$/optimization_quicktest.py" afterDir="false" />
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="still trying to make optimization work">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/optimization_quicktest.py" beforeDir="false" afterPath="$PROJECT_DIR$/optimization_quicktest.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/scripts/optimized_pc_to_img.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/optimized_pc_to_img.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_optimized_pc_to_img.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_optimized_pc_to_img.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/device_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/device_utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -64,20 +65,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00116" summary="classes is now a parameter in the model">
-      <created>1726932956569</created>
-      <option name="number" value="00116" />
-      <option name="presentableId" value="LOCAL-00116" />
-      <option name="project" value="LOCAL" />
-      <updated>1726932956569</updated>
-    </task>
-    <task id="LOCAL-00117" summary="transposing grids to have channels first (Torch standards)">
-      <created>1726932995657</created>
-      <option name="number" value="00117" />
-      <option name="presentableId" value="LOCAL-00117" />
-      <option name="project" value="LOCAL" />
-      <updated>1726932995657</updated>
     </task>
     <task id="LOCAL-00118" summary="tested new training pipeline with actual data (not synthetic)">
       <created>1726933038979</created>
@@ -408,7 +395,21 @@
       <option name="project" value="LOCAL" />
       <updated>1727109202204</updated>
     </task>
-    <option name="localTasksCounter" value="165" />
+    <task id="LOCAL-00165" summary="still trying to make optimization work">
+      <created>1727109756011</created>
+      <option name="number" value="00165" />
+      <option name="presentableId" value="LOCAL-00165" />
+      <option name="project" value="LOCAL" />
+      <updated>1727109756011</updated>
+    </task>
+    <task id="LOCAL-00166" summary="still trying to make optimization work">
+      <created>1727109763428</created>
+      <option name="number" value="00166" />
+      <option name="presentableId" value="LOCAL-00166" />
+      <option name="project" value="LOCAL" />
+      <updated>1727109763428</updated>
+    </task>
+    <option name="localTasksCounter" value="167" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -423,7 +424,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="need to permute to have standard torch structure" />
     <MESSAGE value="updated main with inference and loading models" />
     <MESSAGE value="optimized grid creation and feature assginment" />
     <MESSAGE value="created agnostic environment" />
@@ -448,6 +448,7 @@
     <MESSAGE value="Still fixing gpu optimization. now also create festure grid is batch oriented." />
     <MESSAGE value="updated testing for batched processes" />
     <MESSAGE value="restructuring again to enphasize batch processing" />
-    <option name="LAST_COMMIT_MESSAGE" value="restructuring again to enphasize batch processing" />
+    <MESSAGE value="still trying to make optimization work" />
+    <option name="LAST_COMMIT_MESSAGE" value="still trying to make optimization work" />
   </component>
 </project>
