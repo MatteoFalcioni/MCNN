@@ -217,7 +217,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
 
         # Generate and save multiscale grids
         gpu_generate_multiscale_grids(data_loader, self.window_sizes, self.grid_resolution, self.channels, self.device,
-                                  save_dir=self.save_dir_real_data)
+                                  save=True, save_dir=self.save_dir_real_data)
 
         for size_label, _ in self.window_sizes:
             scale_dir = os.path.join(self.save_dir_real_data, size_label)
