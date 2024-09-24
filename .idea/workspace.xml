@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="trying to fix saving of grids">
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="ensure existing folders to save tests' data">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/optimization_quicktest.py" beforeDir="false" afterPath="$PROJECT_DIR$/optimization_quicktest.py" afterDir="false" />
@@ -64,111 +64,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00157" summary="adding verbose checks for testing">
-      <created>1727103635913</created>
-      <option name="number" value="00157" />
-      <option name="presentableId" value="LOCAL-00157" />
-      <option name="project" value="LOCAL" />
-      <updated>1727103635913</updated>
-    </task>
-    <task id="LOCAL-00158" summary="Still fixing loops in optimized version">
-      <created>1727104553665</created>
-      <option name="number" value="00158" />
-      <option name="presentableId" value="LOCAL-00158" />
-      <option name="project" value="LOCAL" />
-      <updated>1727104553665</updated>
-    </task>
-    <task id="LOCAL-00159" summary="small script to test grid generation on cpu">
-      <created>1727105331767</created>
-      <option name="number" value="00159" />
-      <option name="presentableId" value="LOCAL-00159" />
-      <option name="project" value="LOCAL" />
-      <updated>1727105331767</updated>
-    </task>
-    <task id="LOCAL-00160" summary="error in quicktest params">
-      <created>1727105702997</created>
-      <option name="number" value="00160" />
-      <option name="presentableId" value="LOCAL-00160" />
-      <option name="project" value="LOCAL" />
-      <updated>1727105702997</updated>
-    </task>
-    <task id="LOCAL-00161" summary="using sampled array in quicktest">
-      <created>1727105905531</created>
-      <option name="number" value="00161" />
-      <option name="presentableId" value="LOCAL-00161" />
-      <option name="project" value="LOCAL" />
-      <updated>1727105905531</updated>
-    </task>
-    <task id="LOCAL-00162" summary="Still fixing gpu optimization. now also create festure grid is batch oriented.">
-      <created>1727106507466</created>
-      <option name="number" value="00162" />
-      <option name="presentableId" value="LOCAL-00162" />
-      <option name="project" value="LOCAL" />
-      <updated>1727106507466</updated>
-    </task>
-    <task id="LOCAL-00163" summary="updated testing for batched processes">
-      <created>1727106985983</created>
-      <option name="number" value="00163" />
-      <option name="presentableId" value="LOCAL-00163" />
-      <option name="project" value="LOCAL" />
-      <updated>1727106985983</updated>
-    </task>
-    <task id="LOCAL-00164" summary="restructuring again to enphasize batch processing">
-      <created>1727109202204</created>
-      <option name="number" value="00164" />
-      <option name="presentableId" value="LOCAL-00164" />
-      <option name="project" value="LOCAL" />
-      <updated>1727109202204</updated>
-    </task>
-    <task id="LOCAL-00165" summary="still trying to make optimization work">
-      <created>1727109756011</created>
-      <option name="number" value="00165" />
-      <option name="presentableId" value="LOCAL-00165" />
-      <option name="project" value="LOCAL" />
-      <updated>1727109756011</updated>
-    </task>
-    <task id="LOCAL-00166" summary="still trying to make optimization work">
-      <created>1727109763428</created>
-      <option name="number" value="00166" />
-      <option name="presentableId" value="LOCAL-00166" />
-      <option name="project" value="LOCAL" />
-      <updated>1727109763428</updated>
-    </task>
-    <task id="LOCAL-00167" summary="re-starting optimization of grid creation">
-      <created>1727163372862</created>
-      <option name="number" value="00167" />
-      <option name="presentableId" value="LOCAL-00167" />
-      <option name="project" value="LOCAL" />
-      <updated>1727163372862</updated>
-    </task>
-    <task id="LOCAL-00168" summary="first tests of new optimization of grid creation">
-      <created>1727163388774</created>
-      <option name="number" value="00168" />
-      <option name="presentableId" value="LOCAL-00168" />
-      <option name="project" value="LOCAL" />
-      <updated>1727163388774</updated>
-    </task>
-    <task id="LOCAL-00169" summary="fixed small error in testing">
-      <created>1727163964700</created>
-      <option name="number" value="00169" />
-      <option name="presentableId" value="LOCAL-00169" />
-      <option name="project" value="LOCAL" />
-      <updated>1727163964700</updated>
-    </task>
-    <task id="LOCAL-00170" summary="more thorough testing for assigning features">
-      <created>1727164229677</created>
-      <option name="number" value="00170" />
-      <option name="presentableId" value="LOCAL-00170" />
-      <option name="project" value="LOCAL" />
-      <updated>1727164229678</updated>
-    </task>
-    <task id="LOCAL-00171" summary="introducing batching step by step">
-      <created>1727164677081</created>
-      <option name="number" value="00171" />
-      <option name="presentableId" value="LOCAL-00171" />
-      <option name="project" value="LOCAL" />
-      <updated>1727164677081</updated>
     </task>
     <task id="LOCAL-00172" summary="testing introduction of batching step by step">
       <created>1727165183840</created>
@@ -408,7 +303,112 @@
       <option name="project" value="LOCAL" />
       <updated>1727174410416</updated>
     </task>
-    <option name="localTasksCounter" value="206" />
+    <task id="LOCAL-00206" summary="finishing testing with real data">
+      <created>1727174967927</created>
+      <option name="number" value="00206" />
+      <option name="presentableId" value="LOCAL-00206" />
+      <option name="project" value="LOCAL" />
+      <updated>1727174967927</updated>
+    </task>
+    <task id="LOCAL-00207" summary="updated plots for grids in torch standards">
+      <created>1727175305617</created>
+      <option name="number" value="00207" />
+      <option name="presentableId" value="LOCAL-00207" />
+      <option name="project" value="LOCAL" />
+      <updated>1727175305617</updated>
+    </task>
+    <task id="LOCAL-00208" summary="updated plots for grids in torch standards">
+      <created>1727175356101</created>
+      <option name="number" value="00208" />
+      <option name="presentableId" value="LOCAL-00208" />
+      <option name="project" value="LOCAL" />
+      <updated>1727175356101</updated>
+    </task>
+    <task id="LOCAL-00209" summary="updated plots for grids in torch standards">
+      <created>1727175385163</created>
+      <option name="number" value="00209" />
+      <option name="presentableId" value="LOCAL-00209" />
+      <option name="project" value="LOCAL" />
+      <updated>1727175385163</updated>
+    </task>
+    <task id="LOCAL-00210" summary="updated plots for grids in torch standards">
+      <created>1727175477141</created>
+      <option name="number" value="00210" />
+      <option name="presentableId" value="LOCAL-00210" />
+      <option name="project" value="LOCAL" />
+      <updated>1727175477141</updated>
+    </task>
+    <task id="LOCAL-00211" summary="wrong saving before">
+      <created>1727175558501</created>
+      <option name="number" value="00211" />
+      <option name="presentableId" value="LOCAL-00211" />
+      <option name="project" value="LOCAL" />
+      <updated>1727175558501</updated>
+    </task>
+    <task id="LOCAL-00212" summary="wrong saving before">
+      <created>1727175813698</created>
+      <option name="number" value="00212" />
+      <option name="presentableId" value="LOCAL-00212" />
+      <option name="project" value="LOCAL" />
+      <updated>1727175813698</updated>
+    </task>
+    <task id="LOCAL-00213" summary="wrong loading before">
+      <created>1727175868075</created>
+      <option name="number" value="00213" />
+      <option name="presentableId" value="LOCAL-00213" />
+      <option name="project" value="LOCAL" />
+      <updated>1727175868075</updated>
+    </task>
+    <task id="LOCAL-00214" summary="wrong loading before">
+      <created>1727175924632</created>
+      <option name="number" value="00214" />
+      <option name="presentableId" value="LOCAL-00214" />
+      <option name="project" value="LOCAL" />
+      <updated>1727175924632</updated>
+    </task>
+    <task id="LOCAL-00215" summary="all points were being ssigned the same feature.">
+      <created>1727180178800</created>
+      <option name="number" value="00215" />
+      <option name="presentableId" value="LOCAL-00215" />
+      <option name="project" value="LOCAL" />
+      <updated>1727180178800</updated>
+    </task>
+    <task id="LOCAL-00216" summary="important error: not going through all points for nearest neighbour to cells, only looking in batch">
+      <created>1727182338564</created>
+      <option name="number" value="00216" />
+      <option name="presentableId" value="LOCAL-00216" />
+      <option name="project" value="LOCAL" />
+      <updated>1727182338564</updated>
+    </task>
+    <task id="LOCAL-00217" summary="updated with use of kd tree">
+      <created>1727183344120</created>
+      <option name="number" value="00217" />
+      <option name="presentableId" value="LOCAL-00217" />
+      <option name="project" value="LOCAL" />
+      <updated>1727183344120</updated>
+    </task>
+    <task id="LOCAL-00218" summary="updated with use of kd tree">
+      <created>1727183716905</created>
+      <option name="number" value="00218" />
+      <option name="presentableId" value="LOCAL-00218" />
+      <option name="project" value="LOCAL" />
+      <updated>1727183716905</updated>
+    </task>
+    <task id="LOCAL-00219" summary="ensure existing folders to save tests' data">
+      <created>1727183951604</created>
+      <option name="number" value="00219" />
+      <option name="presentableId" value="LOCAL-00219" />
+      <option name="project" value="LOCAL" />
+      <updated>1727183951604</updated>
+    </task>
+    <task id="LOCAL-00220" summary="ensure existing folders to save tests' data">
+      <created>1727184030400</created>
+      <option name="number" value="00220" />
+      <option name="presentableId" value="LOCAL-00220" />
+      <option name="project" value="LOCAL" />
+      <updated>1727184030400</updated>
+    </task>
+    <option name="localTasksCounter" value="221" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -423,14 +423,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="issue on gpu, maybe fixed?" />
-    <MESSAGE value="need to specify gpu index as 0" />
-    <MESSAGE value="sizes of tensor not matching" />
-    <MESSAGE value="created dataloader for grids, testing it" />
-    <MESSAGE value="fetch data from cpu, then use num_workers!=0" />
-    <MESSAGE value="upgrading multiscale grids to gpu and testing" />
-    <MESSAGE value="error in file import fixed" />
-    <MESSAGE value="corrected wrong tensor shape" />
     <MESSAGE value="corrected wrong tensor shape again" />
     <MESSAGE value="corrected wrong shapes: [batch sizes, ...] already selects num_points." />
     <MESSAGE value="corrected shapes in testing." />
@@ -448,6 +440,14 @@
     <MESSAGE value="testing saving and loading of optimized grids" />
     <MESSAGE value="needed to add save=true" />
     <MESSAGE value="trying to fix saving of grids" />
-    <option name="LAST_COMMIT_MESSAGE" value="trying to fix saving of grids" />
+    <MESSAGE value="finishing testing with real data" />
+    <MESSAGE value="updated plots for grids in torch standards" />
+    <MESSAGE value="wrong saving before" />
+    <MESSAGE value="wrong loading before" />
+    <MESSAGE value="all points were being ssigned the same feature." />
+    <MESSAGE value="important error: not going through all points for nearest neighbour to cells, only looking in batch" />
+    <MESSAGE value="updated with use of kd tree" />
+    <MESSAGE value="ensure existing folders to save tests' data" />
+    <option name="LAST_COMMIT_MESSAGE" value="ensure existing folders to save tests' data" />
   </component>
 </project>

@@ -159,40 +159,47 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
             # Optionally, print or log values for further analysis
             print(f"Feature assignment successful for batch {batch_idx}.")
 
-    def test_generate_and_save_multiscale_grids_with_real_data(self):
-        """Test multiscale grid generation with a real dataset sample."""
-        # Prepare the DataLoader with sampled data
-        data_loader = prepare_grids_dataloader(self.sampled_data, self.channels, batch_size=50, num_workers=10)
+    def test_generate_multiscale_grids_with_real_data(self):
+        """Test multiscale grid generation with real data."""
+        # Prepare the DataLoader
+        data_loader = prepare_grids_dataloader(self.sampled_data, self.channels, batch_size=self.batch_size,
+                                               num_workers=4)
+
+        # Generate multiscale grids
+        labeled_grids_dict = gpu_generate_multiscale_grids(data_loader, self.window_sizes, self.grid_resolution,
+                                                           self.channels, self.device, full_data=self.sampled_data,
+                                                           save=False)
+
+        # Check if grids are generated for each scale
+        for size_label, _ in self.window_sizes:
+            self.assertIn(size_label, labeled_grids_dict, f"{size_label} grids are missing from the generated grids.")
+            grids = labeled_grids_dict[size_label]['grids']
+            self.assertGreater(len(grids), 0, f"No {size_label} grids generated.")
+            self.assertEqual(grids[0].shape,
+                             (self.batch_size, self.channels, self.grid_resolution, self.grid_resolution))
+
+    def test_save_and_load_grids_with_real_data(self):
+        """Test saving and loading of grids generated with real data."""
+        # Prepare the DataLoader
+        data_loader = prepare_grids_dataloader(self.sampled_data, self.channels, batch_size=self.batch_size, num_workers=4)
 
         # Generate and save multiscale grids
-        grids_dict = gpu_generate_multiscale_grids(data_loader, self.window_sizes, self.grid_resolution, self.channels, self.device,
-                                  full_data=self.sampled_data, save=True, save_dir=self.save_dir_real_data)
+        gpu_generate_multiscale_grids(data_loader, self.window_sizes, self.grid_resolution, self.channels, self.device,
+                                      full_data=self.sampled_data, save_dir=self.save_dir_real_data, save=True)
 
-        """# Check if grids are generated for each scale
-        for size_label, _ in self.window_sizes:
-            self.assertIn(size_label, grids_dict, f"{size_label} grids are missing from the generated grids.")
-
-            grids = grids_dict[size_label]['grids']
-            self.assertGreater(len(grids), 0, f"No {size_label} grids generated.")"""
-
+        # Verify the saved grids exist
         for size_label, _ in self.window_sizes:
             scale_dir = os.path.join(self.save_dir_real_data, size_label)
-            self.assertTrue(os.path.exists(scale_dir), f"Directory {scale_dir} does not exist.")
-
-            # Load saved .npy files from the directory
+            self.assertTrue(os.path.exists(scale_dir), f"{size_label} directory does not exist.")
             saved_files = [f for f in os.listdir(scale_dir) if f.endswith('.npy')]
-            self.assertGreater(len(saved_files), 0, f"No grids found in directory {scale_dir}.")
+            self.assertGreater(len(saved_files), 0, f"No grids found in {scale_dir}.")
 
-            # Randomly select a few grids to visualize
-            selected_files = random.sample(saved_files, min(3, len(saved_files)))  # Choose up to 3 files
-            for file in selected_files:
-                grid_filepath = os.path.join(scale_dir, file)
+            # Load one of the saved grids and visualize
+            grid_filename = os.path.join(scale_dir, saved_files[0])
+            loaded_grid = np.load(grid_filename)
+            self.assertEqual(loaded_grid.shape, (self.channels, self.grid_resolution, self.grid_resolution),
+                             f"Loaded grid shape is incorrect for {size_label}.")
 
-                # Load the grid from the .npy file
-                loaded_grid = np.load(grid_filepath)
-
-                # Visualize the grid
-                print(f"Visualizing {file}")
-                channel = 2
-                feature_name = self.feature_names[channel]
-                visualize_grid(loaded_grid, channel=2, title=f"Visualization of {file}", save=False, file_path=file)
+            # Visualize the loaded grid for verification
+            print(f"Visualizing {saved_files[0]}")
+            visualize_grid(loaded_grid, channel=0, title=f"Visualization of {saved_files[0]}", save=False)
