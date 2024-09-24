@@ -98,14 +98,13 @@ def prepare_grids_dataloader(data_array, channels, batch_size, num_workers, devi
     Returns:
     - data_loader (DataLoader): A DataLoader that batches the dataset.
     """
-    # Convert the NumPy array to PyTorch tensors
     dataset = TensorDataset(
-        torch.tensor(data_array[:, :3], device=device),  # (x, y, z) coordinates
-        torch.tensor(data_array[:, 3:3 + channels], device=device),  # Features
-        torch.tensor(data_array[:, -1], device=device)  # Class labels
+        torch.tensor(data_array[:, :3]),  # Center points (x, y, z)
+        torch.tensor(data_array[:, 3:3 + channels]),  # Features
+        torch.tensor(data_array[:, -1])  # Class labels
     )
 
-    # Create a DataLoader for batching
+    # Set num_workers > 0 to enable multiprocessing
     data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
     return data_loader
