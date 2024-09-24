@@ -73,10 +73,10 @@ def gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_c
         # Use torch.cdist to compute distances between grid cells and points
         points = batch_data[i].to(device)  # Points (x, y) for the i-th batch
         dists = torch.cdist(grid_coords.unsqueeze(0),
-                            points.unsqueeze(0))  # Compute pairwise distances [1, grid_resolution, batch_size]
+                            points.unsqueeze(0)).to(device)  # Compute pairwise distances [1, grid_resolution, batch_size]
 
         # Find the closest point for each grid cell
-        closest_points_idx = torch.argmin(dists, dim=2).squeeze(0)  # Indices of the closest points [grid_resolution]
+        closest_points_idx = torch.argmin(dists, dim=2).squeeze(0).to(device)  # Indices of the closest points [grid_resolution]
 
         # Assign features to the grid for the i-th batch based on the closest points
         for channel in range(channels):
