@@ -4,9 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="add more chans in tests">
-      <change afterPath="$PROJECT_DIR$/scripts/new_optimization.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="04bd5c4e-614c-4a2f-8fba-5d9fd1827ad7" name="Changes" comment="implementing simpler optimization">
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/optimization_quicktest.py" beforeDir="false" afterPath="$PROJECT_DIR$/optimization_quicktest.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/utils/device_utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/device_utils.py" afterDir="false" />
@@ -64,13 +62,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1725544465259</updated>
-    </task>
-    <task id="LOCAL-00174" summary="issue on gpu index, maybe fixed?">
-      <created>1727165543624</created>
-      <option name="number" value="00174" />
-      <option name="presentableId" value="LOCAL-00174" />
-      <option name="project" value="LOCAL" />
-      <updated>1727165543624</updated>
     </task>
     <task id="LOCAL-00175" summary="issue on gpu, maybe fixed?">
       <created>1727165713744</created>
@@ -408,7 +399,14 @@
       <option name="project" value="LOCAL" />
       <updated>1727184517032</updated>
     </task>
-    <option name="localTasksCounter" value="223" />
+    <task id="LOCAL-00223" summary="implementing simpler optimization">
+      <created>1727186141667</created>
+      <option name="number" value="00223" />
+      <option name="presentableId" value="LOCAL-00223" />
+      <option name="project" value="LOCAL" />
+      <updated>1727186141667</updated>
+    </task>
+    <option name="localTasksCounter" value="224" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -423,7 +421,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="corrected wrong shapes: [batch sizes, ...] already selects num_points." />
     <MESSAGE value="corrected shapes in testing." />
     <MESSAGE value="corrected to_device missing" />
     <MESSAGE value="updating dataloader tests" />
@@ -448,6 +445,7 @@
     <MESSAGE value="updated with use of kd tree" />
     <MESSAGE value="ensure existing folders to save tests' data" />
     <MESSAGE value="add more chans in tests" />
-    <option name="LAST_COMMIT_MESSAGE" value="add more chans in tests" />
+    <MESSAGE value="implementing simpler optimization" />
+    <option name="LAST_COMMIT_MESSAGE" value="implementing simpler optimization" />
   </component>
 </project>

@@ -11,7 +11,7 @@ import os
 class TestPointCloudToImage(unittest.TestCase):
 
     def setUp(self):
-        self.las_file_path = 'data/raw/features_F.las'
+        self.las_file_path = 'data/raw/labeled_FSL.las'
         self.sample_size = 500
         self.grid_resolution = 128
         self.channels = 10
@@ -23,8 +23,6 @@ class TestPointCloudToImage(unittest.TestCase):
         self.sampled_data = self.full_data[np.random.choice(self.full_data.shape[0], self.sample_size, replace=False)]
 
         self.window_sizes = [('small', 2.5), ('medium', 5.0), ('large', 10.0)]
-        dummy_class_labels = np.random.randint(0, 2, size=(self.sample_size, 1))
-        self.sampled_data_with_class_labels = np.hstack((self.sampled_data, dummy_class_labels))
 
         self.save_imgs_bool = False
         self.save_grids_dir = 'tests/test_feature_imgs/test_grid_np'
@@ -65,7 +63,7 @@ class TestPointCloudToImage(unittest.TestCase):
 
         # Time the original multiscale grid generation
         start_time = time.time()
-        grids_dict_orig = generate_multiscale_grids(self.sampled_data_with_class_labels, self.window_sizes,
+        grids_dict_orig = generate_multiscale_grids(self.sampled_data, self.window_sizes,
                                                     self.grid_resolution, self.channels, save_dir=self.save_grids_dir,
                                                     save=False)
         original_duration = time.time() - start_time
@@ -73,7 +71,7 @@ class TestPointCloudToImage(unittest.TestCase):
 
         # Time the optimized multiscale grid generation
         start_time = time.time()
-        grids_dict_opt = opt_generate_multiscale_grids(self.sampled_data_with_class_labels, self.window_sizes,
+        grids_dict_opt = opt_generate_multiscale_grids(self.sampled_data, self.window_sizes,
                                                        self.grid_resolution, self.channels, save_dir=self.save_grids_dir,
                                                        save=False, device='cuda')
         optimized_duration = time.time() - start_time
