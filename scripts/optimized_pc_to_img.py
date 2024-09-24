@@ -63,7 +63,7 @@ def gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_c
     num_available_features = batch_features.shape[1]  # How many features are available
 
     # Ensure we only extract up to 'channels' features
-    batch_features = batch_features[:, :min(channels, num_available_features)]
+    batch_features = batch_features[:, :min(channels, num_available_features)].to(device)
 
     # Iterate through each batch
     for i in range(batch_size):
