@@ -28,6 +28,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         np.random.seed(42)  # For reproducibility
         self.sampled_data = self.full_data[np.random.choice(self.full_data.shape[0], self.sample_size, replace=False)]
         self.sampled_data, _ = remap_labels(self.sampled_data)
+        self.save_dir_real_data = 'tests/test_optimized_grids_real_data'
 
         # Simulated batch of center points (x, y, z)
         self.center_points = torch.tensor([
@@ -216,10 +217,10 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
 
         # Generate and save multiscale grids
         gpu_generate_multiscale_grids(data_loader, self.window_sizes, self.grid_resolution, self.channels, self.device,
-                                  save_dir='tests/test_optimized_grids_real_data')
+                                  save_dir=self.save_dir_real_data)
 
         for size_label, _ in self.window_sizes:
-            scale_dir = os.path.join(self.save_dir, size_label)
+            scale_dir = os.path.join(self.save_dir_real_data, size_label)
             self.assertTrue(os.path.exists(scale_dir), f"Directory {scale_dir} does not exist.")
 
             # Load saved .npy files from the directory
