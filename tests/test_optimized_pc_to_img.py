@@ -236,4 +236,4 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
 
                 # Visualize the grid
                 print(f"Visualizing {file}")
-                visualize_grid(loaded_grid, channel=3, title=f"Visualization of {file}", save=False)
+                visualize_grid(loaded_grid, channel=2, title=f"Visualization of {file}", save=False)
