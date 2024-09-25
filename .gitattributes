@@ -2,3 +2,5 @@
 *.ASC filter=lfs diff=lfs merge=lfs -text
 *.pth filter=lfs diff=lfs merge=lfs -text
 *.csv filter=lfs diff=lfs merge=lfs -text
+data/raw/features_F.las !text !filter !merge !diff
+data/raw/labeled_FSL.las !text !filter !merge !diff

@@ -45,12 +45,12 @@ class MultiScaleCNN(nn.Module):
         Defines the forward pass of the MultiScaleCNN model.
 
         Args:
-            x1 (torch.Tensor): Input tensor for SCNN1 of shape (batch_size, 3, 128, 128).
-            x2 (torch.Tensor): Input tensor for SCNN2 of shape (batch_size, 3, 128, 128).
-            x3 (torch.Tensor): Input tensor for SCNN3 of shape (batch_size, 3, 128, 128).
+            x1 (torch.Tensor): Input tensor for SCNN1 of shape (batch_size, channels, 128, 128).
+            x2 (torch.Tensor): Input tensor for SCNN2 of shape (batch_size, channels, 128, 128).
+            x3 (torch.Tensor): Input tensor for SCNN3 of shape (batch_size, channels, 128, 128).
 
         Returns:
-            torch.Tensor: Output tensor of shape (batch_size, 9) representing the class scores.
+            torch.Tensor: Output tensor of shape (batch_size, classes) representing the class scores.
         """
         # Forward pass through each SCNN
         out1 = self.scnn1(x1)  # Output: (batch_size, 128, 8, 8)
@@ -64,7 +64,7 @@ class MultiScaleCNN(nn.Module):
         out3 = out3.reshape(out3.size(0), -1)  # Flatten: (batch_size, 128 * 8 * 8)
 
         # Concatenate the flattened outputs
-        combined = torch.cat((out1, out2, out3), dim=1)  # Combined: (batch_size, 3 * 128 * 8 * 8)
+        combined = torch.cat((out1, out2, out3), dim=1)  # Combined: (batch_size, 3 * 128 * 8 * 8), 3 becuse of 3 scnn's
 
         # First FC Layer + BatchNorm + ReLU
         x = self.fc_fusion(combined)
@@ -77,7 +77,7 @@ class MultiScaleCNN(nn.Module):
         x = self.relu_fc1(x)
 
         # Final FC Layer to produce class scores
-        x = self.fc2(x)  # Output layer for 9 classes: (batch_size, 9)
+        x = self.fc2(x)  # Output layer for classes: (batch_size, classes)
 
         return x
 

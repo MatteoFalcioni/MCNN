@@ -78,7 +78,7 @@ class SingleScaleCNN(nn.Module):
         Defines the forward pass of the SingleScaleCNN model.
 
         Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, 3, 128, 128) representing a batch of images.
+            x (torch.Tensor): Input tensor of shape (batch_size, channels, 128, 128) representing a batch of images.
 
         Returns:
             torch.Tensor: Output tensor of shape (batch_size, 128, 8, 8) representing the feature map.

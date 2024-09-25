@@ -108,10 +108,6 @@ if __name__ == "__main__":
     main()
 
 
-# important: sometimes you use window sizes as list like window_sizes=[2.5, 5, 10], sometimes as tuples like
-# window_sizes = [('small', 2.5), ('medium', 5.0), ('large', 10.0)]). Most importantly, in multiscale_grids and
-# in the dataloader it's  a tuple, while in inference or training it's not. Use same standard for everything.
-
 # Also, we might want to change the channels parameter to a list of features chosen by the user. that way we can
 # get channels from the lenght of features_to_train (for example) and avoid hard coding it everytime.
 
