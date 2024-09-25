@@ -54,8 +54,8 @@ def parse_arguments():
     parser.add_argument('--load_model_filepath', type=str,
                         default=config.get('load_model_filepath', 'models/saved/mcnn_model_20240922_231624.pth'),
                         help='directory where pre-processed data for training is stored.')
-    parser.add_argument('--windows_sizes', type=ast.literal_eval,  # Safely parse as a Python list of tuples
-                        default=config.get('windows_sizes', [('small', 2.5), ('medium', 5.0), ('large', 10.0)]),
+    parser.add_argument('--window_sizes', type=ast.literal_eval,  # Safely parse as a Python list of tuples
+                        default=config.get('window_sizes', [('small', 2.5), ('medium', 5.0), ('large', 10.0)]),
                         help='List of window sizes for grid generation (e.g., "[(small, 2.5), (medium, 5.0), (large, 10.0)])"')
 
     # Parsing arguments

@@ -6,7 +6,7 @@ from utils.train_data_utils import prepare_dataloader
 from scripts.train import train_epochs
 from scripts.inference import inference
 from utils.config_handler import parse_arguments
-from utils.point_cloud_data_utils import read_las_file_to_numpy, sample_data
+from utils.point_cloud_data_utils import read_las_file_to_numpy, remap_labels
 import numpy as np
 
 
@@ -68,15 +68,16 @@ def main():
 
     print("Training finished")
 
-"""    # Run inference on a sample
+    # Run inference on a sample
     print("Starting inference process...")
+
     data_array, _ = read_las_file_to_numpy(labeled_filepath)
     # need to remap labels to match the ones in training. Maybe consider remapping already when doing las -> numpy ?
     remapped_array, _ = remap_labels(data_array)
     sample_array = remapped_array[np.random.choice(remapped_array.shape[0], 200, replace=False)]
     ground_truth_labels = sample_array[:, -1]  # Assuming labels are in the last column
 
-    load_model = args.load_model   # load model for inference or train a new one?
+    load_model = args.load_model   # whether to load model for inference or train a new one
     model_path = args.load_model_filepath
     if load_model:
         loaded_model = MultiScaleCNN(channels=10, classes=5).to(device)
@@ -86,17 +87,21 @@ def main():
         # Set model to evaluation mode (important for inference)
         model.eval()
 
-    predicted_labels, precision = inference(
+    predicted_labels = inference(
         model,
         data_array=sample_array,
-        window_sizes=[2.5, 5, 10],
+        window_sizes=[('small', 2.5), ('medium', 5.0), ('large', 10.0)],
         grid_resolution=128,
         channels=10,
         device=device,
-        true_labels=ground_truth_labels
+        true_labels=ground_truth_labels, 
+        save_file=f'results/labels/'
     )
 
-    print(f"Predicted Labels: {predicted_labels}")"""
+    for i in len(ground_truth_labels):
+        print(f'predicted label: {predicted_labels[i]}, true label: {ground_truth_labels[i]}')
+    print('process ended successfully.')
+
 
 
 if __name__ == "__main__":

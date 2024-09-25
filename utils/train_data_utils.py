@@ -20,7 +20,7 @@ def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw/labeled_
         - pre_process_data (bool): Whether to generate new grids from raw data or load pre-saved grids.
         - data_dir (str): File path to where raw (labeled) LiDAR data is stored if generating grids. Default is 'data/raw/features_F.las'.
         - grid_save_dir (str): Directory where the generated grids will be stored or loaded from. Default is 'data/pre_processed_data'.
-        - window_sizes (list): List of window sizes for grid generation (e.g., [('small', 2.5), ('medium', 5.0), ('large', 10.0)]).
+        - window_sizes (list of tuples): List of window sizes for each scale (e.g., [('small', 2.5), ('medium', 5.0), ('large', 10.0)]).
         - grid_resolution (int): Resolution of the grid (e.g., 128x128). Required if generating grids.
         - channels (int): Number of channels in the grids (e.g., 3). Required if generating grids.
         - save_grids (bool): Whether to save the generated grids to disk. Default is True.

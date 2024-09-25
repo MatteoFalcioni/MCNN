@@ -124,7 +124,7 @@ def gpu_generate_multiscale_grids(data_loader, window_sizes, grid_resolution, ch
 
     Args:
     - data_loader (DataLoader): A DataLoader that batches the dataset.
-    - window_sizes (list of tuples): List of window sizes for each scale (e.g., [('small', 2.5), ('medium', 5.0)]).
+    - window_sizes (list of tuples): List of window sizes for each scale (e.g., [('small', 2.5), ('medium', 5.0), ('large', 10.0)]).
     - grid_resolution (int): The grid resolution (e.g., 128x128).
     - channels (int): Number of feature channels in the grid (e.g., 3 for RGB).
     - device (torch.device): The device to run on (CPU or GPU).
