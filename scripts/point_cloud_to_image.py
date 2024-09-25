@@ -117,6 +117,9 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channel
             # Assign features to the grid cells using the pre-built KDTree
             grid_with_features = assign_features_to_grid(tree, data_array, grid, x_coords, y_coords, channels)
 
+            # Transpose the grid to match PyTorch's 'channels x height x width' format
+            grid_with_features = np.transpose(grid_with_features, (2, 0, 1))
+
             # Store the grid and label
             labeled_grids_dict[size_label]['grids'][i] = grid_with_features
             labeled_grids_dict[size_label]['class_labels'][i] = label
