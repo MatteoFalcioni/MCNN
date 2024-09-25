@@ -41,11 +41,12 @@ def create_feature_grid(center_point, window_size, grid_resolution=128, channels
     return grid, cell_size, x_coords, y_coords, z_coords
 
 
-def assign_features_to_grid(data_array, grid, x_coords, y_coords, channels=3):
+def assign_features_to_grid(tree, data_array, grid, x_coords, y_coords, channels=3):
     """
-    Assign features from the nearest point to each cell in the grid.
+    Assigns features from the nearest point in the dataset to each cell in the grid using a pre-built KDTree.
 
     Args:
+    - tree (KDTree): Pre-built KDTree for efficient nearest-neighbor search.
     - data_array (numpy.ndarray): Array where each row represents a point with its x, y, z coordinates and features.
     - grid (numpy.ndarray): A 2D grid initialized to zeros, which will store feature values.
     - x_coords (numpy.ndarray): Array of x coordinates for the centers of the grid cells.
@@ -53,66 +54,59 @@ def assign_features_to_grid(data_array, grid, x_coords, y_coords, channels=3):
     - channels (int): Number of feature channels to assign to each grid cell (default is 3 for RGB).
 
     Returns:
-    - grid (numpy.ndarray): Grid populated with feature values.
+    - grid (numpy.ndarray): The grid populated with the nearest point's feature values.
     """
-    # Extract point coordinates (x, y) for KDTree
-    points = data_array[:, :2]  # Assuming x, y are the first two columns
-
-    # Create a KDTree for efficient nearest-neighbor search
-    tree = KDTree(points)  # Only use x, y for 2D grid distance calculation
-
     # Iterate over each cell in the grid
     for i in range(len(x_coords)):
         for j in range(len(y_coords)):
             # Find the nearest point to the cell center (x_coords[i], y_coords[j])
             dist, idx = tree.query([x_coords[i], y_coords[j]])
 
-            # Assign the features of the nearest point to the grid cell, considering the specified number of channels
-            grid[i, j, :channels] = data_array[idx,
-                                    3:3 + channels]  # Assuming features start from the 4th column (index 3)
+            # Assign the features of the nearest point to the grid cell
+            grid[i, j, :channels] = data_array[idx, 3:3 + channels]  # Assuming features start from the 4th column (index 3)
+
     return grid
 
 
 def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channels, save_dir=None, save=False):
     """
-    Generates grids for each point in the data array with different window sizes and saves them to disk.
-    Returns a dictionary with grids and their corresponding labels for each window size.
+    Generates grids for each point in the data array with different window sizes, saves them to disk if required, and returns the grids.
 
     Args:
-    - data_array (np.ndarray): Array where each row represents a point with its x, y, z coordinates and features.
-    - window_sizes (list): List of window sizes to use for grid generation (e.g., [small, medium, large]).
+    - data_array (numpy.ndarray): Array where each row represents a point with its x, y, z coordinates and features.
+    - window_sizes (list): List of tuples where each tuple contains (scale_label, window_size).
     - grid_resolution (int): Resolution of the grid (e.g., 128x128).
     - channels (int): Number of channels to store in each grid.
-    - save_dir (str): Directory to save the generated grids.
-    - save (bool): Boolean value to save or discard the generated grids. Default is False.
+    - save_dir (str): Directory to save the generated grids. Default is None (do not save).
+    - save (bool): Whether to save the generated grids to disk. Default is False.
 
     Returns:
-    - labeled_grids_dict (dict): A dictionary with window size labels as keys. Each entry contains a dictionary
-                          with 'grids' and 'labels' keys, where 'grids' is a list of generated grids and
-                          'labels' is a list of corresponding class labels.
+    - labeled_grids_dict (dict): A dictionary with scale labels as keys, where each entry contains 'grids' (list of grids)
+      and 'class_labels' (list of corresponding class labels).
     """
-
     if save_dir is not None:
         os.makedirs(save_dir, exist_ok=True)
 
-    # remap labels to continous integers (needed for cross entropy loss)
+    # Remap labels to continuous integers (needed for cross-entropy loss)
     data_array, _ = remap_labels(data_array)
 
     # Initialize a dictionary to store the generated grids and labels by window size
-    num_points = len(data_array)  # Number of points in the dataset
-
+    num_points = len(data_array)
     labeled_grids_dict = {
         scale_label: {
-            'grids': np.zeros((num_points, grid_resolution, grid_resolution, channels)),  # Preallocate grids
-            'class_labels': np.zeros((num_points,))  # Preallocate labels array
+            'grids': np.zeros((num_points, grid_resolution, grid_resolution, channels)),
+            'class_labels': np.zeros((num_points,))
         }
         for scale_label, _ in window_sizes
     }
 
+    # Create KDTree once for the entire dataset
+    tree = KDTree(data_array[:, :2])  # Use x, y coordinates for 2D grid
+
     for i in range(num_points):
         # Select the current point as the center point for the grid
-        center_point = data_array[i, :3]  # (x, y, z)
-        label = data_array[i, -1]  # Assuming the class label is the last column
+        center_point = data_array[i, :3]
+        label = data_array[i, -1]  # Assuming the class label is in the last column
 
         for size_label, window_size in window_sizes:
             print(f"Generating {size_label} grid for point {i} with window size {window_size}...")
@@ -120,29 +114,23 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channel
             # Create a grid around the current center point
             grid, _, x_coords, y_coords, _ = create_feature_grid(center_point, window_size, grid_resolution, channels)
 
-            # Assign features to the grid cells
-            grid_with_features = assign_features_to_grid(data_array, grid, x_coords, y_coords, channels)
+            # Assign features to the grid cells using the pre-built KDTree
+            grid_with_features = assign_features_to_grid(tree, data_array, grid, x_coords, y_coords, channels)
 
-            # Store the grid and label in the NumPy arrays
+            # Store the grid and label
             labeled_grids_dict[size_label]['grids'][i] = grid_with_features
             labeled_grids_dict[size_label]['class_labels'][i] = label
 
             # Save the grid if required
             if save and save_dir is not None:
-                # Reshape the grid to (channels, height, width) for PyTorch
-                grid_with_features = np.transpose(grid_with_features, (2, 0, 1))
-
-                # Create a subdirectory for each grid size (small, medium, large)
+                grid_with_features = np.transpose(grid_with_features, (2, 0, 1))  # Reshape for PyTorch format
                 scale_dir = os.path.join(save_dir, size_label)
                 os.makedirs(scale_dir, exist_ok=True)
-
-                # Save the grid in the appropriate subdirectory
                 grid_filename = os.path.join(scale_dir, f"grid_{i}_{size_label}_class_{int(label)}.npy")
                 np.save(grid_filename, grid_with_features)
                 print(f"Saved {size_label} grid for point {i} to {grid_filename}")
 
     return labeled_grids_dict
-
 
 
 
