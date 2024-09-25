@@ -3,6 +3,7 @@ import numpy as np
 from utils.point_cloud_data_utils import read_las_file_to_numpy, numpy_to_dataframe
 from scripts.point_cloud_to_image import create_feature_grid, assign_features_to_grid, generate_multiscale_grids
 from utils.plot_utils import visualize_grid, visualize_grid_with_comparison
+from scipy.spatial import KDTree
 import os
 
 
@@ -36,6 +37,10 @@ class TestPointCloudToImage(unittest.TestCase):
 
     def test_create_and_assign_grids(self):
 
+        # Load the KDTree once for the entire point cloud
+        points = self.full_data[:, :2]  # Only x, y coordinates
+        tree = KDTree(points)
+
         # Check that sampled data is not empty and has the expected structure
         self.assertIsInstance(self.full_data, np.ndarray)
         self.assertGreaterEqual(self.sampled_data.shape[1], 4)  # At least x, y, z, and one feature
@@ -51,8 +56,8 @@ class TestPointCloudToImage(unittest.TestCase):
         # Ensure grid has the correct shape
         self.assertEqual(grid.shape, (self.grid_resolution, self.grid_resolution, self.channels))
 
-        # Assign features to grid
-        grid_with_features = assign_features_to_grid(self.full_data, grid, x_coords, y_coords, channels=self.channels)
+         # Assign features using the pre-built KDTree
+        grid_with_features = assign_features_to_grid(self.full_data, tree, grid, x_coords, y_coords, channels=self.channels)
 
         # Ensure features are assigned (grid should not be all zeros)
         self.assertFalse(np.all(grid_with_features == 0), "Grid is unexpectedly empty or all zeros.")
