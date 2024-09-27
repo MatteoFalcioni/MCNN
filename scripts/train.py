@@ -1,6 +1,7 @@
 import torch
 from utils.plot_utils import plot_loss
 from utils.train_data_utils import save_model
+from tqdm import tqdm
 
 
 def train(model, dataloader, criterion, optimizer, device):
@@ -9,7 +10,10 @@ def train(model, dataloader, criterion, optimizer, device):
     running_loss = 0.0  # This will be used for logging every 10 batches
     total_batches = len(dataloader)  # Total number of batches
 
-    for i, (small_grids, medium_grids, large_grids, labels) in enumerate(dataloader):
+    # Initialize tqdm progress bar for the training loop
+    progress_bar = tqdm(enumerate(dataloader), total=total_batches, desc='Training', leave=False)
+
+    for i, (small_grids, medium_grids, large_grids, labels) in progress_bar:
         small_grids, medium_grids, large_grids, labels = (
             small_grids.to(device), medium_grids.to(device), large_grids.to(device), labels.to(device)
         )
@@ -34,8 +38,9 @@ def train(model, dataloader, criterion, optimizer, device):
         total_loss += loss.item()  # Accumulate total loss
         running_loss += loss.item()  # Accumulate running loss for logging
 
-        if i % 10 == 9:  # Print every 10 batches
-            print(f'Batch [{i + 1}/{total_batches}], Loss: {running_loss / 10:.4f}')
+        # Update progress bar description every batch
+        if i % 10 == 9:
+            progress_bar.set_postfix({'Batch Loss': running_loss / 10})
             running_loss = 0.0  # Reset running loss after logging
 
     # Return the average loss over the epoch
