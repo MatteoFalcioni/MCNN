@@ -10,10 +10,10 @@ class TestPlotUtils(unittest.TestCase):
 
     def setUp(self):
         # Path to the directory containing the saved grids
-        self.grid_dir = 'tests/test_grids/small'  # Adjust the scale if needed (small, medium, large)
+        self.grid_dir = 'tests/test_grids/large'  # Adjust the scale if needed (small, medium, large)
         
         # Load one of the saved grids for testing (adjust the filename if necessary)
-        grid_file = os.path.join(self.grid_dir, 'grid_0_small_class_0.npy')
+        grid_file = os.path.join(self.grid_dir, 'grid_0_large_class_0.npy')
         self.grid_channels_first = np.load(grid_file)  # Assuming the grid is saved in channel-first format
 
         # Load LAS file, get the data and feature names
