@@ -127,17 +127,31 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channel
 
             # Save the grid if required
             if save and save_dir is not None:
-                
-                scale_dir = os.path.join(save_dir, size_label)
-                os.makedirs(scale_dir, exist_ok=True)
-                grid_filename = os.path.join(scale_dir, f"grid_{i}_{size_label}_class_{int(label)}.npy")
-                np.save(grid_filename, grid_with_features)
-                # print(f"Saved {size_label} grid for point {i} to {grid_filename}")
+               save_grid(grid_with_features, label, i, size_label, save_dir)
 
     print('Multiscale grid generation completed successfully.')
 
     return labeled_grids_dict
 
+
+def save_grid(grid, label, point_idx, size_label, save_dir):
+    """
+    Helper function to save a grid to disk.
+
+    Args:
+    - grid (numpy.ndarray): The grid to be saved.
+    - label (int): The class label corresponding to the grid.
+    - point_idx (int): Index of the point for which the grid is generated.
+    - size_label (str): Label for the grid scale ('small', 'medium', 'large').
+    - save_dir (str): Directory to save the generated grids.
+    """
+    try:
+        scale_dir = os.path.join(save_dir, size_label)
+        os.makedirs(scale_dir, exist_ok=True)
+        grid_filename = os.path.join(scale_dir, f"grid_{point_idx}_{size_label}_class_{int(label)}.npy")
+        np.save(grid_filename, grid)
+    except Exception as e:
+        print(f"Error saving grid for point {point_idx} in {size_label} scale: {str(e)}")
 
 
 
