@@ -43,7 +43,7 @@ def gpu_create_feature_grid(center_points, window_size, grid_resolution=128, cha
     return grids, cell_size, x_coords, y_coords
 
 
-def gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_coords, full_data, channels=3, device=None):
+def gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_coords, full_data, tree, channels=3, device=None):
     """
     Assign features from the nearest point to each cell in the grid for a batch of points using KDTree.
 
@@ -53,39 +53,36 @@ def gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_c
     - grids (torch.Tensor): A tensor of shape [batch_size, channels, grid_resolution, grid_resolution].
     - x_coords (torch.Tensor): A tensor of shape [batch_size, grid_resolution] containing x coordinates for each grid cell.
     - y_coords (torch.Tensor): A tensor of shape [batch_size, grid_resolution] containing y coordinates for each grid cell.
-    - full_data (np.ndarray): A numpy array representing the entire point cloud's (x, y) coordinates AND features for the KDTree.
+    - full_data (np.ndarray): The entire point cloud's data to build the KDTree for nearest neighbor search.
+    - tree (KDTree): Pre-built KDTree for efficient nearest-neighbor search.
     - channels (int): Number of feature channels in the grid (default is 3 for RGB).
     - device (torch.device): The device (CPU or GPU) to run this on.
 
     Returns:
     - grids (torch.Tensor): The updated grids with features assigned based on the nearest points from the full point cloud.
     """
-    batch_size = batch_data.shape[0]  # Number of points in the batch
-    num_available_features = batch_features.shape[1]  # How many features are available
-
-    # Ensure we only extract up to 'channels' features
-    # batch_features = batch_features[:, :min(channels, num_available_features)].to(device)
-
-    # Build a KDTree for the full point cloud using the full_data (assumes full_data is numpy array with shape [N, 2])
-    tree = KDTree(full_data[:, :2])  # We use only x, y coordinates
 
     # Iterate through each batch point and its grid
-    for i in range(batch_size):
-        # Flatten grid coordinates for the i-th batch (grid_resolution cells)
-        grid_coords = torch.stack([x_coords[i], y_coords[i]], dim=1).cpu().numpy()  # Convert grid coords to numpy for KDTree search
+    with torch.no_grad():
 
-        # Query the KDTree to find the nearest point in the full point cloud for each grid cell
-        _, closest_points_idxs = tree.query(grid_coords)  # closest_points_idxs has shape [grid_resolution]
+        batch_size = batch_data.shape[0]  # Number of points in the batch
+        
+        for i in range(batch_size):
+            # Flatten grid coordinates for the i-th batch (grid_resolution cells)
+            grid_coords = torch.stack([x_coords[i], y_coords[i]], dim=1).cpu().numpy()  # Convert grid coords to numpy for KDTree search
 
-        # Assign features to the grid for the i-th batch based on the closest points from the full point cloud
-        for channel in range(channels):
-            for cell_idx in range(grids.shape[2]):  # Loop over grid_resolution (cells)
-                # Assign the features of the closest point to the grid cell
-                closest_point_idx = closest_points_idxs[cell_idx]
-                # Get the features from the full point cloud, not the batch
-                # Assuming full_data has shape [N, 3+num_features] where first 3 columns are (x, y, z)
-                grids[i, channel, cell_idx] = full_data[
-                    closest_point_idx, 3 + channel]  # Fetch the correct feature channel from full_data
+            # Query the KDTree to find the nearest point in the full point cloud for each grid cell
+            _, closest_points_idxs = tree.query(grid_coords)  # closest_points_idxs has shape [grid_resolution]
+
+            # Assign features to the grid for the i-th batch based on the closest points from the full point cloud
+            for channel in range(channels):
+                for cell_idx in range(grids.shape[2]):  # Loop over grid_resolution (cells)
+                    # Assign the features of the closest point to the grid cell
+                    closest_point_idx = closest_points_idxs[cell_idx]
+                    # Get the features from the full point cloud, not the batch
+                    # Assuming full_data has shape [N, 3+num_features] where first 3 columns are (x, y, z)
+                    grids[i, channel, cell_idx] = full_data[
+                        closest_point_idx, 3 + channel]  # Fetch the correct feature channel from full_data
 
     return grids
 
@@ -139,6 +136,9 @@ def gpu_generate_multiscale_grids(data_loader, window_sizes, grid_resolution, ch
     # Create a dictionary to hold grids and class labels for each scale
     labeled_grids_dict = {scale_label: {'grids': [], 'class_labels': []} for scale_label, _ in window_sizes}
 
+    # Create the KDTree once and reuse it
+    tree = KDTree(full_data[:, :2])
+
     # Iterate over the DataLoader batches
     for batch_idx, (batch_data, batch_features, batch_labels) in enumerate(data_loader):
         print(f"Processing batch {batch_idx + 1}/{len(data_loader)}...")
@@ -156,7 +156,7 @@ def gpu_generate_multiscale_grids(data_loader, window_sizes, grid_resolution, ch
             grids, _, x_coords, y_coords = gpu_create_feature_grid(batch_data, window_size, grid_resolution, channels, device)
 
             # Assign features to the grids
-            grids = gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_coords, full_data, channels, device)
+            grids = gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_coords, tree, full_data, channels, device)
 
             # Append the grids and labels to the dictionary
             labeled_grids_dict[size_label]['grids'].append(grids.cpu().numpy())  # Store as numpy arrays
@@ -164,26 +164,35 @@ def gpu_generate_multiscale_grids(data_loader, window_sizes, grid_resolution, ch
 
             # Save the grid if save_dir is provided
             if save and save_dir is not None:
-                for i, (grid, label) in enumerate(zip(grids, batch_labels)):
-                    try:
-                        # Convert grid to numpy and save
-                        grid_with_features = grid.cpu().numpy()
+                save_grid(grids, batch_labels, batch_idx, size_label, save_dir)
 
-                        # Ensure the save directory exists
-                        scale_dir = os.path.join(save_dir, size_label)
-                        os.makedirs(scale_dir, exist_ok=True)
-
-                        # Construct the filename and save the file
-                        grid_filename = os.path.join(scale_dir,
-                                                     f"grid_{batch_idx}_{i}_{size_label}_class_{int(label)}.npy")
-                        np.save(grid_filename, grid_with_features)
-                        print(f"Saved {size_label} grid for batch {batch_idx}, point {i} to {grid_filename}")
-                    except Exception as e:
-                        print(f"Error saving grid {i} in batch {batch_idx}: {str(e)}")
-            elif save and save_dir is None:
-                print('Warning: unspecified save directory for generated grids. Grids cannot be saved.')
+        # Clear variables to free memory
+        del batch_data, batch_features, batch_labels, grids, x_coords, y_coords
 
     return labeled_grids_dict
+
+
+def save_grid(grids, batch_labels, batch_idx, size_label, save_dir):
+    """
+    Helper function to save grids to disk.
+
+    Args:
+    - grids (torch.Tensor): The grids to be saved.
+    - batch_labels (torch.Tensor): The labels corresponding to each grid.
+    - batch_idx (int): The current batch index.
+    - size_label (str): Label for the grid scale ('small', 'medium', 'large').
+    - save_dir (str): Directory to save the generated grids.
+    """
+    for i, (grid, label) in enumerate(zip(grids, batch_labels)):
+        try:
+            # Convert grid to numpy and save
+            grid_with_features = grid.cpu().numpy()
+            scale_dir = os.path.join(save_dir, size_label)
+            os.makedirs(scale_dir, exist_ok=True)
+            grid_filename = os.path.join(scale_dir, f"grid_{batch_idx}_{i}_{size_label}_class_{int(label)}.npy")
+            np.save(grid_filename, grid_with_features)
+        except Exception as e:
+            print(f"Error saving grid {i} in batch {batch_idx}: {str(e)}")
 
 
 
