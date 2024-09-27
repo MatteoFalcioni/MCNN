@@ -7,7 +7,6 @@ from utils.point_cloud_data_utils import read_las_file_to_numpy, numpy_to_datafr
 save_dir = 'tests/test_grids'
 os.makedirs(save_dir, exist_ok=True)
 
-# Load LAS file, get the data and feature names
 sample_size = 500
 las_file_path = 'data/raw/labeled_FSL.las'
 full_data, feature_names = read_las_file_to_numpy(las_file_path)
@@ -19,11 +18,10 @@ sampled_data, _ = remap_labels(sampled_data)
 
 # Define the window sizes for multiscale grids
 window_sizes = [('small', 2.5), ('medium', 5.0), ('large', 10.0)]
-# Add dummy class labels (e.g., 0 or 1) to unlabeled data
 
 # Parameters for grid generation
 grid_resolution = 128
-channels = 3  # Assuming 3 feature channels
+channels = 10  # 10 feature channels
 
 # Generate multiscale grids and save them to the 'tests/test_grids' folder
 labeled_grids_dict = generate_multiscale_grids(
@@ -40,3 +38,12 @@ for scale_label, content in labeled_grids_dict.items():
     print(f"Grids for {scale_label} scale saved in {os.path.join(save_dir, scale_label)}")
     print(f"Number of grids: {content['grids'].shape[0]}")
     print(f"Grid shape (channels x height x width): {content['grids'][0].shape}")
+
+# Load one of the saved grids to confirm the shape
+for scale_label in ['small', 'medium', 'large']:
+    grid_file = os.path.join(save_dir, scale_label, 'grid_0_' + scale_label + '_class_0.npy')
+    if os.path.exists(grid_file):
+        loaded_grid = np.load(grid_file)
+        print(f"Loaded {scale_label} grid from {grid_file}")
+        print(f"Loaded grid shape: {loaded_grid.shape}")  # Check the shape after loading
+
