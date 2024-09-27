@@ -2,6 +2,7 @@ from scipy.spatial import KDTree
 from utils.point_cloud_data_utils import remap_labels
 import numpy as np
 import os
+from tqdm import tqdm
 
 
 def create_feature_grid(center_point, window_size, grid_resolution=128, channels=3):
@@ -103,13 +104,13 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channel
     # Create KDTree once for the entire dataset
     tree = KDTree(data_array[:, :2])  # Use x, y coordinates for 2D grid
 
-    for i in range(num_points):
+    for i in tqdm(range(num_points), desc="Generating grids", unit="grid"):
         # Select the current point as the center point for the grid
         center_point = data_array[i, :3]
         label = data_array[i, -1]  # Assuming the class label is in the last column
 
         for size_label, window_size in window_sizes:
-            print(f"Generating {size_label} grid for point {i} with window size {window_size}...")
+            # print(f"Generating {size_label} grid for point {i} with window size {window_size}...")
 
             # Create a grid around the current center point
             grid, _, x_coords, y_coords, _ = create_feature_grid(center_point, window_size, grid_resolution, channels)
@@ -131,7 +132,9 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channel
                 os.makedirs(scale_dir, exist_ok=True)
                 grid_filename = os.path.join(scale_dir, f"grid_{i}_{size_label}_class_{int(label)}.npy")
                 np.save(grid_filename, grid_with_features)
-                print(f"Saved {size_label} grid for point {i} to {grid_filename}")
+                # print(f"Saved {size_label} grid for point {i} to {grid_filename}")
+
+    print('Multiscale grid generation completed successfully.')
 
     return labeled_grids_dict
 
