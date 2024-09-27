@@ -26,7 +26,7 @@ To set up the environment and install the required dependencies, it's recommende
 
     ```bash
    conda env create -f environment.yml
-   conda activate mcnn-env
+   conda activate CNNLidar
     ```
 
 

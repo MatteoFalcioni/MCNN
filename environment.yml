@@ -1,0 +1,22 @@
+name: CNNLidar-GPU
+channels:
+  - rapidsai
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - cudatoolkit=11.0  
+  - numpy
+  - scipy
+  - pandas
+  - scikit-learn
+  - pytorch
+  - torchvision
+  - cupy
+  - cuml=23.08
+  - tqdm
+  - pip
+  - pip:
+      - matplotlib  
+      - open3d      
