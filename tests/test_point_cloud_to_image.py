@@ -49,7 +49,7 @@ class TestPointCloudToImage(unittest.TestCase):
         center_point = self.full_data[100000, :3]
 
         # Create a grid around the center point
-        grid, cell_size, x_coords, y_coords, z_coords = create_feature_grid(
+        grid, _, x_coords, y_coords, _ = create_feature_grid(
             center_point, window_size=self.window_size, grid_resolution=self.grid_resolution, channels=self.channels
         )
 
@@ -114,8 +114,8 @@ class TestPointCloudToImage(unittest.TestCase):
                 grid = grids_dict[scale_label]['grids'][i]
                 class_label = grids_dict[scale_label]['class_labels'][i]
 
-                # Ensure each grid has the correct shape (channels should be the last dimension)
-                self.assertEqual(grid.shape, (self.grid_resolution, self.grid_resolution, self.channels),
+                # Ensure each grid has the correct shape (channels should be the first dimension)
+                self.assertEqual(grid.shape, (self.channels, self.grid_resolution, self.grid_resolution),
                                  f"Grid shape is incorrect for {scale_label} scale at index {i}.")
 
                 # Check that the class label is consistent across all scales (small, medium, large)

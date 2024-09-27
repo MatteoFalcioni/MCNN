@@ -90,11 +90,11 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channel
     # Remap labels to continuous integers (needed for cross-entropy loss)
     data_array, _ = remap_labels(data_array)
 
-    # Initialize a dictionary to store the generated grids and labels by window size
+    # Initialize a dictionary to store the generated grids and labels by window size (grids in Torch standard formats, channel first)
     num_points = len(data_array)
     labeled_grids_dict = {
         scale_label: {
-            'grids': np.zeros((num_points, grid_resolution, grid_resolution, channels)),
+            'grids': np.zeros((num_points, channels, grid_resolution, grid_resolution)),  # Channel-first
             'class_labels': np.zeros((num_points,))
         }
         for scale_label, _ in window_sizes
@@ -126,7 +126,7 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channel
 
             # Save the grid if required
             if save and save_dir is not None:
-                grid_with_features = np.transpose(grid_with_features, (2, 0, 1))  # Reshape for PyTorch format
+                
                 scale_dir = os.path.join(save_dir, size_label)
                 os.makedirs(scale_dir, exist_ok=True)
                 grid_filename = os.path.join(scale_dir, f"grid_{i}_{size_label}_class_{int(label)}.npy")
