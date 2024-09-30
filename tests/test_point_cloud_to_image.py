@@ -18,7 +18,7 @@ class TestPointCloudToImage(unittest.TestCase):
 
         # Load LAS file, get the data and feature names
         self.full_data, self.feature_names = read_las_file_to_numpy(self.las_file_path)
-        self.df = numpy_to_dataframe(self.full_data)
+        self.df = numpy_to_dataframe(self.full_data, self.feature_names)
         np.random.seed(42)  # For reproducibility
         self.sampled_data = self.full_data[np.random.choice(self.full_data.shape[0], self.sample_size, replace=False)]
 
