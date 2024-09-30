@@ -78,11 +78,8 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         data_iter = iter(data_loader)
         batch_data = next(data_iter)
         
-        batch_data = batch_data.to(self.device)
-
-        # split data and data to the correct device
-        coordinates = batch_data[:, :2]
-        labels = batch_data[:, 2]
+        coordinates = batch_data[0].to(self.device)  # Access the first element as the tensor
+        labels = batch_data[1].to(self.device)        # Access the second element for labels 
         
         # verify that the data batch has the expected sizes and shapes
         self.assertEqual(coordinates.shape, (self.batch_size, 2))   # (batch_size, 2 for (x,y))
