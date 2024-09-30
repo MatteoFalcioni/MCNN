@@ -107,8 +107,12 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         # Process the DataLoader batches
         for batch_idx, batch_data in enumerate(data_loader):
 
-            coordinates = batch_data[0].to(self.device)  # Access the first element as the tensor
-            labels = batch_data[1].to(self.device)        # Access the second element for labels 
+            # Access the batch data; it should be a single tensor with shape (batch_size, 4)
+            batch_tensor = batch_data[0].to(self.device)  # Access the first (and only) element as the combined tensor
+            
+            # Extract coordinates and labels from the batch tensor
+            coordinates = batch_tensor[:, :3]  # First 3 columns for (x, y, z)
+            labels = batch_tensor[:, 3].long()  # Last column for labels
 
             # Create grids
             grids, _, x_coords, y_coords, constant_z = gpu_create_feature_grid(coordinates, self.window_size, self.grid_resolution, self.channels, self.device)
