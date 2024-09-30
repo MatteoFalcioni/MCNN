@@ -1,4 +1,4 @@
-name: CNNLidar-GPU
+name: CNNLidar
 channels:
   - rapidsai
   - nvidia
