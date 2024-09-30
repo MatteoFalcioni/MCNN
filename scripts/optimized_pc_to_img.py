@@ -153,10 +153,12 @@ def gpu_generate_multiscale_grids(data_loader, window_sizes, grid_resolution, ch
     for batch_idx, batch_data in enumerate(data_loader):   
         print(f"Processing batch {batch_idx + 1}/{len(data_loader)}...")
 
-        # Split the unified tensor into coordinates and labels
+        # Access the batch data; it should be a single tensor with shape (batch_size, 4)
+        batch_tensor = batch_data[0].to(self.device)  # Access the first (and only) element as the combined tensor
         
-        coordinates = batch_data[0].to(device)  # Access the first element for coordinates
-        labels = batch_data[1].to(device)        # Access the second element for labels 
+        # Extract coordinates and labels from the batch tensor
+        coordinates = batch_tensor[:, :3]  # First 3 columns for (x, y, z)
+        labels = batch_tensor[:, 3]  # Last column for labels
             
 
         # For each scale, generate the grids and assign features
