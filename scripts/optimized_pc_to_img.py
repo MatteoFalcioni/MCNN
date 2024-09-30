@@ -82,8 +82,11 @@ def gpu_assign_features_to_grid(batch_data, grids, x_coords, y_coords, constant_
             # Assign features to the grid for the i-th batch based on the closest points from the full point cloud
             # Using a more efficient method to fill the grid
             for channel in range(channels):
+                # Convert the selected features to a PyTorch tensor and move to the correct device
+                features_to_assign = torch.tensor(full_data[closest_points_idxs, 3 + channel], dtype=torch.float32, device=device)
+    
                 # Assign all features for the current channel at once
-                grids[i, channel].view(-1)[:] = full_data[closest_points_idxs, 3 + channel]  # Assign features for all cells at once
+                grids[i, channel].view(-1)[:] = features_to_assign  # Assign features for all cells at once
 
 
     return grids
