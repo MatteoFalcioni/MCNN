@@ -115,17 +115,8 @@ def prepare_grids_dataloader(data_array, batch_size, num_workers):
     labels_tensor = torch.tensor(data_array[:, -1], dtype=torch.int)      # Shape: [num_samples]
     
     
-    # Concatenate the coordinates and labels into a single tensor
-    combined_tensor = torch.cat(
-        (coords_tensor, labels_tensor.unsqueeze(1)),  # Add an extra dimension to labels
-        dim=1
-    )  # Now combined_tensor is of shape [num_samples, 4]
-    
-    # Print the combined tensor to verify its shape and contents
-    print("Combined Tensor Shape:", combined_tensor.shape)
-    print("Combined Tensor Contents:\n", combined_tensor)
-
-    dataset = TensorDataset(combined_tensor)
+    # Combine them into a TensorDataset
+    dataset = TensorDataset(coords_tensor, labels_tensor)
 
     # Set num_workers > 0 to enable multiprocessing
     # careful: we cannot pass tensors to device already to avoid problems with num_workers != 0
