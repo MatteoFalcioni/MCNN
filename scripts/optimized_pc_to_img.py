@@ -34,7 +34,6 @@ def gpu_create_feature_grid(center_points, window_size, grid_resolution=128, cha
     # Initialize the grids with zeros; one grid for each point in the batch
     grids = torch.zeros((batch_size, channels, grid_resolution, grid_resolution), device=device)
 
-    # Generate grid coordinates for each point in the batch
     half_resolution_plus_half = (grid_resolution / 2) + 0.5
 
     # Create x and y coordinate grids for each point in the batch
@@ -112,17 +111,13 @@ def prepare_grids_dataloader(data_array, batch_size, num_workers):
     dataset = TensorDataset(combined_tensor)
 
     # Set num_workers > 0 to enable multiprocessing
-    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
-
-    return data_loader
-
-    # Set num_workers > 0 to enable multiprocessing
-    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
-
     # careful: we cannot pass tensors to device already to avoid problems with num_workers != 0
     # so we'll need to pass the data to device after calling the dataloader!
+    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
     return data_loader
+
+    
 
 
 def gpu_generate_multiscale_grids(data_loader, window_sizes, grid_resolution, channels, device, full_data, save_dir=None, save=False):

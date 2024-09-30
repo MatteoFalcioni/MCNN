@@ -57,7 +57,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
     def test_gpu_create_feature_grid(self):
         """Test the gpu_create_feature_grid function."""
         grids, cell_size, x_coords, y_coords = gpu_create_feature_grid(
-            torch.tensor(self.data_array[:, :2]), self.window_size, self.grid_resolution, self.channels, device=self.device
+            torch.tensor(self.data_array[:, :3]), self.window_size, self.grid_resolution, self.channels, device=self.device
         )
 
         # Test the grid shape
