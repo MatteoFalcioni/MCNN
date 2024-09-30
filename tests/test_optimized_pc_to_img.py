@@ -93,4 +93,104 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         self.assertEqual(coordinates.device, self.device)
         self.assertEqual(labels.device, self.device)
 
+    def test_assign_features_with_real_data(self):
+        """Test that features are correctly assigned to grids with real data."""
+        # Prepare the DataLoader
+        data_loader = prepare_grids_dataloader(self.sampled_data, self.batch_size_real, num_workers=4)
+        
+        # Load the KDTree once for the entire point cloud
+        print('creating KD tree')
+        points = self.sampled_data[:, :3]  # Use x, y, z coordinates for KDTree
+        tree = KDTree(points)
+        print('KD tree has been created')
 
+        # Process the DataLoader batches
+        for batch_idx, batch_data in enumerate(data_loader):
+
+            # Access the batch data; it should be a single tensor with shape (batch_size, 4)
+            batch_tensor = batch_data[0].to(self.device)  # Access the first (and only) element as the combined tensor
+            
+            # Extract coordinates and labels from the batch tensor
+            coordinates = batch_tensor[:, :3]  # First 3 columns for (x, y, z)
+            labels = batch_tensor[:, 3].long()  # Last column for labels
+
+            # Create grids
+            grids, _, x_coords, y_coords, constant_z = gpu_create_feature_grid(coordinates, self.window_size, self.grid_resolution, self.channels, self.device)
+
+            # Assign features to the grids
+            updated_grids = gpu_assign_features_to_grid(coordinates, grids, x_coords, y_coords, constant_z, self.sampled_data, tree, self.channels, self.device)
+            # Check that features have been assigned (e.g., grid values are not all zeros)
+            self.assertFalse(torch.all(updated_grids == 0),
+                             "Features were not correctly assigned. All grid values are zero.")
+
+            # Check that the grids are not identical (check for variability)
+            grid_differences = torch.mean(updated_grids,
+                                          dim=(2, 3))  # Mean over the height and width to compare channels
+            self.assertFalse(torch.all(grid_differences[0] == grid_differences),
+                             "All grids are identical. No feature variability found.")
+
+            grid_idx = 2
+            grid = updated_grids[grid_idx]
+            class_label = labels[grid_idx].item()
+
+            # Ensure the grid contains non-zero values (features are assigned)
+            self.assertFalse(np.all(grid.cpu().numpy() == 0), f"Grid {grid_idx} for batch {batch_idx} is empty. No features assigned.")
+
+            # Pick a random cell to verify feature assignment
+            row, col = np.random.randint(0, self.grid_resolution, size=2)
+            feature_values = grid[:, row, col]
+
+            # Calculate the cell center coordinates
+            cell_center_coords = np.array([x_coords[grid_idx][col].item(), y_coords[grid_idx][row].item(), constant_z[grid_idx].item()])
+
+            # Calculate distances using the full 3D coordinates
+            distances = np.linalg.norm(self.sampled_data[:, :3] - cell_center_coords, axis=1)
+            nearest_point_idx = np.argmin(distances)
+            expected_features = self.sampled_data[nearest_point_idx, 3:3 + self.channels]
+
+            # Check if the assigned features match the nearest point's features
+            np.testing.assert_almost_equal(
+                feature_values.cpu().numpy(), 
+                expected_features, 
+                decimal=4,
+                err_msg=f"Feature mismatch for grid {grid_idx} at cell ({row}, {col}) in batch {batch_idx}."
+            )
+
+    def test_generate_multiscale_grids_with_real_data(self):
+        """Test multiscale grid generation with real data."""
+        # Prepare the DataLoader
+        data_loader = prepare_grids_dataloader(self.sampled_data, self.batch_size_real, num_workers=4)
+        # Generate multiscale grids
+        labeled_grids_dict = gpu_generate_multiscale_grids(data_loader, self.window_sizes, self.grid_resolution, self.channels, self.device, full_data=self.sampled_data, save=False)
+
+
+        # Check if grids are generated for each scale
+        for size_label, _ in self.window_sizes:
+            self.assertIn(size_label, labeled_grids_dict, f"{size_label} grids are missing from the generated grids.")
+            grids = labeled_grids_dict[size_label]['grids']
+            self.assertGreater(len(grids), 0, f"No {size_label} grids generated.")
+            self.assertEqual(grids[0].shape,
+                             (self.batch_size_real, self.channels, self.grid_resolution, self.grid_resolution))
+
+
+    def test_save_and_load_grids_with_real_data(self):
+        """Test saving and loading of grids generated with real data."""
+        data_loader = prepare_grids_dataloader(self.sampled_data, batch_size=self.batch_size_real, num_workers=4)
+        gpu_generate_multiscale_grids(data_loader, self.window_sizes, self.grid_resolution, self.channels, self.device, full_data=self.sampled_data, save_dir=self.save_dir_real_data, save=True)
+
+        # Verify the saved grids exist
+        for size_label, _ in self.window_sizes:
+            scale_dir = os.path.join(self.save_dir_real_data, size_label)
+            self.assertTrue(os.path.exists(scale_dir), f"{size_label} directory does not exist.")
+            saved_files = [f for f in os.listdir(scale_dir) if f.endswith('.npy')]
+            self.assertGreater(len(saved_files), 0, f"No grids found in {scale_dir}.")
+
+            # Load one of the saved grids and visualize
+            grid_filename = os.path.join(scale_dir, saved_files[0])
+            loaded_grid = np.load(grid_filename)
+            self.assertEqual(loaded_grid.shape, (self.channels, self.grid_resolution, self.grid_resolution),
+                             f"Loaded grid shape is incorrect for {size_label}.")
+
+            # Visualize the loaded grid for verification
+            print(f"Visualizing {saved_files[0]}")
+            visualize_grid(loaded_grid, channel=7, title=f"Visualization of {saved_files[0]}", save=False)
