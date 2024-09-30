@@ -99,15 +99,19 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         tree = KDTree(points)
 
         # Process the DataLoader batches
-        for batch_idx, (batch_data, _) in enumerate(data_loader):
+        for batch_idx, batch_data in enumerate(data_loader):
 
             batch_data = batch_data.to(self.device)
+            
+            # Split the unified tensor into coordinates and labels
+            coordinates = batch_data[:, :2].to(self.device)
+            labels = batch_data[:, 2].to(self.device)
 
             # Create grids
-            grids, _, x_coords, y_coords = gpu_create_feature_grid(batch_data, self.window_size, self.grid_resolution, self.channels, self.device)
+            grids, _, x_coords, y_coords = gpu_create_feature_grid(coordinates, self.window_size, self.grid_resolution, self.channels, self.device)
 
             # Assign features to the grids
-            updated_grids = gpu_assign_features_to_grid(batch_data, grids, x_coords, y_coords, self.sampled_data, tree, self.channels, self.device)
+            updated_grids = gpu_assign_features_to_grid(coordinates, grids, x_coords, y_coords, self.sampled_data, tree, self.channels, self.device)
             # Check that features have been assigned (e.g., grid values are not all zeros)
             self.assertFalse(torch.all(updated_grids == 0),
                              "Features were not correctly assigned. All grid values are zero.")

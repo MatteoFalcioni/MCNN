@@ -144,7 +144,7 @@ def gpu_generate_multiscale_grids(data_loader, window_sizes, grid_resolution, ch
 
 
     # Iterate over the DataLoader batches
-    for batch_idx, (batch_data, ) in enumerate(data_loader):    # The comma is needed to unpack the tuple
+    for batch_idx, batch_data in enumerate(data_loader):    # The comma is needed to unpack the tuple
         print(f"Processing batch {batch_idx + 1}/{len(data_loader)}...")
 
         # Split the unified tensor into coordinates and labels
@@ -170,7 +170,7 @@ def gpu_generate_multiscale_grids(data_loader, window_sizes, grid_resolution, ch
                 save_grid(grids, labels, batch_idx, size_label, save_dir)
 
         # Clear variables to free memory
-        del batch_data,  labels, grids, x_coords, y_coords
+        del batch_data, labels, grids, x_coords, y_coords
 
     return labeled_grids_dict
 
