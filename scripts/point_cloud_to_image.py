@@ -20,7 +20,7 @@ def create_feature_grid(center_point, window_size, grid_resolution=128, channels
     - cell_size (float): The size of each cell in meters.
     - x_coords (numpy.ndarray): Array of x coordinates for the centers of the grid cells.
     - y_coords (numpy.ndarray): Array of y coordinates for the centers of the grid cells.
-    - z_coords (numpy.ndarray): Array of z coordinates for the centers of the grid cells.
+    - constant_z (float): The fixed z coordinate for the grid cells.
     """
     # Calculate the size of each cell in meters
     cell_size = window_size / grid_resolution
@@ -37,12 +37,12 @@ def create_feature_grid(center_point, window_size, grid_resolution=128, channels
     # following x_k = x_pk - (64.5 - j) * w
     x_coords = center_point[0] - (half_resolution_plus_half - j_indices) * cell_size
     y_coords = center_point[1] - (half_resolution_plus_half - i_indices) * cell_size
-    z_coords = np.full((grid_resolution, grid_resolution), center_point[2])  # Z coordinate is constant for all cells
+    constant_z = center_point[2]  # Z coordinate is constant for all cells
 
-    return grid, cell_size, x_coords, y_coords, z_coords
+    return grid, cell_size, x_coords, y_coords, constant_z
 
 
-def assign_features_to_grid(tree, data_array, grid, x_coords, y_coords, channels=3):
+def assign_features_to_grid(tree, data_array, grid, x_coords, y_coords, constant_z, channels=3):
     """
     Assigns features from the nearest point in the dataset to each cell in the grid using a pre-built KDTree.
 
@@ -52,6 +52,7 @@ def assign_features_to_grid(tree, data_array, grid, x_coords, y_coords, channels
     - grid (numpy.ndarray): A 2D grid initialized to zeros, which will store feature values.
     - x_coords (numpy.ndarray): Array of x coordinates for the centers of the grid cells.
     - y_coords (numpy.ndarray): Array of y coordinates for the centers of the grid cells.
+    - constant_z (float): The fixed z coordinate for the grid cells.
     - channels (int): Number of feature channels to assign to each grid cell (default is 3 for RGB).
 
     Returns:
@@ -61,7 +62,7 @@ def assign_features_to_grid(tree, data_array, grid, x_coords, y_coords, channels
     for i in range(len(x_coords)):
         for j in range(len(y_coords)):
             # Find the nearest point to the cell center (x_coords[i], y_coords[j])
-            dist, idx = tree.query([x_coords[i], y_coords[j]])
+            dist, idx = tree.query([x_coords[i], y_coords[j], constant_z])
 
             # Assign the features of the nearest point to the grid cell
             grid[i, j, :channels] = data_array[idx, 3:3 + channels]  # Assuming features start from the 4th column (index 3)
@@ -101,8 +102,8 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channel
         for scale_label, _ in window_sizes
     }
 
-    # Create KDTree once for the entire dataset
-    tree = KDTree(data_array[:, :2])  # Use x, y coordinates for 2D grid
+    # Create KDTree once for the entire dataset with x, y, z coordinates
+    tree = KDTree(data_array[:, :3])  # Use x, y, and z coordinates for 3D KDTree
 
     for i in tqdm(range(num_points), desc="Generating grids", unit="grid"):
         # Select the current point as the center point for the grid
@@ -113,10 +114,10 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channel
             # print(f"Generating {size_label} grid for point {i} with window size {window_size}...")
 
             # Create a grid around the current center point
-            grid, _, x_coords, y_coords, _ = create_feature_grid(center_point, window_size, grid_resolution, channels)
+            grid, _, x_coords, y_coords, z_coord = create_feature_grid(center_point, window_size, grid_resolution, channels)
 
             # Assign features to the grid cells using the pre-built KDTree
-            grid_with_features = assign_features_to_grid(tree, data_array, grid, x_coords, y_coords, channels)
+            grid_with_features = assign_features_to_grid(tree, data_array, grid, x_coords, y_coords, z_coord, channels)
 
             # Transpose the grid to match PyTorch's 'channels x height x width' format
             grid_with_features = np.transpose(grid_with_features, (2, 0, 1))

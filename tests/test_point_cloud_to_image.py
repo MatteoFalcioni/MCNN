@@ -38,7 +38,7 @@ class TestPointCloudToImage(unittest.TestCase):
     def test_create_and_assign_grids(self):
 
         # Load the KDTree once for the entire point cloud
-        points = self.full_data[:, :2]  # Only x, y coordinates
+        points = self.full_data[:, :3]  # Use x, y, z coordinates
         tree = KDTree(points)
 
         # Check that sampled data is not empty and has the expected structure
@@ -49,7 +49,7 @@ class TestPointCloudToImage(unittest.TestCase):
         center_point = self.full_data[100000, :3]
 
         # Create a grid around the center point
-        grid, _, x_coords, y_coords, _ = create_feature_grid(
+        grid, _, x_coords, y_coords, z_coord = create_feature_grid(
             center_point, window_size=self.window_size, grid_resolution=self.grid_resolution, channels=self.channels
         )
 
@@ -57,7 +57,7 @@ class TestPointCloudToImage(unittest.TestCase):
         self.assertEqual(grid.shape, (self.grid_resolution, self.grid_resolution, self.channels))
 
          # Assign features using the pre-built KDTree
-        grid_with_features = assign_features_to_grid(self.full_data, tree, grid, x_coords, y_coords, channels=self.channels)
+        grid_with_features = assign_features_to_grid(self.full_data, tree, grid, x_coords, y_coords, z_coord, channels=self.channels)
 
         # Ensure features are assigned (grid should not be all zeros)
         self.assertFalse(np.all(grid_with_features == 0), "Grid is unexpectedly empty or all zeros.")
@@ -131,7 +131,7 @@ class TestPointCloudToImage(unittest.TestCase):
         # Generate and save the multiscale grids
         grids_dict = generate_multiscale_grids(self.sampled_data_with_class_labels, self.window_sizes,
                                                self.grid_resolution, self.channels, save_dir=self.save_grids_dir,
-                                               save=True)
+                                               save=False)
 
         # Check that the files are saved with the correct names and structure
         for i in range(len(self.sampled_data_with_class_labels)):
