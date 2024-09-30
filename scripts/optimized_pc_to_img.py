@@ -112,7 +112,7 @@ def prepare_grids_dataloader(data_array, batch_size, num_workers):
     # Concatenate the coordinates and labels into a single tensor
     combined_tensor = torch.cat(
         (torch.tensor(data_array[:, :3], dtype=torch.float32), 
-         torch.tensor(data_array[:, -1:], dtype=torch.long)),  # Ensure labels are of type long
+         torch.tensor(data_array[:, -1], dtype=torch.long)),  # Ensure labels are of type long
         dim=1
     )
 
