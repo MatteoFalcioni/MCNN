@@ -109,12 +109,21 @@ def prepare_grids_dataloader(data_array, batch_size, num_workers):
     Returns:
     - data_loader (DataLoader): A DataLoader that batches the dataset.
     """
+    
+    # Create tensors for coordinates and labels
+    coords_tensor = torch.tensor(data_array[:, :3], dtype=torch.float32)  # Shape: [num_samples, 3]
+    labels_tensor = torch.tensor(data_array[:, -1], dtype=torch.long)      # Shape: [num_samples]
+    
+    
     # Concatenate the coordinates and labels into a single tensor
     combined_tensor = torch.cat(
-        (torch.tensor(data_array[:, :3], dtype=torch.float32), 
-         torch.tensor(data_array[:, -1], dtype=torch.long).unsqueeze(1)),  # Ensure labels are of type long
+        (coords_tensor, labels_tensor.unsqueeze(1)),  # Add an extra dimension to labels
         dim=1
-    )
+    )  # Now combined_tensor is of shape [num_samples, 4]
+    
+    # Print the combined tensor to verify its shape and contents
+    print("Combined Tensor Shape:", combined_tensor.shape)
+    print("Combined Tensor Contents:\n", combined_tensor)
 
     dataset = TensorDataset(combined_tensor)
 
