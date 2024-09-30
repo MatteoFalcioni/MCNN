@@ -61,7 +61,7 @@ def assign_features_to_grid(tree, data_array, grid, x_coords, y_coords, constant
     # Iterate over each cell in the grid
     for i in range(len(x_coords)):
         for j in range(len(y_coords)):
-            # Find the nearest point to the cell center (x_coords[i], y_coords[j])
+            # Find the nearest point to the cell center (x_coords[i], y_coords[j], constant_z)
             dist, idx = tree.query([x_coords[i], y_coords[j], constant_z])
 
             # Assign the features of the nearest point to the grid cell

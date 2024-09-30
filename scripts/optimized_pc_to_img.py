@@ -22,6 +22,7 @@ def gpu_create_feature_grid(center_points, window_size, grid_resolution=128, cha
     - cell_size (float): The size of each cell in meters.
     - x_coords (torch.Tensor): A tensor of shape [batch_size, grid_resolution] for x coordinates of grid cells.
     - y_coords (torch.Tensor): A tensor of shape [batch_size, grid_resolution] for y coordinates of grid cells.
+    - constant_z (torch.Tensor): A tensor of shape [batch_size] containing the z coordinates of the center points.
     """
 
     center_points = center_points.to(device)    # additional check to avoid cpu usage
@@ -38,11 +39,13 @@ def gpu_create_feature_grid(center_points, window_size, grid_resolution=128, cha
     # Create x and y coordinate grids for each point in the batch
     x_coords = center_points[:, 0].unsqueeze(1) - (half_resolution_plus_half - torch.arange(grid_resolution, device=device).view(1, -1)) * cell_size
     y_coords = center_points[:, 1].unsqueeze(1) - (half_resolution_plus_half - torch.arange(grid_resolution, device=device).view(1, -1)) * cell_size
+    constant_z = center_points[:, 2]  # This gives a tensor of shape [batch_size]
+    
 
-    return grids, cell_size, x_coords, y_coords
+    return grids, cell_size, x_coords, y_coords, constant_z
 
 
-def gpu_assign_features_to_grid(batch_data, grids, x_coords, y_coords, full_data, tree, channels=3, device=None):
+def gpu_assign_features_to_grid(batch_data, grids, x_coords, y_coords, z_coord, full_data, tree, channels=3, device=None):
     """
     Assign features from the nearest point to each cell in the grid for a batch of points using KDTree.
 
@@ -51,6 +54,7 @@ def gpu_assign_features_to_grid(batch_data, grids, x_coords, y_coords, full_data
     - grids (torch.Tensor): A tensor of shape [batch_size, channels, grid_resolution, grid_resolution] for (points, channels, rows, columns).
     - x_coords (torch.Tensor): A tensor of shape [batch_size, grid_resolution] containing x coordinates for each grid cell.
     - y_coords (torch.Tensor): A tensor of shape [batch_size, grid_resolution] containing y coordinates for each grid cell.
+    - constant_z (torch.Tensor): A tensor of shape [batch_size] containing the z coordinates of the center points.
     - full_data (np.ndarray): The entire point cloud's data to build the KDTree for nearest neighbor search.
     - tree (KDTree): KDTree for efficient nearest-neighbor search.
     - channels (int): Number of feature channels in the grid (default is 3 for RGB).
@@ -66,11 +70,16 @@ def gpu_assign_features_to_grid(batch_data, grids, x_coords, y_coords, full_data
         batch_size = batch_data.shape[0]  # Number of points in the batch
         
         for i in range(batch_size):
-            # Generate a flattened array of grid coordinates for the i-th batch point
-            grid_coords = np.stack(np.meshgrid(x_coords[i].cpu().numpy(), y_coords[i].cpu().numpy(), indexing='ij'), axis=-1).reshape(-1, 2)
-
+            
+            # Create a meshgrid for the current grid cell coordinates
+            grid_x, grid_y = torch.meshgrid(x_coords[i], y_coords[i], indexing='ij')
+            
+            # Stack the x, y, and z coordinates together for the KDTree query
+            grid_coords = torch.stack((grid_x.flatten(), grid_y.flatten(), constant_z[i].expand(grid_x.numel())), dim=-1).cpu().numpy()
+            
+            
             # Query the KDTree to find the nearest point in the full point cloud for each grid cell
-            _, closest_points_idxs = tree.query(grid_coords)  # Shape: [grid_resolution^2, 1]
+            _, closest_points_idxs = tree.query(grid_coords)  
 
             # Assign features to the grid for the i-th batch based on the closest points from the full point cloud
             for cell_idx in range(grids.shape[2] * grids.shape[3]):  # Loop over each cell in the flattened grid
@@ -102,7 +111,7 @@ def prepare_grids_dataloader(data_array, batch_size, num_workers):
     """
     # Concatenate the coordinates and labels into a single tensor
     combined_tensor = torch.cat(
-        (torch.tensor(data_array[:, :2], dtype=torch.float32), 
+        (torch.tensor(data_array[:, :3], dtype=torch.float32), 
          torch.tensor(data_array[:, -1:], dtype=torch.long)),  # Ensure labels are of type long
         dim=1
     )
@@ -141,7 +150,7 @@ def gpu_generate_multiscale_grids(data_loader, window_sizes, grid_resolution, ch
     labeled_grids_dict = {scale_label: {'grids': [], 'class_labels': []} for scale_label, _ in window_sizes}
 
     # Create the GPU-based KDTree 
-    tree = KDTree(full_data[:, :2])
+    tree = KDTree(full_data[:, :3])
 
 
     # Iterate over the DataLoader batches
@@ -149,18 +158,18 @@ def gpu_generate_multiscale_grids(data_loader, window_sizes, grid_resolution, ch
         print(f"Processing batch {batch_idx + 1}/{len(data_loader)}...")
 
         # Split the unified tensor into coordinates and labels
-        coordinates = batch_data[:, :2].to(device)
-        labels = batch_data[:, 2].to(device)
+        coordinates = batch_data[:, :3].to(device)
+        labels = batch_data[:, 3].to(device)
 
         # For each scale, generate the grids and assign features
         for size_label, window_size in window_sizes:
             print(f"Generating {size_label} grid for batch {batch_idx} with window size {window_size}...")
 
             # Create a batch of grids
-            grids, _, x_coords, y_coords = gpu_create_feature_grid(coordinates, window_size, grid_resolution, channels, device)
+            grids, _, x_coords, y_coords, constant_z = gpu_create_feature_grid(coordinates, window_size, grid_resolution, channels, device)
 
             # Assign features to the grids using the GPU-based KDTree
-            grids = gpu_assign_features_to_grid(coordinates, grids, x_coords, y_coords, tree, full_data, channels, device)
+            grids = gpu_assign_features_to_grid(coordinates, grids, x_coords, y_coords, constant_z, tree, full_data, channels, device)
 
             # Append the grids and labels to the dictionary
             labeled_grids_dict[size_label]['grids'].append(grids.cpu().numpy())  # Store as numpy arrays
