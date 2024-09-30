@@ -62,15 +62,8 @@ def visualize_grid(grid, channel=0, title="Grid Visualization", feature_names=No
     if channel >= grid.shape[0]:
         raise ValueError(f"Channel {channel} is out of bounds for this grid with {grid.shape[0]} channels.")
 
-    print(f"Grid shape before transposition: {grid.shape}")
-
-    # Transpose the grid to (height, width, channels)
-    grid_transposed = np.transpose(grid, (1, 2, 0))  # Now in (height, width, channels)
-
-    print(f"Grid shape after transposition: {grid_transposed.shape}")
-
     # Extract the channel as (height, width)
-    grid_channel = grid_transposed[:, :, channel]
+    grid_channel = grid[:, :, channel]
 
     # Create the plot
     fig = plt.figure(figsize=(12, 6))
