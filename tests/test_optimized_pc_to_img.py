@@ -83,7 +83,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         
         # Extract coordinates and labels from the batch tensor
         coordinates = batch_tensor[:, :3]  # First 3 columns for (x, y, z)
-        labels = batch_tensor[:, 3].long()  # Last column for labels
+        labels = batch_tensor[:, 3]  # Last column for labels
 
         # Verify that the data batch has the expected sizes and shapes
         self.assertEqual(coordinates.shape, (self.batch_size, 3))  # (batch_size, 3 for (x,y,z))
@@ -106,13 +106,15 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
 
         # Process the DataLoader batches
         for batch_idx, batch_data in enumerate(data_loader):
+            
+            print('accessing batch loop...')
 
             # Access the batch data; it should be a single tensor with shape (batch_size, 4)
             batch_tensor = batch_data[0].to(self.device)  # Access the first (and only) element as the combined tensor
             
             # Extract coordinates and labels from the batch tensor
             coordinates = batch_tensor[:, :3]  # First 3 columns for (x, y, z)
-            labels = batch_tensor[:, 3].long()  # Last column for labels
+            labels = batch_tensor[:, 3]  # Last column for labels
 
             # Create grids
             grids, _, x_coords, y_coords, constant_z = gpu_create_feature_grid(coordinates, self.window_size, self.grid_resolution, self.channels, self.device)
@@ -123,6 +125,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
             self.assertFalse(torch.all(updated_grids == 0),
                              "Features were not correctly assigned. All grid values are zero.")
 
+            print('computing mean differences...')
             # Check that the grids are not identical (check for variability)
             grid_differences = torch.mean(updated_grids,
                                           dim=(2, 3))  # Mean over the height and width to compare channels
@@ -131,7 +134,6 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
 
             grid_idx = 2
             grid = updated_grids[grid_idx]
-            class_label = labels[grid_idx].item()
 
             # Ensure the grid contains non-zero values (features are assigned)
             self.assertFalse(np.all(grid.cpu().numpy() == 0), f"Grid {grid_idx} for batch {batch_idx} is empty. No features assigned.")
