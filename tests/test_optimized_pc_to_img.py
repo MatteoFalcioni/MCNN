@@ -13,7 +13,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         
         self.batch_size = 5     # small batches for simulated data
         self.batch_size_real = 100  # batch size for real data
-        
+
         self.grid_resolution = 128
         self.channels = 10
         self.window_size = 10.0
@@ -91,7 +91,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
     def test_assign_features_with_real_data(self):
         """Test that features are correctly assigned to grids with real data."""
         # Prepare the DataLoader
-        data_loader = prepare_grids_dataloader(self.sampled_data, self.channels, batch_size=50, num_workers=4)
+        data_loader = prepare_grids_dataloader(self.sampled_data, self.channels, self.batch_size_real, num_workers=4)
 
         # Process the DataLoader batches
         for batch_idx, (batch_data, _) in enumerate(data_loader):
@@ -117,7 +117,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
     def test_generate_multiscale_grids_with_real_data(self):
         """Test multiscale grid generation with real data."""
         # Prepare the DataLoader
-        data_loader = prepare_grids_dataloader(self.sampled_data, self.channels, batch_size=self.batch_size, num_workers=4)
+        data_loader = prepare_grids_dataloader(self.sampled_data, self.channels, self.batch_size_real, num_workers=4)
         # Generate multiscale grids
         labeled_grids_dict = gpu_generate_multiscale_grids(data_loader, self.window_sizes, self.grid_resolution, self.channels, self.device, full_data=self.sampled_data, save=False)
 
@@ -128,7 +128,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
             grids = labeled_grids_dict[size_label]['grids']
             self.assertGreater(len(grids), 0, f"No {size_label} grids generated.")
             self.assertEqual(grids[0].shape,
-                             (self.batch_size, self.channels, self.grid_resolution, self.grid_resolution))
+                             (self.batch_size_real, self.channels, self.grid_resolution, self.grid_resolution))
 
         # Check that features are assigned correctly
         for grid_idx in range(len(grids)):
@@ -159,7 +159,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
 
     def test_save_and_load_grids_with_real_data(self):
         """Test saving and loading of grids generated with real data."""
-        data_loader = prepare_grids_dataloader(self.sampled_data, self.channels, batch_size=self.batch_size, num_workers=4)
+        data_loader = prepare_grids_dataloader(self.sampled_data, self.channels, batch_size=self.batch_size_real, num_workers=4)
         gpu_generate_multiscale_grids(data_loader, self.window_sizes, self.grid_resolution, self.channels, self.device, full_data=self.sampled_data, save_dir=self.save_dir_real_data, save=True)
 
         # Verify the saved grids exist
