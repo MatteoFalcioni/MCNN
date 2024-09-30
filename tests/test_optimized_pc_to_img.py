@@ -116,9 +116,11 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
             coordinates = batch_tensor[:, :3]  # First 3 columns for (x, y, z)
             labels = batch_tensor[:, 3]  # Last column for labels
 
+            print('creating grids...')
             # Create grids
             grids, _, x_coords, y_coords, constant_z = gpu_create_feature_grid(coordinates, self.window_size, self.grid_resolution, self.channels, self.device)
 
+            print('assigning features to grids...')
             # Assign features to the grids
             updated_grids = gpu_assign_features_to_grid(coordinates, grids, x_coords, y_coords, constant_z, self.sampled_data, tree, self.channels, self.device)
             # Check that features have been assigned (e.g., grid values are not all zeros)
