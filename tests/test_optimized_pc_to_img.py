@@ -17,13 +17,14 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         self.channels = 10
         self.window_size = 10.0
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+        
         # Define window sizes for multiscale grid generation
         self.window_sizes = [('small', 2.5), ('medium', 5.0), ('large', 10.0)]
         self.save_dir = 'tests/test_optimized_grids/'    # dir to dave generated grids
         os.makedirs(self.save_dir, exist_ok=True)
 
         self.las_file_path = 'data/raw/labeled_FSL.las'     # Path to the LAS file
-        self.sample_size = 1000  # Number of points to sample for the test
+        self.sample_size = 5000  # Number of points to sample for the test
         self.full_data, self.feature_names = read_las_file_to_numpy(self.las_file_path)     # Load LAS file, get the data and feature names
         # Random sampling from the full dataset for testing
         np.random.seed(42)  # For reproducibility
@@ -88,7 +89,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
     def test_gpu_create_feature_grid(self):
         """Test the gpu_create_feature_grid function."""
         grids, cell_size, x_coords, y_coords = gpu_create_feature_grid(
-            self.center_points, self.window_size, self.grid_resolution, self.channels, device=self.device
+            torch.tensor(self.data_array[:, :3]), self.window_size, self.grid_resolution, self.channels, device=self.device
         )
 
         # Test the grid shape
@@ -97,7 +98,6 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         # Test the cell size
         expected_cell_size = self.window_size / self.grid_resolution
         self.assertAlmostEqual(cell_size, expected_cell_size)
-
         # Test the shape of x_coords and y_coords
         self.assertEqual(x_coords.shape, (self.batch_size, self.grid_resolution))
         self.assertEqual(y_coords.shape, (self.batch_size, self.grid_resolution))
@@ -107,22 +107,17 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
 
         # check that the dataloader is not empty
         data_iter = iter(data_loader)
-        batch = next(data_iter)
-
-        batch_data, batch_features, batch_labels = batch
+        batch_data, batch_labels = next(data_iter)
 
         # Move data to the correct device
         batch_data = batch_data.to(self.device)
-        batch_features = batch_features.to(self.device)
         batch_labels = batch_labels.to(self.device)
 
         # verify that the data batch has the expected sizes and shapes
         self.assertEqual(batch_data.shape, (self.batch_size, 2))   # (batch_size, 2 for (x,y))
-        self.assertEqual(batch_features.shape, (self.batch_size, self.channels))  # (batch_size, channels)
         self.assertEqual(batch_labels.shape, (self.batch_size, ))     # (batch,size, )
 
         self.assertEqual(batch_data.device, self.device)
-        self.assertEqual(batch_features.device, self.device)
         self.assertEqual(batch_labels.device, self.device)
 
     def test_assign_features_with_real_data(self):
@@ -131,21 +126,15 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         data_loader = prepare_grids_dataloader(self.sampled_data, self.channels, batch_size=50, num_workers=4)
 
         # Process the DataLoader batches
-        for batch_idx, (batch_data, batch_features, batch_labels) in enumerate(data_loader):
-            print(f"Processing batch {batch_idx + 1}/{len(data_loader)}...")
+        for batch_idx, (batch_data, batch_labels) in enumerate(data_loader):
 
-            # Move data to the correct device (GPU or CPU)
             batch_data = batch_data.to(self.device)
-            batch_features = batch_features.to(self.device)
 
             # Create grids
-            grids, _, x_coords, y_coords = gpu_create_feature_grid(batch_data, self.window_size, self.grid_resolution,
-                                                                   self.channels, self.device)
+            grids, _, x_coords, y_coords = gpu_create_feature_grid(batch_data, self.window_size, self.grid_resolution, self.channels, self.device)
 
             # Assign features to the grids
-            updated_grids = gpu_assign_features_to_grid(batch_data, batch_features, grids, x_coords, y_coords,
-                                                        self.sampled_data, self.channels, self.device)
-
+            updated_grids = gpu_assign_features_to_grid(batch_data, grids, x_coords, y_coords, self.sampled_data, self.channels, self.device)
             # Check that features have been assigned (e.g., grid values are not all zeros)
             self.assertFalse(torch.all(updated_grids == 0),
                              "Features were not correctly assigned. All grid values are zero.")
@@ -156,19 +145,14 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
             self.assertFalse(torch.all(grid_differences[0] == grid_differences),
                              "All grids are identical. No feature variability found.")
 
-            # Optionally, print or log values for further analysis
-            print(f"Feature assignment successful for batch {batch_idx}.")
 
     def test_generate_multiscale_grids_with_real_data(self):
         """Test multiscale grid generation with real data."""
         # Prepare the DataLoader
-        data_loader = prepare_grids_dataloader(self.sampled_data, self.channels, batch_size=self.batch_size,
-                                               num_workers=4)
-
+        data_loader = prepare_grids_dataloader(self.sampled_data, self.channels, batch_size=self.batch_size, num_workers=4)
         # Generate multiscale grids
-        labeled_grids_dict = gpu_generate_multiscale_grids(data_loader, self.window_sizes, self.grid_resolution,
-                                                           self.channels, self.device, full_data=self.sampled_data,
-                                                           save=False)
+        labeled_grids_dict = gpu_generate_multiscale_grids(data_loader, self.window_sizes, self.grid_resolution, self.channels, self.device, full_data=self.sampled_data, save=False)
+
 
         # Check if grids are generated for each scale
         for size_label, _ in self.window_sizes:
@@ -178,14 +162,37 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
             self.assertEqual(grids[0].shape,
                              (self.batch_size, self.channels, self.grid_resolution, self.grid_resolution))
 
+        # Check that features are assigned correctly
+        for grid_idx in range(len(grids)):
+            grid = grids[grid_idx]
+            class_label = labeled_grids_dict[size_label]['class_labels'][grid_idx]
+
+            # Ensure the grid contains non-zero values (features are assigned)
+            self.assertFalse(np.all(grid == 0), f"Grid {grid_idx} for {size_label} is empty. No features assigned.")
+
+            # Pick a random cell to verify feature assignment
+            row, col = np.random.randint(0, self.grid_resolution, size=2)
+            feature_values = grid[:, row, col]
+
+            # Find the nearest point in the original dataset to this cell
+            cell_center_coords = np.array([row, col])
+            distances = np.linalg.norm(self.sampled_data[:, :2] - cell_center_coords, axis=1)
+            nearest_point_idx = np.argmin(distances)
+            expected_features = self.sampled_data[nearest_point_idx, 3:3 + self.channels]
+
+            # Check if the assigned features match the nearest point's features
+            np.testing.assert_almost_equal(
+                feature_values, 
+                expected_features, 
+                decimal=4,
+                err_msg=f"Feature mismatch for grid {grid_idx} at cell ({row}, {col}) in {size_label} grid."
+            )
+
+            
     def test_save_and_load_grids_with_real_data(self):
         """Test saving and loading of grids generated with real data."""
-        # Prepare the DataLoader
         data_loader = prepare_grids_dataloader(self.sampled_data, self.channels, batch_size=self.batch_size, num_workers=4)
-
-        # Generate and save multiscale grids
-        gpu_generate_multiscale_grids(data_loader, self.window_sizes, self.grid_resolution, self.channels, self.device,
-                                      full_data=self.sampled_data, save_dir=self.save_dir_real_data, save=True)
+        gpu_generate_multiscale_grids(data_loader, self.window_sizes, self.grid_resolution, self.channels, self.device, full_data=self.sampled_data, save_dir=self.save_dir_real_data, save=True)
 
         # Verify the saved grids exist
         for size_label, _ in self.window_sizes:
