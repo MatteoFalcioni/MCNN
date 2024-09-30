@@ -169,7 +169,7 @@ def gpu_generate_multiscale_grids(data_loader, window_sizes, grid_resolution, ch
             grids, _, x_coords, y_coords, constant_z = gpu_create_feature_grid(coordinates, window_size, grid_resolution, channels, device)
 
             # Assign features to the grids using the GPU-based KDTree
-            grids = gpu_assign_features_to_grid(coordinates, grids, x_coords, y_coords, constant_z, tree, full_data, channels, device)
+            grids = gpu_assign_features_to_grid(coordinates, grids, x_coords, y_coords, constant_z, full_data, tree, channels, device)
 
             # Append the grids and labels to the dictionary
             labeled_grids_dict[size_label]['grids'].append(grids.cpu().numpy())  # Store as numpy arrays
