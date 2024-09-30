@@ -5,13 +5,14 @@ from utils.point_cloud_data_utils import read_las_file_to_numpy, remap_labels
 from scripts.optimized_pc_to_img import gpu_create_feature_grid, gpu_assign_features_to_grid, prepare_grids_dataloader, gpu_generate_multiscale_grids
 import numpy as np
 from utils.plot_utils import visualize_grid
+from scipy.spatial import KDTree
 
 
 class TestGPUGridBatchingFunctions(unittest.TestCase):
 
     def setUp(self):
         
-        self.batch_size = 5     # small batches for simulated data
+        self.batch_size = 15     # small batches for simulated data
         self.batch_size_real = 100  # batch size for real data
 
         self.grid_resolution = 128
@@ -71,7 +72,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         self.assertEqual(y_coords.shape, (self.batch_size, self.grid_resolution))
 
     def test_prepare_grids_dataloader(self):
-        data_loader = prepare_grids_dataloader(self.data_array, self.channels, self.batch_size, num_workers=4)
+        data_loader = prepare_grids_dataloader(self.data_array, self.batch_size, num_workers=4)
 
         # check that the dataloader is not empty
         data_iter = iter(data_loader)
@@ -92,6 +93,10 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         """Test that features are correctly assigned to grids with real data."""
         # Prepare the DataLoader
         data_loader = prepare_grids_dataloader(self.sampled_data, self.channels, self.batch_size_real, num_workers=4)
+        
+        # Load the KDTree once for the entire point cloud
+        points = self.sampled_data[:, :2]  # Only x, y coordinates
+        tree = KDTree(points)
 
         # Process the DataLoader batches
         for batch_idx, (batch_data, _) in enumerate(data_loader):
@@ -102,7 +107,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
             grids, _, x_coords, y_coords = gpu_create_feature_grid(batch_data, self.window_size, self.grid_resolution, self.channels, self.device)
 
             # Assign features to the grids
-            updated_grids = gpu_assign_features_to_grid(batch_data, grids, x_coords, y_coords, self.sampled_data, self.channels, self.device)
+            updated_grids = gpu_assign_features_to_grid(batch_data, grids, x_coords, y_coords, self.sampled_data, tree, self.channels, self.device)
             # Check that features have been assigned (e.g., grid values are not all zeros)
             self.assertFalse(torch.all(updated_grids == 0),
                              "Features were not correctly assigned. All grid values are zero.")
