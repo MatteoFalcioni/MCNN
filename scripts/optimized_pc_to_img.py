@@ -112,7 +112,7 @@ def prepare_grids_dataloader(data_array, batch_size, num_workers):
     
     # Create tensors for coordinates and labels
     coords_tensor = torch.tensor(data_array[:, :3], dtype=torch.float32)  # Shape: [num_samples, 3]
-    labels_tensor = torch.tensor(data_array[:, -1], dtype=torch.long)      # Shape: [num_samples]
+    labels_tensor = torch.tensor(data_array[:, -1], dtype=torch.int)      # Shape: [num_samples]
     
     
     # Concatenate the coordinates and labels into a single tensor
