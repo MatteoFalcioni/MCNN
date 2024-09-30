@@ -45,7 +45,7 @@ def gpu_create_feature_grid(center_points, window_size, grid_resolution=128, cha
     return grids, cell_size, x_coords, y_coords, constant_z
 
 
-def gpu_assign_features_to_grid(batch_data, grids, x_coords, y_coords, z_coord, full_data, tree, channels=3, device=None):
+def gpu_assign_features_to_grid(batch_data, grids, x_coords, y_coords, constant_z, full_data, tree, channels=3, device=None):
     """
     Assign features from the nearest point to each cell in the grid for a batch of points using KDTree.
 
