@@ -70,28 +70,20 @@ def gpu_assign_features_to_grid(batch_data, grids, x_coords, y_coords, constant_
         batch_size = batch_data.shape[0]  # Number of points in the batch
         
         for i in range(batch_size):
-            
             # Create a meshgrid for the current grid cell coordinates
             grid_x, grid_y = torch.meshgrid(x_coords[i], y_coords[i], indexing='ij')
-            
+
             # Stack the x, y, and z coordinates together for the KDTree query
             grid_coords = torch.stack((grid_x.flatten(), grid_y.flatten(), constant_z[i].expand(grid_x.numel())), dim=-1).cpu().numpy()
-            
-            
+
             # Query the KDTree to find the nearest point in the full point cloud for each grid cell
             _, closest_points_idxs = tree.query(grid_coords)  
 
             # Assign features to the grid for the i-th batch based on the closest points from the full point cloud
-            for cell_idx in range(grids.shape[2] * grids.shape[3]):  # Loop over each cell in the flattened grid
-                # Determine the coordinates in the 2D grid
-                row = cell_idx // grids.shape[3]
-                col = cell_idx % grids.shape[3]
-
-                closest_point_idx = closest_points_idxs[cell_idx]
-
-                # Assign the features of the closest point to the specific cell in the grid
-                for channel in range(channels):
-                    grids[i, channel, row, col] = full_data[closest_point_idx, 3 + channel]  # Correct feature assignment
+            # Using a more efficient method to fill the grid
+            for channel in range(channels):
+                # Assign all features for the current channel at once
+                grids[i, channel].view(-1)[:] = full_data[closest_points_idxs, 3 + channel]  # Assign features for all cells at once
 
 
     return grids
