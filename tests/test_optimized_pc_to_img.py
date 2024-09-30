@@ -57,7 +57,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
 
     def test_gpu_create_feature_grid(self):
         """Test the gpu_create_feature_grid function."""
-        grids, cell_size, x_coords, y_coords = gpu_create_feature_grid(
+        grids, cell_size, x_coords, y_coords, _ = gpu_create_feature_grid(
             torch.tensor(self.data_array[:, :3]), self.window_size, self.grid_resolution, self.channels, device=self.device
         )
 
@@ -97,7 +97,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         data_loader = prepare_grids_dataloader(self.sampled_data, self.batch_size_real, num_workers=4)
         
         # Load the KDTree once for the entire point cloud
-        points = self.sampled_data[:, :2]  # Only x, y coordinates
+        points = self.sampled_data[:, :3]  # Use x, y, z coordinates for KDTree
         tree = KDTree(points)
 
         # Process the DataLoader batches
@@ -106,14 +106,14 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
             batch_data = batch_data.to(self.device)
             
             # Split the unified tensor into coordinates and labels
-            coordinates = batch_data[:, :2].to(self.device)
-            labels = batch_data[:, 2].to(self.device)
+            coordinates = batch_data[:, :3].to(self.device)
+            labels = batch_data[:, 3].to(self.device)
 
             # Create grids
-            grids, _, x_coords, y_coords = gpu_create_feature_grid(coordinates, self.window_size, self.grid_resolution, self.channels, self.device)
+            grids, _, x_coords, y_coords, constant_z = gpu_create_feature_grid(coordinates, self.window_size, self.grid_resolution, self.channels, self.device)
 
             # Assign features to the grids
-            updated_grids = gpu_assign_features_to_grid(coordinates, grids, x_coords, y_coords, self.sampled_data, tree, self.channels, self.device)
+            updated_grids = gpu_assign_features_to_grid(coordinates, grids, x_coords, y_coords, constant_z, self.sampled_data, tree, self.channels, self.device)
             # Check that features have been assigned (e.g., grid values are not all zeros)
             self.assertFalse(torch.all(updated_grids == 0),
                              "Features were not correctly assigned. All grid values are zero.")
@@ -124,6 +124,32 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
             self.assertFalse(torch.all(grid_differences[0] == grid_differences),
                              "All grids are identical. No feature variability found.")
 
+            for grid_idx in range(grids.shape[0]):  # Loop through the batch size
+                grid = updated_grids[grid_idx]
+                class_label = labels[grid_idx].item()
+
+                # Ensure the grid contains non-zero values (features are assigned)
+                self.assertFalse(np.all(grid.cpu().numpy() == 0), f"Grid {grid_idx} for batch {batch_idx} is empty. No features assigned.")
+
+                # Pick a random cell to verify feature assignment
+                row, col = np.random.randint(0, self.grid_resolution, size=2)
+                feature_values = grid[:, row, col]
+
+                # Calculate the cell center coordinates
+                cell_center_coords = np.array([x_coords[grid_idx][col].item(), y_coords[grid_idx][row].item(), constant_z[grid_idx].item()])
+
+                # Calculate distances using the full 3D coordinates
+                distances = np.linalg.norm(self.sampled_data[:, :3] - cell_center_coords, axis=1)
+                nearest_point_idx = np.argmin(distances)
+                expected_features = self.sampled_data[nearest_point_idx, 3:3 + self.channels]
+
+                # Check if the assigned features match the nearest point's features
+                np.testing.assert_almost_equal(
+                    feature_values.cpu().numpy(), 
+                    expected_features, 
+                    decimal=4,
+                    err_msg=f"Feature mismatch for grid {grid_idx} at cell ({row}, {col}) in batch {batch_idx}."
+                )
 
     def test_generate_multiscale_grids_with_real_data(self):
         """Test multiscale grid generation with real data."""
@@ -140,32 +166,6 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
             self.assertGreater(len(grids), 0, f"No {size_label} grids generated.")
             self.assertEqual(grids[0].shape,
                              (self.batch_size_real, self.channels, self.grid_resolution, self.grid_resolution))
-
-        # Check that features are assigned correctly
-        for grid_idx in range(len(grids)):
-            grid = grids[grid_idx]
-            class_label = labeled_grids_dict[size_label]['class_labels'][grid_idx]
-
-            # Ensure the grid contains non-zero values (features are assigned)
-            self.assertFalse(np.all(grid == 0), f"Grid {grid_idx} for {size_label} is empty. No features assigned.")
-
-            # Pick a random cell to verify feature assignment
-            row, col = np.random.randint(0, self.grid_resolution, size=2)
-            feature_values = grid[:, row, col]
-
-            # Find the nearest point in the original dataset to this cell
-            cell_center_coords = np.array([row, col])
-            distances = np.linalg.norm(self.sampled_data[:, :2] - cell_center_coords, axis=1)
-            nearest_point_idx = np.argmin(distances)
-            expected_features = self.sampled_data[nearest_point_idx, 3:3 + self.channels]
-
-            # Check if the assigned features match the nearest point's features
-            np.testing.assert_almost_equal(
-                feature_values, 
-                expected_features, 
-                decimal=4,
-                err_msg=f"Feature mismatch for grid {grid_idx} at cell ({row}, {col}) in {size_label} grid."
-            )
 
 
     def test_save_and_load_grids_with_real_data(self):
