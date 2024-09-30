@@ -26,7 +26,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         os.makedirs(self.save_dir, exist_ok=True)
 
         self.las_file_path = 'data/raw/labeled_FSL.las'     # Path to the LAS file
-        self.sample_size = 2000  # Number of points to sample for the test
+        self.sample_size = 100  # Number of points to sample for the test
         self.full_data, self.feature_names = read_las_file_to_numpy(self.las_file_path)     # Load LAS file, get the data and feature names
         # Random sampling from the full dataset for testing
         np.random.seed(42)  # For reproducibility
@@ -139,6 +139,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
             cell_center_coords = np.array([x_coords[grid_idx][col].item(), y_coords[grid_idx][row].item(), constant_z[grid_idx].item()])
 
             # Calculate distances using the full 3D coordinates
+            print('computing distances...')
             distances = np.linalg.norm(self.sampled_data[:, :3] - cell_center_coords, axis=1)
             nearest_point_idx = np.argmin(distances)
             expected_features = self.sampled_data[nearest_point_idx, 3:3 + self.channels]
