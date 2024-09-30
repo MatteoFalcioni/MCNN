@@ -197,7 +197,7 @@ def visualize_grid_with_comparison(grid, df, center, window_size=10.0, channel=3
     ax2.set_title('Point Cloud Subset Visualization')
 
     # Draw a red bounding box around the area of the grid on the point cloud
-    z_center = filtered_df['z'].mean()  # Calculate mean Z for the bounding box level
+    z_center = center[2]  # Use the z-coordinate from the grid's center point
     ax2.plot([x_min, x_max, x_max, x_min, x_min], [y_min, y_min, y_max, y_max, y_min],
              [z_center, z_center, z_center, z_center, z_center], color='r')
 
