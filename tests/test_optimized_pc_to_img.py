@@ -94,8 +94,10 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         data_loader = prepare_grids_dataloader(self.sampled_data, self.batch_size_real, num_workers=4)
         
         # Load the KDTree once for the entire point cloud
+        print('creating KD tree')
         points = self.sampled_data[:, :3]  # Use x, y, z coordinates for KDTree
         tree = KDTree(points)
+        print('KD tree has been created')
 
         # Process the DataLoader batches
         for batch_idx, batch_data in enumerate(data_loader):
