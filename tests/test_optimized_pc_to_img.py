@@ -4,15 +4,16 @@ import os
 from utils.point_cloud_data_utils import read_las_file_to_numpy, remap_labels
 from scripts.optimized_pc_to_img import gpu_create_feature_grid, gpu_assign_features_to_grid, prepare_grids_dataloader, gpu_generate_multiscale_grids
 import numpy as np
-import random
 from utils.plot_utils import visualize_grid
 
 
 class TestGPUGridBatchingFunctions(unittest.TestCase):
 
     def setUp(self):
-        # Common parameters for testing
-        self.batch_size = 10
+        
+        self.batch_size = 5     # small batches for simulated data
+        self.batch_size_real = 100  # batch size for real data
+        
         self.grid_resolution = 128
         self.channels = 10
         self.window_size = 10.0
@@ -24,48 +25,15 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         os.makedirs(self.save_dir, exist_ok=True)
 
         self.las_file_path = 'data/raw/labeled_FSL.las'     # Path to the LAS file
-        self.sample_size = 5000  # Number of points to sample for the test
+        self.sample_size = 2000  # Number of points to sample for the test
         self.full_data, self.feature_names = read_las_file_to_numpy(self.las_file_path)     # Load LAS file, get the data and feature names
         # Random sampling from the full dataset for testing
         np.random.seed(42)  # For reproducibility
         self.sampled_data = self.full_data[np.random.choice(self.full_data.shape[0], self.sample_size, replace=False)]
         self.sampled_data, _ = remap_labels(self.sampled_data)
+
         self.save_dir_real_data = 'tests/test_optimized_grids_real_data/'
         os.makedirs(self.save_dir_real_data, exist_ok=True)
-
-        # Simulated batch of center points (x, y, z)
-        self.center_points = torch.tensor([
-            [10.0, 10.0, 15.0],
-            [20.0, 20.0, 8.0],
-            [30.0, 30.0, 9.0],
-            [40.0, 40.0, 8.0],
-            [50.0, 50.0, 22.0],
-            [60.0, 60.0, 21.0],
-            [70.0, 70.0, 5.0],
-            [80.0, 80.0, 5.0],
-            [90.0, 90.0, 9.0],
-            [100.0, 100.0, 18.0]
-        ])
-
-        # Simulated batch data for feature assignment (x, y coordinates)
-        self.batch_data = torch.tensor([
-            [9.0, 9.0], [11.0, 9.0], [10.0, 11.0], [9.5, 10.5], [10.2, 10.2],
-            [19.0, 19.0], [21.0, 19.0], [20.0, 21.0], [19.5, 20.5], [20.2, 20.2]
-        ])
-
-        # Simulated features for each point (e.g., RGB features)
-        self.batch_features = torch.tensor([
-            [0.5, 0.3, 0.2],
-            [0.7, 0.8, 0.9],
-            [0.2, 0.4, 0.6],
-            [0.3, 0.5, 0.7],
-            [0.1, 0.2, 0.3],
-            [0.6, 0.4, 0.3],
-            [0.9, 0.8, 0.7],
-            [0.4, 0.3, 0.2],
-            [0.2, 0.1, 0.3],
-            [0.7, 0.6, 0.8]
-        ])
 
         # Example data_array for DataLoader test (x,y,z + features + labels)
         self.data_array = torch.tensor([
@@ -89,7 +57,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
     def test_gpu_create_feature_grid(self):
         """Test the gpu_create_feature_grid function."""
         grids, cell_size, x_coords, y_coords = gpu_create_feature_grid(
-            torch.tensor(self.data_array[:, :3]), self.window_size, self.grid_resolution, self.channels, device=self.device
+            torch.tensor(self.data_array[:, :2]), self.window_size, self.grid_resolution, self.channels, device=self.device
         )
 
         # Test the grid shape
@@ -126,7 +94,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
         data_loader = prepare_grids_dataloader(self.sampled_data, self.channels, batch_size=50, num_workers=4)
 
         # Process the DataLoader batches
-        for batch_idx, (batch_data, batch_labels) in enumerate(data_loader):
+        for batch_idx, (batch_data, _) in enumerate(data_loader):
 
             batch_data = batch_data.to(self.device)
 
@@ -188,7 +156,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
                 err_msg=f"Feature mismatch for grid {grid_idx} at cell ({row}, {col}) in {size_label} grid."
             )
 
-            
+
     def test_save_and_load_grids_with_real_data(self):
         """Test saving and loading of grids generated with real data."""
         data_loader = prepare_grids_dataloader(self.sampled_data, self.channels, batch_size=self.batch_size, num_workers=4)
