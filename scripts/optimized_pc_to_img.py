@@ -112,15 +112,17 @@ def prepare_grids_dataloader(data_array, batch_size, num_workers):
     
     # Create tensors for coordinates and labels
     coords_tensor = torch.tensor(data_array[:, :3], dtype=torch.float32)  # Shape: [num_points, 3]
-    labels_tensor = torch.tensor(data_array[:, -1], dtype=torch.int)      # Shape: [num_points]
+    labels_tensor = torch.tensor(data_array[:, -1], dtype=torch.long)      # Shape: [num_points]
     
-    
-    # Combine them into a TensorDataset
-    dataset = TensorDataset(coords_tensor, labels_tensor)
+    # Combine them into a single tensor of shape [num_points, 4]
+    combined_tensor = torch.empty((coords_tensor.size(0), 4), dtype=torch.float32)
+    combined_tensor[:, :3] = coords_tensor  # First 3 columns are coordinates
+    combined_tensor[:, 3] = labels_tensor.float()  # Last column is the label as float (for uniformity)
 
-    # Set num_workers > 0 to enable multiprocessing
-    # careful: we cannot pass tensors to device already to avoid problems with num_workers != 0
-    # so we'll need to pass the data to device after calling the dataloader!
+    # Create TensorDataset with the combined tensor
+    dataset = TensorDataset(combined_tensor)
+
+    # Create the DataLoader
     data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
     return data_loader
