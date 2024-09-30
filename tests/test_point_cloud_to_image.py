@@ -57,7 +57,7 @@ class TestPointCloudToImage(unittest.TestCase):
         self.assertEqual(grid.shape, (self.grid_resolution, self.grid_resolution, self.channels))
 
          # Assign features using the pre-built KDTree
-        grid_with_features = assign_features_to_grid(self.full_data, tree, grid, x_coords, y_coords, z_coord, channels=self.channels)
+        grid_with_features = assign_features_to_grid(tree, self.full_data, grid, x_coords, y_coords, z_coord, channels=self.channels)
 
         # Ensure features are assigned (grid should not be all zeros)
         self.assertFalse(np.all(grid_with_features == 0), "Grid is unexpectedly empty or all zeros.")
