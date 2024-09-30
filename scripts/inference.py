@@ -2,6 +2,7 @@ import torch
 from scripts.point_cloud_to_image import generate_multiscale_grids
 import numpy as np
 import csv
+from datetime import datetime
 
 
 def inference(model, data_array, window_sizes, grid_resolution, channels, device, true_labels=None, save_file=None):
@@ -48,7 +49,12 @@ def inference(model, data_array, window_sizes, grid_resolution, channels, device
 
     # Save true and predicted labels to a file (if provided)
     if save_file:
-        with open(save_file, 'w', newline='') as f:
+
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")    # timestamp of year, month, day _ hour, minute, second
+        file_name, file_extension = os.path.splitext(save_file)
+        save_file_with_timestamp = f"{file_name}_{timestamp}{file_extension}"
+
+        with open(save_file_with_timestamp, 'w', newline='') as f:
             writer = csv.writer(f)
             writer.writerow(['True Label', 'Predicted Label'])  # Header
             if true_labels is not None:
