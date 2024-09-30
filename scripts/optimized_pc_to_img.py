@@ -111,8 +111,8 @@ def prepare_grids_dataloader(data_array, batch_size, num_workers):
     """
     
     # Create tensors for coordinates and labels
-    coords_tensor = torch.tensor(data_array[:, :3], dtype=torch.float32)  # Shape: [num_samples, 3]
-    labels_tensor = torch.tensor(data_array[:, -1], dtype=torch.int)      # Shape: [num_samples]
+    coords_tensor = torch.tensor(data_array[:, :3], dtype=torch.float32)  # Shape: [num_points, 3]
+    labels_tensor = torch.tensor(data_array[:, -1], dtype=torch.int)      # Shape: [num_points]
     
     
     # Combine them into a TensorDataset
@@ -149,12 +149,14 @@ def gpu_generate_multiscale_grids(data_loader, window_sizes, grid_resolution, ch
     # Create a dictionary to hold grids and class labels for each scale
     labeled_grids_dict = {scale_label: {'grids': [], 'class_labels': []} for scale_label, _ in window_sizes}
 
-    # Create the GPU-based KDTree 
+    # Create the KDTree 
+    print('creating KD tree...')
     tree = KDTree(full_data[:, :3])
+    print('KD tree created succesfully.')
 
 
     # Iterate over the DataLoader batches
-    for batch_idx, batch_data in enumerate(data_loader):    # The comma is needed to unpack the tuple
+    for batch_idx, batch_data in enumerate(data_loader):   
         print(f"Processing batch {batch_idx + 1}/{len(data_loader)}...")
 
         # Split the unified tensor into coordinates and labels
