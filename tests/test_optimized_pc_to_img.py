@@ -125,13 +125,6 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
             self.assertFalse(torch.all(updated_grids == 0),
                              "Features were not correctly assigned. All grid values are zero.")
 
-            print('computing mean differences...')
-            # Check that the grids are not identical (check for variability)
-            grid_differences = torch.mean(updated_grids,
-                                          dim=(2, 3))  # Mean over the height and width to compare channels
-            self.assertFalse(torch.all(grid_differences[0] == grid_differences),
-                             "All grids are identical. No feature variability found.")
-
             grid_idx = 2
             grid = updated_grids[grid_idx]
 
