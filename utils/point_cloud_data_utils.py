@@ -242,5 +242,29 @@ def sample_data(input_file, sample_size, file_type='csv', save=False, save_dir='
     return sampled_data
 
 
+def read_csv_file_to_numpy(file_path, features_to_extract):
+    """
+    Reads a CSV file and extracts the specified features along with coordinates.
+
+    Args:
+    - file_path (str): Path to the CSV file.
+    - features_to_extract (list of str): List of feature names to extract.
+
+    Returns:
+    - np.ndarray: Numpy array containing the extracted features and coordinates.
+    """
+    df = pd.read_csv(file_path)
+    
+    # Extract coordinates
+    coords = df[['x', 'y', 'z']].values
+    
+    # Extract the desired features based on names
+    feature_data = df[features_to_extract].values
+    
+    # Combine coordinates and selected features into a single array
+    combined_data = np.hstack((coords, feature_data))
+    
+    return combined_data
+
 
 
