@@ -123,6 +123,8 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
             print('assigning features to grids...')
             # Assign features to the grids
             updated_grids = gpu_assign_features_to_grid(coordinates, grids, x_coords, y_coords, constant_z, self.sampled_data, tree, self.channels, self.device)
+            
+            print('checking feature assignment...')
             # Check that features have been assigned (e.g., grid values are not all zeros)
             self.assertFalse(torch.all(updated_grids == 0),
                              "Features were not correctly assigned. All grid values are zero.")
