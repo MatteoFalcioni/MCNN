@@ -2,8 +2,7 @@ import torch
 import numpy as np
 import os
 from torch.utils.data import DataLoader, TensorDataset
-from cuml.neighbors import NearestNeighbors
-import cupy as cp
+from scipy.spatial import KDTree
 
 
 
@@ -43,7 +42,7 @@ def gpu_create_feature_grid(center_points, window_size, grid_resolution=128, cha
     return grids, cell_size, x_coords, y_coords
 
 
-def gpu_assign_features_to_grid(batch_data, grids, x_coords, y_coords, full_data, gpu_tree, channels=3, device=None):
+def gpu_assign_features_to_grid(batch_data, grids, x_coords, y_coords, full_data, tree, channels=3, device=None):
     """
     Assign features from the nearest point to each cell in the grid for a batch of points using KDTree.
 
@@ -53,7 +52,7 @@ def gpu_assign_features_to_grid(batch_data, grids, x_coords, y_coords, full_data
     - x_coords (torch.Tensor): A tensor of shape [batch_size, grid_resolution] containing x coordinates for each grid cell.
     - y_coords (torch.Tensor): A tensor of shape [batch_size, grid_resolution] containing y coordinates for each grid cell.
     - full_data (np.ndarray): The entire point cloud's data to build the KDTree for nearest neighbor search.
-    - tree (KDTree): Gpu accelerated version of the KDTree for efficient nearest-neighbor search.
+    - tree (KDTree): KDTree for efficient nearest-neighbor search.
     - channels (int): Number of feature channels in the grid (default is 3 for RGB).
     - device (torch.device): The device (CPU or GPU) to run this on.
 
@@ -68,10 +67,10 @@ def gpu_assign_features_to_grid(batch_data, grids, x_coords, y_coords, full_data
         
         for i in range(batch_size):
             # Generate a flattened array of grid coordinates for the i-th batch point
-            grid_coords = cp.asarray(torch.stack(torch.meshgrid(x_coords[i], y_coords[i], indexing='ij'), dim=-1).reshape(-1, 2))
+            grid_coords = np.stack(np.meshgrid(x_coords[i].cpu().numpy(), y_coords[i].cpu().numpy(), indexing='ij'), axis=-1).reshape(-1, 2)
 
-            # Query the GPU-based KDTree to find the nearest point in the full point cloud for each grid cell
-            _, closest_points_idxs = gpu_tree.kneighbors(grid_coords)  # Shape: [grid_resolution^2, 1]
+            # Query the KDTree to find the nearest point in the full point cloud for each grid cell
+            _, closest_points_idxs = tree.query(grid_coords)  # Shape: [grid_resolution^2, 1]
 
             # Assign features to the grid for the i-th batch based on the closest points from the full point cloud
             for cell_idx in range(grids.shape[2] * grids.shape[3]):  # Loop over each cell in the flattened grid
@@ -79,8 +78,7 @@ def gpu_assign_features_to_grid(batch_data, grids, x_coords, y_coords, full_data
                 row = cell_idx // grids.shape[3]
                 col = cell_idx % grids.shape[3]
 
-                # Get the index of the closest point (cuML returns a 2D array, so we take the first element)
-                closest_point_idx = closest_points_idxs[cell_idx, 0]
+                closest_point_idx = closest_points_idxs[cell_idx]
 
                 # Assign the features of the closest point to the specific cell in the grid
                 for channel in range(channels):
@@ -141,9 +139,8 @@ def gpu_generate_multiscale_grids(data_loader, window_sizes, grid_resolution, ch
     # Create a dictionary to hold grids and class labels for each scale
     labeled_grids_dict = {scale_label: {'grids': [], 'class_labels': []} for scale_label, _ in window_sizes}
 
-    # Create the GPU-based KDTree using cuML's NearestNeighbors
-    gpu_tree = NearestNeighbors(n_neighbors=1, algorithm='brute')  # Use 'brute' for exact search
-    gpu_tree.fit(full_data[:, :2])  # Fit the KDTree on the coordinates of the full dataset
+    # Create the GPU-based KDTree 
+    tree = KDTree(full_data[:, :2])
 
 
     # Iterate over the DataLoader batches
@@ -162,7 +159,7 @@ def gpu_generate_multiscale_grids(data_loader, window_sizes, grid_resolution, ch
             grids, _, x_coords, y_coords = gpu_create_feature_grid(coordinates, window_size, grid_resolution, channels, device)
 
             # Assign features to the grids using the GPU-based KDTree
-            grids = gpu_assign_features_to_grid(coordinates, grids, x_coords, y_coords, gpu_tree, full_data, channels, device)
+            grids = gpu_assign_features_to_grid(coordinates, grids, x_coords, y_coords, tree, full_data, channels, device)
 
             # Append the grids and labels to the dictionary
             labeled_grids_dict[size_label]['grids'].append(grids.cpu().numpy())  # Store as numpy arrays
