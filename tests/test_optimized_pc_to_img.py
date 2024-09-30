@@ -92,7 +92,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
     def test_assign_features_with_real_data(self):
         """Test that features are correctly assigned to grids with real data."""
         # Prepare the DataLoader
-        data_loader = prepare_grids_dataloader(self.sampled_data, self.channels, self.batch_size_real, num_workers=4)
+        data_loader = prepare_grids_dataloader(self.sampled_data, self.batch_size_real, num_workers=4)
         
         # Load the KDTree once for the entire point cloud
         points = self.sampled_data[:, :2]  # Only x, y coordinates
@@ -122,7 +122,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
     def test_generate_multiscale_grids_with_real_data(self):
         """Test multiscale grid generation with real data."""
         # Prepare the DataLoader
-        data_loader = prepare_grids_dataloader(self.sampled_data, self.channels, self.batch_size_real, num_workers=4)
+        data_loader = prepare_grids_dataloader(self.sampled_data, self.batch_size_real, num_workers=4)
         # Generate multiscale grids
         labeled_grids_dict = gpu_generate_multiscale_grids(data_loader, self.window_sizes, self.grid_resolution, self.channels, self.device, full_data=self.sampled_data, save=False)
 
@@ -164,7 +164,7 @@ class TestGPUGridBatchingFunctions(unittest.TestCase):
 
     def test_save_and_load_grids_with_real_data(self):
         """Test saving and loading of grids generated with real data."""
-        data_loader = prepare_grids_dataloader(self.sampled_data, self.channels, batch_size=self.batch_size_real, num_workers=4)
+        data_loader = prepare_grids_dataloader(self.sampled_data, batch_size=self.batch_size_real, num_workers=4)
         gpu_generate_multiscale_grids(data_loader, self.window_sizes, self.grid_resolution, self.channels, self.device, full_data=self.sampled_data, save_dir=self.save_dir_real_data, save=True)
 
         # Verify the saved grids exist
