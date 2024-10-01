@@ -16,6 +16,7 @@ dependencies:
   - cupy
   - cuml=23.08
   - tqdm
+  - yaml
   - pip
   - pip:
       - matplotlib  

@@ -9,7 +9,7 @@ momentum: 0.9    # used in first article
 
 window_sizes: [('small', 2.5), ('medium', 5.0), ('large', 10.0)]  # window sizes to be used for grids
 
-features_to_use: ['intensity', 'R', 'G', 'B', 'nvi', 'ndwi']
+features_to_use: ['intensity', 'R', 'G', 'B', 'nvi', 'ndwi']  # features to be used for training
 
 
 # User options

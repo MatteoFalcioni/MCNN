@@ -63,7 +63,7 @@ def visualize_grid(grid, channel=0, title="Grid Visualization", feature_names=No
         raise ValueError(f"Channel {channel} is out of bounds for this grid with {grid.shape[0]} channels.")
 
     # Extract the channel as (height, width)
-    grid_channel = grid[:, :, channel]
+    grid_channel = grid[channel, :, :]
 
     # Create the plot
     fig = plt.figure(figsize=(12, 6))
