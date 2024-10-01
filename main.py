@@ -18,9 +18,13 @@ def main():
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
 
+    # Extract user-selected features from the config
+    features_to_use = args.features_to_use  # List of features chosen by the user
+    num_channels = len(features_to_use)  # Determine the number of channels based on selected features
+
     # Initialize model (always MCNN)
     print("Initializing MultiScaleCNN (MCNN) model...")
-    model = MultiScaleCNN(channels=10, classes=5).to(device)  # Make sure to set classes correctly
+    model = MultiScaleCNN(channels=num_channels, classes=5).to(device)  # Make sure to set classes correctly
 
     # Prepare DataLoader
     print("Preparing data loaders...")
@@ -34,7 +38,7 @@ def main():
         pre_process_data=True,
         window_sizes=[('small', 2.5), ('medium', 5.0), ('large', 10.0)],
         grid_resolution=128,
-        channels=7,
+        channels=num_channels,
         save_grids=True,
         train_split=0.8
     )
@@ -92,7 +96,7 @@ def main():
         data_array=sample_array,
         window_sizes=[('small', 2.5), ('medium', 5.0), ('large', 10.0)],
         grid_resolution=128,
-        channels=10,
+        channels=num_channels,
         device=device,
         true_labels=ground_truth_labels, 
         save_file=f'results/labels/'
