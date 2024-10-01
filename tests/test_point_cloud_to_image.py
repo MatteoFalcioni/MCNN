@@ -69,6 +69,9 @@ class TestPointCloudToImage(unittest.TestCase):
             i, j = np.random.randint(0, self.grid_resolution, 2)
             self.assertFalse(np.all(grid_with_features[i, j, :] == 0), "Grid cell features are unexpectedly all zeros.")
 
+        # Transpose the grid to match PyTorch's 'channels x height x width' format for visualization
+        grid_with_features = np.transpose(grid_with_features, (2, 0, 1))
+
         # Visualize and eventually save feature images (if save = True)
         for chan in range(0, self.channels):
             # Create a filename for saving the image
@@ -76,11 +79,12 @@ class TestPointCloudToImage(unittest.TestCase):
             file_path = os.path.join(self.save_imgs_dir, f"Grid_Visual_window{int(self.window_size)}_{feature_name}.png")
 
             # Visualize and save the grid image
+            print(f"Grid shape to be visualized: {grid_with_features.shape}")
             visualize_grid(grid_with_features, channel=chan, title=f"Grid Visualization for {feature_name}", save=self.save_imgs_bool, file_path=file_path)
 
-        # visualize and save feature image compared with point cloud
-        chosen_chan = 8  # channel to visualize on feature image (8=nir)
-        visualize_grid_with_comparison(grid, self.df, center_point, window_size=self.window_size, feature_names=self.feature_names,
+        # visualize and eventually save feature image compared with point cloud
+        chosen_chan = 3  # channel to visualize on feature image (8=nir)
+        visualize_grid_with_comparison(grid_with_features, self.df, center_point, window_size=self.window_size, feature_names=self.feature_names,
                                        channel=chosen_chan, visual_size=50, save=self.save_imgs_bool, file_path=file_path)
 
     def test_generate_multiscale_grids(self):

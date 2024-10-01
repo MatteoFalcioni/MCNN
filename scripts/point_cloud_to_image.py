@@ -97,18 +97,18 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, feature
     # Remap labels to continuous integers (needed for cross-entropy loss)
     data_array, _ = remap_labels(data_array)
 
-    # Initialize a dictionary to store the generated grids and labels by window size (still in channel-first format)
+    # Initialize a dictionary to store the generated grids and labels by window size (grids in Torch standard formats, channel first)
     num_points = len(data_array)
     labeled_grids_dict = {
         scale_label: {
-            'grids': np.zeros((num_points, channels, grid_resolution, grid_resolution)),  # Preallocate in channel-first format
+            'grids': np.zeros((num_points, channels, grid_resolution, grid_resolution)),  # Channel-first
             'class_labels': np.zeros((num_points,))
         }
         for scale_label, _ in window_sizes
     }
 
 
-    # Find the indices of the requested features in the known features list
+   # Find the indices of the requested features in the known features list
     feature_indices = [known_features.index(feature) for feature in features_to_use]
 
     # Create KDTree once for the entire dataset with x, y, z coordinates
