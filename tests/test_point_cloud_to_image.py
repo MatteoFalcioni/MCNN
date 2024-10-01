@@ -13,20 +13,18 @@ class TestPointCloudToImage(unittest.TestCase):
         self.las_file_path = 'data/raw/labeled_FSL.las'
         self.sample_size = 10  # Subset for testing. Choosing a very small subset of data to avoid computational overload
         self.grid_resolution = 128
-        self.channels = 10
+        self.features_to_use = ['intensity', 'red', 'green', 'blue']  # Example selected features
+        self.channels = len(self.features_to_use)  # Number of channels based on selected features
         self.window_size = 20.0
 
-        # Load LAS file, get the data and feature names
-        self.full_data, self.feature_names = read_las_file_to_numpy(self.las_file_path)
+        # Load LAS file and get data with user-selected features
+        self.full_data, self.feature_names = read_las_file_to_numpy(self.las_file_path, features_to_extract=self.features_to_use)
         self.df = numpy_to_dataframe(self.full_data, self.feature_names)
         np.random.seed(42)  # For reproducibility
         self.sampled_data = self.full_data[np.random.choice(self.full_data.shape[0], self.sample_size, replace=False)]
 
         # Define the window sizes for multiscale grids
         self.window_sizes = [('small', 2.5), ('medium', 5.0), ('large', 10.0)]
-        # Add dummy class labels (e.g., 0 or 1) to unlabeled data
-        dummy_class_labels = np.random.randint(0, 2, size=(self.sample_size, 1))
-        self.sampled_data_with_class_labels = np.hstack((self.sampled_data, dummy_class_labels))
 
         self.save_imgs_bool = False  # if True, save the generated images
         self.save_imgs_dir = 'tests/test_feature_imgs'   # directory to save test images
@@ -56,8 +54,8 @@ class TestPointCloudToImage(unittest.TestCase):
         # Ensure grid has the correct shape
         self.assertEqual(grid.shape, (self.grid_resolution, self.grid_resolution, self.channels))
 
-         # Assign features using the pre-built KDTree
-        grid_with_features = assign_features_to_grid(tree, self.full_data, grid, x_coords, y_coords, z_coord, channels=self.channels)
+        # Assign features using the pre-built KDTree
+        grid_with_features = assign_features_to_grid(tree, self.full_data, grid, x_coords, y_coords, z_coord, self.features_to_use)
 
         # Ensure features are assigned (grid should not be all zeros)
         self.assertFalse(np.all(grid_with_features == 0), "Grid is unexpectedly empty or all zeros.")
@@ -66,10 +64,9 @@ class TestPointCloudToImage(unittest.TestCase):
         print("Sample assigned features in grid:")
         for _ in range(5):  # Check 5 random grid cells
             i, j = np.random.randint(0, self.grid_resolution, 2)
-            print(f"Grid cell ({i}, {j}) features: {grid_with_features[i, j, :]}")
             self.assertFalse(np.all(grid_with_features[i, j, :] == 0), "Grid cell features are unexpectedly all zeros.")
 
-        # Visualize and eventually save feature images (if save.bool = True)
+        # Visualize and eventually save feature images (if save = True)
         for chan in range(0, self.channels):
             # Create a filename for saving the image
             feature_name = self.feature_names[3 + chan] if len(self.feature_names) > 3 + chan else f"Channel_{chan}"
@@ -89,7 +86,7 @@ class TestPointCloudToImage(unittest.TestCase):
         """
 
         grids_dict = generate_multiscale_grids(self.sampled_data_with_class_labels, self.window_sizes,
-                                               self.grid_resolution, self.channels, save_dir=self.save_grids_dir,
+                                               self.grid_resolution, self.features_to_use, save_dir=self.save_grids_dir,
                                                save=False)
 
         # Verify structure of the returned dictionary
