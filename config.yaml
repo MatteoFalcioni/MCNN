@@ -11,6 +11,8 @@ window_sizes: [('small', 2.5), ('medium', 5.0), ('large', 10.0)]  # window sizes
 
 features_to_use: ['intensity', 'R', 'G', 'B', 'nvi', 'ndwi']  # features to be used for training
 
+# -- (!) -- note: features to use include only the additional features, meaning that x,y,z are always already included and not counted in the channels -------- 
+
 
 # User options
 models_save_dir: "models/saved/"      # Model save path base directory
@@ -20,3 +22,4 @@ raw_data_dir: "data/raw"   # directory where raw data (to be eventually processe
 preprocessed_data_dir: "data/pre_processed_data"   # directory where pre-processed data for training is stored (or is to be stored, if generated).
 load_model: false # whether to use an already trained model for inference or not
 load_model_filepath : "models/saved/mcnn_model_20240922_231624.pth" # file path to the model to load for inference
+

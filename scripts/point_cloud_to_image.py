@@ -42,7 +42,7 @@ def create_feature_grid(center_point, window_size, grid_resolution=128, channels
     return grid, cell_size, x_coords, y_coords, constant_z
 
 
-def assign_features_to_grid(tree, data_array, grid, x_coords, y_coords, constant_z, channels=3):
+def assign_features_to_grid(tree, data_array, grid, x_coords, y_coords, constant_z, features_to_use):
     """
     Assigns features from the nearest point in the dataset to each cell in the grid using a pre-built KDTree.
 
@@ -53,24 +53,27 @@ def assign_features_to_grid(tree, data_array, grid, x_coords, y_coords, constant
     - x_coords (numpy.ndarray): Array of x coordinates for the centers of the grid cells.
     - y_coords (numpy.ndarray): Array of y coordinates for the centers of the grid cells.
     - constant_z (float): The fixed z coordinate for the grid cells.
-    - channels (int): Number of feature channels to assign to each grid cell (default is 3 for RGB).
+    - features_to_use (list): List of selected feature names to use.
 
     Returns:
     - grid (numpy.ndarray): The grid populated with the nearest point's feature values.
     """
-    # Iterate over each cell in the grid
+    # Get the indices of the selected features
+    feature_indices = [i for i, feature in enumerate(data_array.dtype.names) if feature in features_to_use]
+
+
     for i in range(len(x_coords)):
         for j in range(len(y_coords)):
             # Find the nearest point to the cell center (x_coords[i], y_coords[j], constant_z)
             dist, idx = tree.query([x_coords[i], y_coords[j], constant_z])
 
             # Assign the features of the nearest point to the grid cell
-            grid[i, j, :channels] = data_array[idx, 3:3 + channels]  # Assuming features start from the 4th column (index 3)
+            grid[i, j, :] = data_array[idx, feature_indices]
 
     return grid
 
 
-def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channels, save_dir=None, save=False):
+def generate_multiscale_grids(data_array, window_sizes, grid_resolution, features_to_use, save_dir=None, save=False):
     """
     Generates grids for each point in the data array with different window sizes, saves them to disk if required, and returns the grids.
 
@@ -78,7 +81,7 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channel
     - data_array (numpy.ndarray): Array where each row represents a point with its x, y, z coordinates and features.
     - window_sizes (list): List of tuples where each tuple contains (scale_label, window_size).
     - grid_resolution (int): Resolution of the grid (e.g., 128x128).
-    - channels (int): Number of channels to store in each grid.
+    - features_to_use (list): List of feature names to use for each grid.
     - save_dir (str): Directory to save the generated grids. Default is None (do not save).
     - save (bool): Whether to save the generated grids to disk. Default is False.
 
@@ -86,6 +89,10 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channel
     - labeled_grids_dict (dict): A dictionary with scale labels as keys, where each entry contains 'grids' (list of grids)
       and 'class_labels' (list of corresponding class labels).
     """
+
+    channels = len(features_to_use)  # Calculate the number of channels based on the selected features
+
+
     if save_dir is not None:
         os.makedirs(save_dir, exist_ok=True)
 
@@ -111,8 +118,7 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, channel
         label = data_array[i, -1]  # Assuming the class label is in the last column
 
         for size_label, window_size in window_sizes:
-            # print(f"Generating {size_label} grid for point {i} with window size {window_size}...")
-
+            
             # Create a grid around the current center point
             grid, _, x_coords, y_coords, z_coord = create_feature_grid(center_point, window_size, grid_resolution, channels)
 
