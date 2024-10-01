@@ -260,11 +260,12 @@ def read_csv_file_to_numpy(file_path, features_to_extract):
     
     # Extract the desired features based on names
     feature_data = df[features_to_extract].values
+    feature_names = features_to_extract
     
     # Combine coordinates and selected features into a single array
     combined_data = np.hstack((coords, feature_data))
     
-    return combined_data
+    return combined_data, feature_names
 
 
 

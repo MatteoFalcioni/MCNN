@@ -44,7 +44,7 @@ class TestPointCloudToImage(unittest.TestCase):
         self.assertGreaterEqual(self.sampled_data.shape[1], 4)  # At least x, y, z, and one feature
 
         # Select a center point
-        center_point = self.full_data[100000, :3]
+        center_point = self.full_data[5000, :3]
 
         # Create a grid around the center point
         grid, _, x_coords, y_coords, z_coord = create_feature_grid(
@@ -54,8 +54,11 @@ class TestPointCloudToImage(unittest.TestCase):
         # Ensure grid has the correct shape
         self.assertEqual(grid.shape, (self.grid_resolution, self.grid_resolution, self.channels))
 
+        # Identify feature indices dynamically
+        feature_indices = [self.feature_names.index(feature) for feature in self.features_to_use]
+
         # Assign features using the pre-built KDTree
-        grid_with_features = assign_features_to_grid(tree, self.full_data, grid, x_coords, y_coords, z_coord, self.features_to_use)
+        grid_with_features = assign_features_to_grid(tree, self.full_data, grid, x_coords, y_coords, z_coord, feature_indices)
 
         # Ensure features are assigned (grid should not be all zeros)
         self.assertFalse(np.all(grid_with_features == 0), "Grid is unexpectedly empty or all zeros.")
@@ -85,8 +88,8 @@ class TestPointCloudToImage(unittest.TestCase):
         Test the generation of multiscale grids with associated labels, using a sampled dataset with dummy labels.
         """
 
-        grids_dict = generate_multiscale_grids(self.sampled_data_with_class_labels, self.window_sizes,
-                                               self.grid_resolution, self.features_to_use, save_dir=self.save_grids_dir,
+        grids_dict = generate_multiscale_grids(self.sampled_data, self.window_sizes,
+                                               self.grid_resolution, self.features_to_use, self.feature_names, save_dir=self.save_grids_dir,
                                                save=False)
 
         # Verify structure of the returned dictionary
@@ -112,9 +115,9 @@ class TestPointCloudToImage(unittest.TestCase):
                 class_label = grids_dict[scale_label]['class_labels'][i]
 
                 # Ensure each grid has the correct shape (channels should be the first dimension)
-                self.assertEqual(grid.shape, (self.channels, self.grid_resolution, self.grid_resolution),
+                self.assertEqual(grid.shape, (len(self.features_to_use), self.grid_resolution, self.grid_resolution),
                                  f"Grid shape is incorrect for {scale_label} scale at index {i}.")
-
+                
                 # Check that the class label is consistent across all scales (small, medium, large)
                 for other_scale in self.window_sizes:
                     other_scale_label = other_scale[0]
@@ -126,12 +129,12 @@ class TestPointCloudToImage(unittest.TestCase):
         Test that the generated grids are saved correctly with appropriate filenames and shapes.
         """
         # Generate and save the multiscale grids
-        grids_dict = generate_multiscale_grids(self.sampled_data_with_class_labels, self.window_sizes,
-                                               self.grid_resolution, self.channels, save_dir=self.save_grids_dir,
+        grids_dict = generate_multiscale_grids(self.sampled_data, self.window_sizes,
+                                               self.grid_resolution, self.features_to_use, self.feature_names, save_dir=self.save_grids_dir,
                                                save=False)
 
         # Check that the files are saved with the correct names and structure
-        for i in range(len(self.sampled_data_with_class_labels)):
+        for i in range(len(self.sampled_data)):
             for scale_label, _ in self.window_sizes:
                 # Check the filename format
                 grid_filename = os.path.join(self.save_grids_dir,

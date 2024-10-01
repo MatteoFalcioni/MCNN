@@ -182,7 +182,7 @@ def visualize_grid_with_comparison(grid, df, center, window_size=10.0, channel=3
 
     # Plot the grid
     ax1 = fig.add_subplot(121)
-    grid_channel = grid[:, :, channel]
+    grid_channel = grid[channel, :, :]
     im = ax1.imshow(grid_channel, cmap='viridis', interpolation='nearest')
     plt.colorbar(im, ax=ax1, label=f'Feature Value (Channel {channel})')
     feature_name = feature_names[channel] if feature_names and channel < len(feature_names) else f"Channel {channel}"

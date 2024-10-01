@@ -42,7 +42,7 @@ def create_feature_grid(center_point, window_size, grid_resolution=128, channels
     return grid, cell_size, x_coords, y_coords, constant_z
 
 
-def assign_features_to_grid(tree, data_array, grid, x_coords, y_coords, constant_z, features_to_use):
+def assign_features_to_grid(tree, data_array, grid, x_coords, y_coords, constant_z, feature_indices):
     """
     Assigns features from the nearest point in the dataset to each cell in the grid using a pre-built KDTree.
 
@@ -53,14 +53,11 @@ def assign_features_to_grid(tree, data_array, grid, x_coords, y_coords, constant
     - x_coords (numpy.ndarray): Array of x coordinates for the centers of the grid cells.
     - y_coords (numpy.ndarray): Array of y coordinates for the centers of the grid cells.
     - constant_z (float): The fixed z coordinate for the grid cells.
-    - features_to_use (list): List of selected feature names to use.
+    - feature_indices (list): List of indices for the selected features.
 
     Returns:
     - grid (numpy.ndarray): The grid populated with the nearest point's feature values.
     """
-    # Get the indices of the selected features
-    feature_indices = [i for i, feature in enumerate(data_array.dtype.names) if feature in features_to_use]
-
 
     for i in range(len(x_coords)):
         for j in range(len(y_coords)):
@@ -73,7 +70,7 @@ def assign_features_to_grid(tree, data_array, grid, x_coords, y_coords, constant
     return grid
 
 
-def generate_multiscale_grids(data_array, window_sizes, grid_resolution, features_to_use, save_dir=None, save=False):
+def generate_multiscale_grids(data_array, window_sizes, grid_resolution, features_to_use, known_features, save_dir=None, save=False):
     """
     Generates grids for each point in the data array with different window sizes, saves them to disk if required, and returns the grids.
 
@@ -82,6 +79,7 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, feature
     - window_sizes (list): List of tuples where each tuple contains (scale_label, window_size).
     - grid_resolution (int): Resolution of the grid (e.g., 128x128).
     - features_to_use (list): List of feature names to use for each grid.
+    - known_features (list): List of all possible feature names in the order they appear in `data_array`.
     - save_dir (str): Directory to save the generated grids. Default is None (do not save).
     - save (bool): Whether to save the generated grids to disk. Default is False.
 
@@ -99,15 +97,19 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, feature
     # Remap labels to continuous integers (needed for cross-entropy loss)
     data_array, _ = remap_labels(data_array)
 
-    # Initialize a dictionary to store the generated grids and labels by window size (grids in Torch standard formats, channel first)
+    # Initialize a dictionary to store the generated grids and labels by window size (still in channel-first format)
     num_points = len(data_array)
     labeled_grids_dict = {
         scale_label: {
-            'grids': np.zeros((num_points, channels, grid_resolution, grid_resolution)),  # Channel-first
+            'grids': np.zeros((num_points, channels, grid_resolution, grid_resolution)),  # Preallocate in channel-first format
             'class_labels': np.zeros((num_points,))
         }
         for scale_label, _ in window_sizes
     }
+
+
+    # Find the indices of the requested features in the known features list
+    feature_indices = [known_features.index(feature) for feature in features_to_use]
 
     # Create KDTree once for the entire dataset with x, y, z coordinates
     tree = KDTree(data_array[:, :3])  # Use x, y, and z coordinates for 3D KDTree
@@ -123,7 +125,7 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, feature
             grid, _, x_coords, y_coords, z_coord = create_feature_grid(center_point, window_size, grid_resolution, channels)
 
             # Assign features to the grid cells using the pre-built KDTree
-            grid_with_features = assign_features_to_grid(tree, data_array, grid, x_coords, y_coords, z_coord, channels)
+            grid_with_features = assign_features_to_grid(tree, data_array, grid, x_coords, y_coords, z_coord, feature_indices)
 
             # Transpose the grid to match PyTorch's 'channels x height x width' format
             grid_with_features = np.transpose(grid_with_features, (2, 0, 1))
