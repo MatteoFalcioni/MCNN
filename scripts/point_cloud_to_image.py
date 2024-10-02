@@ -5,15 +5,42 @@ import os
 from tqdm import tqdm
 
 
-def create_feature_grid(center_point, window_size, grid_resolution=128, channels=3):
+def compute_point_cloud_bounds(data_array, padding=0.0):
+    """
+    Computes the spatial boundaries (min and max) of the point cloud data.
+    
+    Args:
+    - data_array (numpy.ndarray): Array containing point cloud data where the first three columns are (x, y, z) coordinates.
+    - padding (float): Optional padding to extend the boundaries by a fixed amount in all directions.
+    
+    Returns:
+    - bounds_dict (dict): Dictionary with 'x_min', 'x_max', 'y_min', 'y_max' defining the spatial limits of the point cloud.
+    """
+    # Calculate the min and max values for x and y coordinates
+    x_min = data_array[:, 0].min() - padding
+    x_max = data_array[:, 0].max() + padding
+    y_min = data_array[:, 1].min() - padding
+    y_max = data_array[:, 1].max() + padding
+
+    # Construct the boundaries dictionary
+    bounds_dict = {
+        'x_min': x_min,
+        'x_max': x_max,
+        'y_min': y_min,
+        'y_max': y_max
+    }
+
+    return bounds_dict
+
+
+def create_feature_grid(center_point, window_size, grid_resolution=128.0, channels=3):
     """
     Creates a grid around the center point and initializes cells to store feature values.
-
     Args:
     - center_point (tuple): The (x, y, z) coordinates of the center point of the grid.
     - window_size (float): The size of the square window around the center point (in meters).
-    - grid_resolution (int): The number of cells in one dimension of the grid (e.g., 128 for a 128x128 grid). Default is 128 to match article to replicate.
-    - channels (int): The number of channels in the resulting image. Default is 3 for RGB.
+    - grid_resolution (int): The number of cells in one dimension of the grid (e.g., 128 for a 128x128 grid).
+    - channels (int): The number of channels in the resulting image.
 
     Returns:
     - grid (numpy.ndarray): A 2D grid initialized to zeros, which will store feature values.
@@ -32,11 +59,12 @@ def create_feature_grid(center_point, window_size, grid_resolution=128, channels
     i_indices = np.arange(grid_resolution)
     j_indices = np.arange(grid_resolution)
 
-    half_resolution_plus_half = (grid_resolution / 2) + 0.5
+    half_resolution_minus_half = (grid_resolution / 2) - 0.5
 
     # following x_k = x_pk - (64.5 - j) * w
-    x_coords = center_point[0] - (half_resolution_plus_half - j_indices) * cell_size
-    y_coords = center_point[1] - (half_resolution_plus_half - i_indices) * cell_size
+    x_coords = center_point[0] - (half_resolution_minus_half - j_indices) * cell_size
+    y_coords = center_point[1] - (half_resolution_minus_half - i_indices) * cell_size
+
     constant_z = center_point[2]  # Z coordinate is constant for all cells
 
     return grid, cell_size, x_coords, y_coords, constant_z
@@ -61,11 +89,13 @@ def assign_features_to_grid(tree, data_array, grid, x_coords, y_coords, constant
 
     for i in range(len(x_coords)):
         for j in range(len(y_coords)):
+
             # Find the nearest point to the cell center (x_coords[i], y_coords[j], constant_z)
             dist, idx = tree.query([x_coords[i], y_coords[j], constant_z])
 
             # Assign the features of the nearest point to the grid cell
             grid[i, j, :] = data_array[idx, feature_indices]
+    
 
     return grid
 
@@ -107,8 +137,10 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, feature
         for scale_label, _ in window_sizes
     }
 
+    # Compute point cloud bounds
+    point_cloud_bounds = compute_point_cloud_bounds(data_array)
 
-   # Find the indices of the requested features in the known features list
+    # Find the indices of the requested features in the known features list
     feature_indices = [known_features.index(feature) for feature in features_to_use]
 
     # Create KDTree once for the entire dataset with x, y, z coordinates
@@ -120,6 +152,16 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, feature
         label = data_array[i, -1]  # Assuming the class label is in the last column
 
         for size_label, window_size in window_sizes:
+
+            # Check if the grid centered at center_point would fall out of point cloud bounds
+            half_window = window_size / 2
+            if (center_point[0] - half_window < point_cloud_bounds['x_min'] or 
+                center_point[0] + half_window > point_cloud_bounds['x_max'] or 
+                center_point[1] - half_window < point_cloud_bounds['y_min'] or 
+                center_point[1] + half_window > point_cloud_bounds['y_max']):
+                # Skip generating this grid if it falls out of bounds
+                # print(f"Skipping grid at center ({center_point[0]}, {center_point[1]}) for size '{size_label}' as it falls out of bounds.")
+                continue
             
             # Create a grid around the current center point
             grid, _, x_coords, y_coords, z_coord = create_feature_grid(center_point, window_size, grid_resolution, channels)

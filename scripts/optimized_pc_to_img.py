@@ -34,11 +34,11 @@ def gpu_create_feature_grid(center_points, window_size, grid_resolution=128, cha
     # Initialize the grids with zeros; one grid for each point in the batch
     grids = torch.zeros((batch_size, channels, grid_resolution, grid_resolution), device=device)
 
-    half_resolution_plus_half = (grid_resolution / 2) + 0.5
+    half_resolution_minus_half = (grid_resolution / 2) - 0.5
 
     # Create x and y coordinate grids for each point in the batch
-    x_coords = center_points[:, 0].unsqueeze(1) - (half_resolution_plus_half - torch.arange(grid_resolution, device=device).view(1, -1)) * cell_size
-    y_coords = center_points[:, 1].unsqueeze(1) - (half_resolution_plus_half - torch.arange(grid_resolution, device=device).view(1, -1)) * cell_size
+    x_coords = center_points[:, 0].unsqueeze(1) - (half_resolution_minus_half - torch.arange(grid_resolution, device=device).view(1, -1)) * cell_size
+    y_coords = center_points[:, 1].unsqueeze(1) - (half_resolution_minus_half - torch.arange(grid_resolution, device=device).view(1, -1)) * cell_size
     constant_z = center_points[:, 2]  # This gives a tensor of shape [batch_size]
     
 
@@ -50,7 +50,7 @@ def gpu_assign_features_to_grid(batch_data, grids, x_coords, y_coords, constant_
     Assign features from the nearest point to each cell in the grid for a batch of points using KDTree.
 
     Args:
-    - batch_data (torch.Tensor): A tensor of shape [batch_size, 2] representing the (x, y) coordinates of points in the batch.
+    - batch_data (torch.Tensor): A tensor of shape [batch_size, 3] representing the (x, y, z) coordinates of points in the batch.
     - grids (torch.Tensor): A tensor of shape [batch_size, channels, grid_resolution, grid_resolution] for (points, channels, rows, columns).
     - x_coords (torch.Tensor): A tensor of shape [batch_size, grid_resolution] containing x coordinates for each grid cell.
     - y_coords (torch.Tensor): A tensor of shape [batch_size, grid_resolution] containing y coordinates for each grid cell.
@@ -125,7 +125,7 @@ def prepare_grids_dataloader(data_array, batch_size, num_workers):
     
 
 
-def gpu_generate_multiscale_grids(data_loader, window_sizes, grid_resolution, channels, device, full_data, save_dir=None, save=False):
+def gpu_generate_multiscale_grids(data_loader, window_sizes, grid_resolution, channels, device, full_data, save_dir=None, save=False, stop_after_batches=None):
     """
     Generates grids for multiple scales (small, medium, large) for the entire dataset in batches.
 
@@ -181,6 +181,9 @@ def gpu_generate_multiscale_grids(data_loader, window_sizes, grid_resolution, ch
             # Save the grid if save_dir is provided
             if save and save_dir is not None:
                 save_grid(grids, labels, batch_idx, size_label, save_dir)
+            
+        if stop_after_batches is not None and batch_idx >= stop_after_batches:
+            break
 
         # Clear variables to free memory
         del batch_data, labels, grids, x_coords, y_coords

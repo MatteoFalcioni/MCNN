@@ -147,7 +147,7 @@ def plot_point_cloud_with_rgb(df, save=False, file_path=None):
         plt.show()
 
 
-def visualize_grid_with_comparison(grid, df, center, window_size=10.0, channel=3, feature_names=None, visual_size=100, save=False, file_path=None):
+def visualize_grid_with_comparison(grid, df, center, window_size=10.0, channel=3, feature_names=None, visual_size=30, save=False, file_path=None):
     """
     Visualize the grid and the filtered point cloud together.
 
@@ -201,7 +201,7 @@ def visualize_grid_with_comparison(grid, df, center, window_size=10.0, channel=3
     ax2.plot([x_min, x_max, x_max, x_min, x_min], [y_min, y_min, y_max, y_max, y_min],
              [z_center, z_center, z_center, z_center, z_center], color='r')
 
-    # Optionally plot the center point to verify its location
+    # Plot the center point to verify its location
     ax2.scatter(center[0], center[1], center[2], c='black', s=200, label='Center Point', marker='x')
 
     z_min, z_max = df['z'].min(), df['z'].max()  # Use full dataset's Z range
