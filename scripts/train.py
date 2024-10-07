@@ -28,8 +28,9 @@ def train(model, dataloader, criterion, optimizer, device):
         loss = criterion(outputs, labels)
 
         # Check for NaN in loss
-        if torch.isnan(loss):
-            raise ValueError("Encountered NaN loss during training.")
+        if torch.isnan(loss) or torch.isinf(loss):
+            print("Warning: NaN or Inf loss encountered. Skipping this batch.")
+            continue  # Skip this batch to prevent stopping the training
 
         # Backward pass and optimize
         loss.backward()

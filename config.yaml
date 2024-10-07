@@ -1,8 +1,8 @@
 # Hyperparameters
-batch_size: 64   # Not explicitly mentioned in the article
+batch_size: 16   # Not explicitly mentioned in the article
 epochs: 20
 patience: 3
-learning_rate: 0.01    # Initial learning rate as mentioned in both articles
+learning_rate: 0.001    # Initial learning rate as mentioned in both articles
 learning_rate_decay_factor: 0.0005   # mentioned in first article
 learning_rate_decay_epochs: 1    # not mentioned, so assuming that lr decay is performed through each epoch
 momentum: 0.9    # used in first article

@@ -6,48 +6,51 @@ from utils.point_cloud_data_utils import read_las_file_to_numpy
 from scripts.point_cloud_to_image import generate_multiscale_grids
 from datetime import datetime
 import pandas as pd
-import gc
+import torch.nn as nn
+
+
+def initialize_weights(model):
+    for m in model.modules():
+        if isinstance(m, nn.Conv2d):
+            nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+            if m.bias is not None:
+                nn.init.zeros_(m.bias)
+        elif isinstance(m, nn.Linear):
+            nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+            if m.bias is not None:
+                nn.init.zeros_(m.bias)
+
 
 class GridDataset(Dataset):
-    def __init__(self, grids_dict, scale, labels):
-        self.grids = grids_dict[scale]['grids']
+    def __init__(self, grids_dict, labels):
+        self.small_grids = grids_dict['small']['grids']
+        self.medium_grids = grids_dict['medium']['grids']
+        self.large_grids = grids_dict['large']['grids']
         self.labels = labels
 
     def __len__(self):
-        return len(self.grids)
+        return len(self.small_grids)
 
     def __getitem__(self, idx):
-        small_grid, label = self.small_dataset[idx]
-        medium_grid, _ = self.medium_dataset[idx]  # Label is the same, so we ignore it here
-        large_grid, _ = self.large_dataset[idx]    # Label is the same, so we ignore it here
-        return (small_grid, medium_grid, large_grid, label)
+        # Convert grids to tensors on the fly
+        small_grid = torch.tensor(self.small_grids[idx], dtype=torch.float32)
+        medium_grid = torch.tensor(self.medium_grids[idx], dtype=torch.float32)
+        large_grid = torch.tensor(self.large_grids[idx], dtype=torch.float32)
+        label = torch.tensor(self.labels[idx], dtype=torch.long)
+        
+        return small_grid, medium_grid, large_grid, label
 
-
-class CombinedGridDataset(Dataset):
-    def __init__(self, small_dataset, medium_dataset, large_dataset):
-        self.small_dataset = small_dataset
-        self.medium_dataset = medium_dataset
-        self.large_dataset = large_dataset
-
-    def __len__(self):
-        # All datasets should have the same length
-        return len(self.small_dataset)
-
-    def __getitem__(self, idx):
-        # Retrieve the grids and labels from each dataset
-        small_grid, label = self.small_dataset[idx]
-        medium_grid, _ = self.medium_dataset[idx]  # Label is the same, so we ignore it here
-        large_grid, _ = self.large_dataset[idx]    # Label is the same, so we ignore it here
-        return (small_grid, medium_grid, large_grid, label)
 
 
 def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw/labeled_FSL.las', grid_save_dir='data/pre_processed_data',
                        window_sizes=None, grid_resolution=128, features_to_use=None, save_grids=True, train_split=0.8):
     labels = []
+    """os.path.exists(grid_save_dir)
 
-    if not os.listdir(grid_save_dir) and not pre_process_data:
-        raise FileNotFoundError(f"No saved grids found in {grid_save_dir}. Please generate grids first or check the directory.")
-
+    if not os.listdir(grid_save_dir):
+        if not pre_process_data:
+            raise FileNotFoundError(f"No saved grids found in {grid_save_dir}. Please generate grids first or check the directory.")
+        """
     if pre_process_data:
         if not window_sizes:
             raise ValueError("Window sizes must be provided when generating grids.")
@@ -68,23 +71,51 @@ def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw/labeled_
     else:
         print("Loading saved grids...")
         grids_dict = {'small': {'grids': []}, 'medium': {'grids': []}, 'large': {'grids': []}}
+        labels = []  # Initialize labels list
 
-        for scale in ['small', 'medium', 'large']:
-            for file_name in os.listdir(os.path.join(grid_save_dir, scale)):
-                grid = np.load(os.path.join(grid_save_dir, scale, file_name))
-                grids_dict[scale]['grids'].append(grid)
+        # Helper function to extract the common identifier (e.g., 'grid_4998') from the filename
+        def get_common_identifier(filename):
+            return '_'.join(filename.split('_')[:2])  # Extracts 'grid_4998' from 'grid_4998_small_class_0.npy'
 
-                if scale == 'small':
-                    label = int(file_name.split('_')[-1].split('.')[0].replace('class_', ''))
-                    labels.append(label)
+        # Collect filenames and extract identifiers for each scale
+        small_files = {get_common_identifier(f): f for f in os.listdir(os.path.join(grid_save_dir, 'small'))}
+        medium_files = {get_common_identifier(f): f for f in os.listdir(os.path.join(grid_save_dir, 'medium'))}
+        large_files = {get_common_identifier(f): f for f in os.listdir(os.path.join(grid_save_dir, 'large'))}
 
-    # Create individual datasets for each scale
-    small_dataset = GridDataset(grids_dict, 'small', labels)
-    medium_dataset = GridDataset(grids_dict, 'medium', labels)
-    large_dataset = GridDataset(grids_dict, 'large', labels)
+        # Find common identifiers across all three scales
+        common_identifiers = set(small_files.keys()).intersection(medium_files.keys(), large_files.keys())
 
-    # Combine the datasets into a single dataset
-    full_dataset = CombinedGridDataset(small_dataset, medium_dataset, large_dataset)
+        if not common_identifiers:
+            raise FileNotFoundError("No common grid files found across small, medium, and large scales.")
+
+        # Sort the common identifiers to ensure consistent ordering
+        common_identifiers = sorted(common_identifiers)
+
+        # Load grids for each scale based on common identifiers
+        for identifier in common_identifiers:
+            try:
+                # Load the grids for each scale using the corresponding filenames
+                small_grid = np.load(os.path.join(grid_save_dir, 'small', small_files[identifier]))
+                medium_grid = np.load(os.path.join(grid_save_dir, 'medium', medium_files[identifier]))
+                large_grid = np.load(os.path.join(grid_save_dir, 'large', large_files[identifier]))
+                
+                grids_dict['small']['grids'].append(small_grid)
+                grids_dict['medium']['grids'].append(medium_grid)
+                grids_dict['large']['grids'].append(large_grid)
+
+                # Extract the label from the filename (assuming the label is the same across scales)
+                label = int(small_files[identifier].split('_')[-1].split('.')[0].replace('class_', ''))
+                labels.append(label)
+
+            except Exception as e:
+                print(f"Error loading files for identifier {identifier}: {e}")
+                continue
+
+        print(f"Number of common grids: {len(common_identifiers)}")
+
+
+    # Create the grids dataset
+    full_dataset = GridDataset(grids_dict, labels)
 
     if train_split > 0.0:
         # Split the combined dataset into training and evaluation sets

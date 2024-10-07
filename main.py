@@ -2,11 +2,11 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from models.mcnn import MultiScaleCNN
-from utils.train_data_utils import prepare_dataloader
+from utils.train_data_utils import prepare_dataloader, initialize_weights
 from scripts.train import train_epochs
 from scripts.inference import inference
 from utils.config_handler import parse_arguments
-from utils.point_cloud_data_utils import read_las_file_to_numpy, remap_labels, extract_num_classes
+from utils.point_cloud_data_utils import read_las_file_to_numpy, remap_labels, extract_num_classes, extract_num_channels
 import numpy as np
 
 
@@ -18,18 +18,21 @@ def main():
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     print(f"Using device: {device}")
 
-    # Extract user-selected features from the config
-    features_to_use = args.features_to_use  # List of features chosen by the user
-    print(f'features to use {features_to_use}')
-    num_channels = len(features_to_use)  # Determine the number of channels based on selected features
+
+    # Extract user-selected features from the config, only if pre-processing data: 
     if args.preprocess_data:
-        num_classes = extract_num_classes(args.raw_data_filepath)   # determine the number of classes from the labeled raw data file
+        features_to_use = args.features_to_use  # List of features chosen by the user
+        num_classes = extract_num_classes(args.raw_data_filepath, args.preprocess_data)   # determine the number of classes from the labeled raw data file
+        num_channels = len(features_to_use)  # Determine the number of channels based on selected features
     else:
-        num_classes = args.num_classes
+        features_to_use=None
+        num_channels=extract_num_channels(args.preprocessed_data_dir)   # extract number of channels from existing grids
+        num_classes = args.num_classes  #get classes from parser
 
     # Initialize model 
     print("Initializing MultiScaleCNN (MCNN) model...")
     model = MultiScaleCNN(channels=num_channels, classes=num_classes).to(device)  
+    model.apply(initialize_weights)     # initialize model weights
 
     # Prepare DataLoader
     print("Preparing data loaders...")
@@ -44,7 +47,7 @@ def main():
         window_sizes=args.window_sizes,
         grid_resolution=128,
         features_to_use=features_to_use,
-        save_grids=False,
+        save_grids=True,
         train_split=0.8
     )
 
