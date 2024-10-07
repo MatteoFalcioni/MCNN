@@ -1520,3 +1520,9 @@ data/training_data/test_21.csv
 data/training_data/test_21.csv:Zone.Identifier
 data/training_data/train_21.csv
 data/training_data/train_21.csv:Zone.Identifier
+__pycache__/debug_grid_assignment.cpython-310.pyc
+__pycache__/debug_grid_real.cpython-310.pyc
+scripts/__pycache__/optimized_pc_to_img.cpython-310.pyc
+scripts/__pycache__/point_cloud_to_image.cpython-310.pyc
+scripts/__pycache__/optimized_pc_to_img.cpython-310.pyc
+scripts/__pycache__/point_cloud_to_image.cpython-310.pyc
