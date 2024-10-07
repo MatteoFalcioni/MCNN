@@ -176,9 +176,10 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, feature
             labeled_grids_dict[size_label]['grids'][i] = grid_with_features
             labeled_grids_dict[size_label]['class_labels'][i] = label
 
-            # Save the grid if required
-            if save and save_dir is not None:
-               save_grid(grid_with_features, label, i, size_label, save_dir)
+            # Save the grid only if it's valid
+            saved = save_grid_if_valid(grid_with_features, label, i, size_label, save_dir)
+            if not saved:
+                continue  # Skip to the next iteration if this grid is invalid
 
     print('Multiscale grid generation completed successfully.')
 
@@ -205,6 +206,27 @@ def save_grid(grid, label, point_idx, size_label, save_dir):
         print(f"Error saving grid for point {point_idx} in {size_label} scale: {str(e)}")
 
 
+def save_grid_if_valid(grid, label, point_idx, scale_label, save_dir):
+    """
+    Save the grid if it contains no NaN or Inf values.
 
+    Args:
+    - grid (numpy.ndarray): The grid to be saved.
+    - label (int): The class label.
+    - point_idx (int): Index of the point for which the grid is generated.
+    - scale_label (str): The scale label ('small', 'medium', 'large').
+    - save_dir (str): Directory to save the grid.
+    """
+    # Check for NaN or Inf in the grid
+    if np.isnan(grid).any() or np.isinf(grid).any():
+        print(f"Invalid grid found for {point_idx}_{scale_label}. Skipping save.")
+        return False  # Skip saving if invalid
+    
+    # Construct the file name and save the grid
+    file_name = f"{point_idx}_{scale_label}_class_{label}.npy"
+    file_path = os.path.join(save_dir, scale_label, file_name)
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    np.save(file_path, grid)
+    return True
 
 

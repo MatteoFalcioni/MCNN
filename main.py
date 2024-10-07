@@ -22,12 +22,12 @@ def main():
     # Extract user-selected features from the config, only if pre-processing data: 
     if args.preprocess_data:
         features_to_use = args.features_to_use  # List of features chosen by the user
-        num_classes = extract_num_classes(args.raw_data_filepath, args.preprocess_data)   # determine the number of classes from the labeled raw data file
         num_channels = len(features_to_use)  # Determine the number of channels based on selected features
     else:
         features_to_use=None
         num_channels=extract_num_channels(args.preprocessed_data_dir)   # extract number of channels from existing grids
-        num_classes = args.num_classes  #get classes from parser
+
+    num_classes = extract_num_classes(args.raw_data_filepath, args.preprocess_data, args.preprocessed_data_dir)   # determine the number of classes 
 
     # Initialize model 
     print("Initializing MultiScaleCNN (MCNN) model...")

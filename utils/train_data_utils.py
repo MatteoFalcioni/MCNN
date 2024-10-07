@@ -37,6 +37,16 @@ class GridDataset(Dataset):
         medium_grid = torch.tensor(self.medium_grids[idx], dtype=torch.float32)
         large_grid = torch.tensor(self.large_grids[idx], dtype=torch.float32)
         label = torch.tensor(self.labels[idx], dtype=torch.long)
+
+        # Add checks for NaN or Inf
+        if torch.isnan(small_grid).any() or torch.isinf(small_grid).any():
+            print(f"NaN or Inf found in small_grid at index {idx}")
+        if torch.isnan(medium_grid).any() or torch.isinf(medium_grid).any():
+            print(f"NaN or Inf found in medium_grid at index {idx}")
+        if torch.isnan(large_grid).any() or torch.isinf(large_grid).any():
+            print(f"NaN or Inf found in large_grid at index {idx}")
+        if torch.isnan(label).any() or torch.isinf(label).any():
+            print(f"NaN or Inf found in label at index {idx}")
         
         return small_grid, medium_grid, large_grid, label
 

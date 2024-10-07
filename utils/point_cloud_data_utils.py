@@ -313,6 +313,7 @@ def extract_num_classes(file_path, pre_process_data, preprocessed_data_dir=None)
 
         # Extract the unique number of classes
         num_classes = len(np.unique(class_labels))
+        
     else: 
         # Helper function to extract the common identifier (e.g., 'grid_4998') from the filename
         def get_common_identifier(filename):
