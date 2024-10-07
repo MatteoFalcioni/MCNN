@@ -3,6 +3,7 @@ import numpy as np
 import os
 from torch.utils.data import DataLoader, TensorDataset
 from scipy.spatial import KDTree
+from scripts.point_cloud_to_image import compute_point_cloud_bounds
 
 
 
@@ -25,7 +26,7 @@ def gpu_create_feature_grid(center_points, window_size, grid_resolution=128, cha
     - constant_z (torch.Tensor): A tensor of shape [batch_size] containing the z coordinates of the center points.
     """
 
-    center_points = center_points.to(device)    # additional check to avoid cpu usage
+    center_points = center_points.to(device)  # additional check to avoid cpu usage
     batch_size = center_points.shape[0]  # Number of points in the batch
 
     # Calculate the size of each cell in meters
@@ -45,7 +46,7 @@ def gpu_create_feature_grid(center_points, window_size, grid_resolution=128, cha
     return grids, cell_size, x_coords, y_coords, constant_z
 
 
-def gpu_assign_features_to_grid(batch_data, grids, x_coords, y_coords, constant_z, full_data, tree, channels=3, device=None):
+def gpu_assign_features_to_grid(batch_data, grids, x_coords, y_coords, constant_z, full_data, tree, feature_indices, device=None):
     """
     Assign features from the nearest point to each cell in the grid for a batch of points using KDTree.
 
@@ -57,12 +58,14 @@ def gpu_assign_features_to_grid(batch_data, grids, x_coords, y_coords, constant_
     - constant_z (torch.Tensor): A tensor of shape [batch_size] containing the z coordinates of the center points.
     - full_data (np.ndarray): The entire point cloud's data to build the KDTree for nearest neighbor search.
     - tree (KDTree): KDTree for efficient nearest-neighbor search.
-    - channels (int): Number of feature channels in the grid (default is 3 for RGB).
+    - feature_indices (list): List of indices for the selected features.
     - device (torch.device): The device (CPU or GPU) to run this on.
 
     Returns:
     - grids (torch.Tensor): The updated grids with features assigned based on the nearest points from the full point cloud.
     """
+
+    # no need for batch data here actually??
 
     # Iterate through each batch point and its grid
     with torch.no_grad():
@@ -70,7 +73,7 @@ def gpu_assign_features_to_grid(batch_data, grids, x_coords, y_coords, constant_
         batch_size = batch_data.shape[0]  # Number of points in the batch
         
         for i in range(batch_size):
-            # Create a meshgrid for the current grid cell coordinates
+            
             grid_x, grid_y = torch.meshgrid(x_coords[i], y_coords[i], indexing='ij')
 
             # Stack the x, y, and z coordinates together for the KDTree query
@@ -79,14 +82,11 @@ def gpu_assign_features_to_grid(batch_data, grids, x_coords, y_coords, constant_
             # Query the KDTree to find the nearest point in the full point cloud for each grid cell
             _, closest_points_idxs = tree.query(grid_coords)  
 
-            # Assign features to the grid for the i-th batch based on the closest points from the full point cloud
-            # Using a more efficient method to fill the grid
-            for channel in range(channels):
-                # Convert the selected features to a PyTorch tensor and move to the correct device
-                features_to_assign = torch.tensor(full_data[closest_points_idxs, 3 + channel], dtype=torch.float32, device=device)
-    
-                # Assign all features for the current channel at once
-                grids[i, channel].view(-1)[:] = features_to_assign  # Assign features for all cells at once
+            # Extract all features for the selected indices from the nearest points
+            features_to_assign = torch.tensor(full_data[closest_points_idxs][:, feature_indices], dtype=torch.float32, device=device)
+
+            # Reshape and assign all features at once to the grid for the i-th batch
+            grids[i] = features_to_assign.T.view(len(feature_indices), grid_x.shape[0], grid_y.shape[1])
 
 
     return grids
@@ -125,7 +125,7 @@ def prepare_grids_dataloader(data_array, batch_size, num_workers):
     
 
 
-def gpu_generate_multiscale_grids(data_loader, window_sizes, grid_resolution, channels, device, full_data, save_dir=None, save=False, stop_after_batches=None):
+def gpu_generate_multiscale_grids(data_loader, window_sizes, grid_resolution, features_to_use, known_features, channels, device, full_data, save_dir=None, save=False, stop_after_batches=None):
     """
     Generates grids for multiple scales (small, medium, large) for the entire dataset in batches.
 
@@ -133,6 +133,8 @@ def gpu_generate_multiscale_grids(data_loader, window_sizes, grid_resolution, ch
     - data_loader (DataLoader): A DataLoader that batches the unified dataset (coordinates + labels).
     - window_sizes (list of tuples): List of window sizes for each scale (e.g., [('small', 2.5), ('medium', 5.0), ('large', 10.0)]).
     - grid_resolution (int): The grid resolution (e.g., 128x128).
+    - features_to_use (list): List of feature names to use for each grid.
+    - known_features (list): List of all possible feature names in the order they appear in `full_data`.
     - channels (int): Number of feature channels in the grid (e.g., 3 for RGB).
     - device (torch.device): The device to run on (CPU or GPU).
     - full_data (np.ndarray): The entire point cloud's data to build the KDTree for nearest neighbor search.
@@ -142,6 +144,14 @@ def gpu_generate_multiscale_grids(data_loader, window_sizes, grid_resolution, ch
     Returns:
     - labeled_grids_dict (dict): Dictionary containing the generated grids and corresponding labels for each scale.
     """
+
+    # Compute the point cloud bounds using the imported function
+    point_cloud_bounds = compute_point_cloud_bounds(full_data)
+    x_min, x_max = point_cloud_bounds['x_min'], point_cloud_bounds['x_max']
+    y_min, y_max = point_cloud_bounds['y_min'], point_cloud_bounds['y_max']
+
+    # Determine indices of the selected features in the known features list
+    feature_indices = [known_features.index(feature) for feature in features_to_use]
 
     # Create a dictionary to hold grids and class labels for each scale
     labeled_grids_dict = {scale_label: {'grids': [], 'class_labels': []} for scale_label, _ in window_sizes}
@@ -166,13 +176,25 @@ def gpu_generate_multiscale_grids(data_loader, window_sizes, grid_resolution, ch
 
         # For each scale, generate the grids and assign features
         for size_label, window_size in window_sizes:
-            print(f"Generating {size_label} grid for batch {batch_idx} with window size {window_size}...")
+            # Check if the grid falls out of bounds
+            half_window = window_size / 2
+            out_of_bounds_mask = (
+                (coordinates[:, 0] - half_window < x_min) |
+                (coordinates[:, 0] + half_window > x_max) |
+                (coordinates[:, 1] - half_window < y_min) |
+                (coordinates[:, 1] + half_window > y_max)
+            )
+
+            # Skip grids that fall out of bounds
+            if torch.any(out_of_bounds_mask):
+                print(f"Skipping grid(s) at batch index {batch_idx} for scale '{size_label}' as they fall out of bounds.")
+                continue
 
             # Create a batch of grids
             grids, _, x_coords, y_coords, constant_z = gpu_create_feature_grid(coordinates, window_size, grid_resolution, channels, device)
 
-            # Assign features to the grids using the GPU-based KDTree
-            grids = gpu_assign_features_to_grid(coordinates, grids, x_coords, y_coords, constant_z, full_data, tree, channels, device)
+            # Assign features to the grids 
+            grids = gpu_assign_features_to_grid(coordinates, grids, x_coords, y_coords, constant_z, full_data, tree, feature_indices, device)
 
             # Append the grids and labels to the dictionary
             labeled_grids_dict[size_label]['grids'].append(grids.cpu().numpy())  # Store as numpy arrays

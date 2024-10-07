@@ -1,6 +1,6 @@
 # Hyperparameters
 batch_size: 64   # Not explicitly mentioned in the article
-epochs: 8
+epochs: 20
 patience: 3
 learning_rate: 0.01    # Initial learning rate as mentioned in both articles
 learning_rate_decay_factor: 0.0005   # mentioned in first article

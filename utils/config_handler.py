@@ -47,13 +47,15 @@ def parse_arguments():
                         help='If set, preprocess raw data for training; otherwise use existing pre-processed data.')
     parser.add_argument('--save_model', action='store_true', default=config.get('save_model', False),
                         help='If set, save the trained model.')
+    parser.add_argument('--raw_data_dir', type=str, default=config.get('raw_data_dir', 'data/raw'),
+                        help='directory where raw data (to be eventually processed) is stored.')
     parser.add_argument('--preprocessed_data_dir', type=str, default=config.get('preprocessed_data_dir', 'data/pre_processed_data'),
                         help='directory where pre-processed data for training is stored.')
     parser.add_argument('--load_model', action='store_true', default=config.get('load_model', False),
                         help='If set, loads model from load_model_filepath to perform inference')
     parser.add_argument('--load_model_filepath', type=str,
                         default=config.get('load_model_filepath', 'models/saved/mcnn_model_20240922_231624.pth'),
-                        help='directory where pre-processed data for training is stored.')
+                        help='directory where the pre-trained model is stored.')
     parser.add_argument('--window_sizes', type=ast.literal_eval,  # Safely parse as a Python list of tuples
                         default=config.get('window_sizes', [('small', 2.5), ('medium', 5.0), ('large', 10.0)]),
                         help='List of window sizes for grid generation (e.g., "[(small, 2.5), (medium, 5.0), (large, 10.0)])"')

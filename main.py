@@ -22,18 +22,16 @@ def main():
     features_to_use = args.features_to_use  # List of features chosen by the user
     num_channels = len(features_to_use)  # Determine the number of channels based on selected features
 
-    # Initialize model (always MCNN)
+    # Initialize model 
     print("Initializing MultiScaleCNN (MCNN) model...")
     model = MultiScaleCNN(channels=num_channels, classes=5).to(device)  # Make sure to set classes correctly
 
     # Prepare DataLoader
     print("Preparing data loaders...")
 
-    labeled_filepath = 'data/combined_data/sampled/sampled_data20000.npy'
-
     train_loader, val_loader = prepare_dataloader(
         batch_size=args.batch_size,
-        data_dir=labeled_filepath,
+        data_dir=args.,
         grid_save_dir='data/pre_processed_data_new',
         pre_process_data=True,
         window_sizes=[('small', 2.5), ('medium', 5.0), ('large', 10.0)],
