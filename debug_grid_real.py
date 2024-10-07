@@ -418,12 +418,15 @@ def debug_gpu_multiscale_grids(data_loader, window_sizes, grid_resolution, featu
     - labeled_grids_dict (dict): Dictionary containing the generated grids and corresponding labels for each scale.
     """
 
+    # Ensure full_data is in float64 precision
+    full_data = full_data.astype(np.float64)
+
     # Determine feature indices
     feature_indices = [known_features.index(feature) for feature in features_to_use]
 
     # Create the KDTree for the point cloud data
     print("Creating KDTree...")
-    tree = KDTree(full_data[:, :3])
+    tree = KDTree(full_data[:, :3])  # Make sure KDTree is using float64 data
     print("KDTree created successfully.")
 
     # Dictionary to hold grids and class labels for each scale
@@ -433,8 +436,8 @@ def debug_gpu_multiscale_grids(data_loader, window_sizes, grid_resolution, featu
     for batch_idx, batch_data in enumerate(data_loader):
         print(f"Processing batch {batch_idx + 1}/{len(data_loader)}...")
 
-        # Extract coordinates and labels from the batch
-        batch_tensor = batch_data[0].to(device)
+        # Extract coordinates and labels from the batch, ensuring float64 precision
+        batch_tensor = batch_data[0].to(device, dtype=torch.float64)
         coordinates = batch_tensor[:, :3]
         labels = batch_tensor[:, 3]
 
@@ -449,8 +452,8 @@ def debug_gpu_multiscale_grids(data_loader, window_sizes, grid_resolution, featu
             feature_grids = assign_features_to_grid_gpu(full_data, grid_coords, feature_indices, device)
 
             # Append the grids and labels to the dictionary
-            labeled_grids_dict[size_label]['grids'].append(feature_grids.cpu().numpy())  # Store as numpy arrays
-            labeled_grids_dict[size_label]['class_labels'].append(labels.cpu().numpy())
+            labeled_grids_dict[size_label]['grids'].append(feature_grids.cpu().numpy().astype(np.float64))  # Store as numpy arrays in float64
+            labeled_grids_dict[size_label]['class_labels'].append(labels.cpu().numpy().astype(np.float64))
 
         # Break early if debugging is limited to a few batches
         if stop_after_batches is not None and batch_idx >= stop_after_batches:
@@ -461,6 +464,7 @@ def debug_gpu_multiscale_grids(data_loader, window_sizes, grid_resolution, featu
 
     print("[DEBUG] Multiscale grid generation completed.")
     return labeled_grids_dict
+
 
 
 def debug_cpu_bulk_multiscale_grids(index, data_array, window_sizes, grid_resolution, features_to_use, known_features):
@@ -532,57 +536,6 @@ def debug_cpu_bulk_multiscale_grids(index, data_array, window_sizes, grid_resolu
 
     return labeled_grids_dict
 
-def compare_multiscale_grid_dicts(dict_cpu, dict_gpu, atol=1e-5):
-    """
-    Compare the dictionaries produced by the CPU and GPU multiscale grid generation functions.
-
-    Args:
-    - dict_cpu (dict): The dictionary from the CPU multiscale grid generation function.
-    - dict_gpu (dict): The dictionary from the GPU multiscale grid generation function.
-    - atol (float): The absolute tolerance parameter for np.allclose() comparison.
-
-    Returns:
-    - None
-    """
-    for scale_label in dict_cpu.keys():
-        grids_cpu = dict_cpu[scale_label]['grids']
-        grids_gpu = dict_gpu[scale_label]['grids']
-        labels_cpu = dict_cpu[scale_label]['class_labels']
-        labels_gpu = dict_gpu[scale_label]['class_labels']
-        
-        print(f"Comparing scale: {scale_label}...")
-
-        # Check if the number of grids match
-        if len(grids_cpu) != len(grids_gpu):
-            print(f"[ERROR] Number of grids do not match for scale '{scale_label}' (CPU: {len(grids_cpu)}, GPU: {len(grids_gpu)})")
-            continue
-
-        # Compare each grid in the scale
-        for i in range(len(grids_cpu)):
-
-            grid_gpu = grids_gpu[i][0]
-            grid_cpu = grids_cpu[i][0]
-
-            if np.allclose(grid_cpu, grid_gpu, atol=atol):
-                print(f"[SUCCESS] Grid {i} for scale '{scale_label}' matches between CPU and GPU.")
-            else:
-                print(f"[ERROR] Grid {i} for scale '{scale_label}' does not match between CPU and GPU.")       
-
-            # Print a small subsection of both grids
-            print(f"[INFO] Grid {i} CPU (first 10x10 section): \n{grids_cpu[i][:, :10, :10]}")
-            print(f"[INFO] Grid {i} GPU (first 10x10 section): \n{grid_gpu[:, :10, :10]}")     
-
-            visualize_grid(grids_cpu[i], channel=3)
-            print(f'gpu grid shape: {grids_gpu[i][0].shape}')
-            grid_gpu_visual = np.transpose(grids_gpu[i][0], (0, 2, 1))
-            visualize_grid(grid_gpu_visual, channel=3)
-
-        # Compare class labels
-        if np.array_equal(labels_cpu, labels_gpu):
-            print(f"[SUCCESS] Class labels match for scale '{scale_label}'.")
-        else:
-            print(f"[ERROR] Class labels do not match for scale '{scale_label}'.")
-
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -613,15 +566,17 @@ dummy_labels = np.random.randint(0, 3, size=num_points)
 # Append the dummy labels as the last column in `data_array`
 data_array_with_labels = np.hstack((full_data, dummy_labels.reshape(-1, 1)))
 
+center_point_labeled = data_array_with_labels[index, [0, 1, 2, -1]]
+
 # Create a TensorDataset and DataLoader for a single point
-center_point_tensor_labeled = torch.tensor(data_array_with_labels[index, [0, 1, 2, -1]] , dtype=torch.float64).unsqueeze(0)
+center_point_tensor_labeled = torch.tensor(center_point_labeled , dtype=torch.float64).unsqueeze(0)
 single_point_dataset = TensorDataset(center_point_tensor_labeled)
 data_loader = DataLoader(single_point_dataset, batch_size=1, num_workers=0)
 
 torch.set_printoptions(precision=8)
 
 # check before starting
-print(f'center point data: {data_array_with_labels[index, [0, 1, 2, -1]]}')
+print(f'center point data: {center_point_labeled}')
 print(f'center point tensor data: {center_point_tensor_labeled}')
 
 
@@ -647,11 +602,7 @@ labeled_grids_dict_gpu = debug_gpu_multiscale_grids(
 )
 
 
-# Compare the dictionaries
-# compare_multiscale_grid_dicts(labeled_grids_dict_cpu, labeled_grids_dict_gpu, atol=0)
-
-
-
+"""
 gpu_feature_grids, gpu_cell_size, gpu_grid_coords_combined = debug_gpu_create_feature_grid(center_point_tensor, window_size=10.0, grid_resolution=128, channels=channels, device=None)
 
 grid_cpu, _, x_coords_cpu, y_coords_cpu, constant_z_cpu = debug_create_feature_grid(center_point, window_size=10.0, grid_resolution=128, channels=channels)
@@ -661,7 +612,7 @@ x_coords_gpu = gpu_grid_coords_combined[0, 0, :, :]  # X-coordinates for the ent
 y_coords_gpu = gpu_grid_coords_combined[0, 1, :, :]  # Y-coordinates for the entire grid (shape: [128, 128])
 constant_z_gpu = gpu_grid_coords_combined[0, 2, 0, 0]  # Constant z value for all cells
 
-"""# Print the coordinates to compare
+# Print the coordinates to compare
 print(f"[CPU] X-coordinates (sample): {x_coords_cpu[:5]} ... {x_coords_cpu[-5:]}")
 print(f"[GPU] X-coordinates (sample): {x_coords_gpu[0, :5].numpy()} ... {x_coords_gpu[0, -5:].numpy()}")
 
@@ -673,7 +624,7 @@ print(f"[GPU] Constant Z: {constant_z_gpu.item()}")
 
 # Inspect the grid shapes
 print(f"[CPU] Grid shape: {grid_cpu.shape}")
-print(f"[GPU] Grid shape: {gpu_feature_grids[0].shape}")  # Only the first batch's grid"""
+print(f"[GPU] Grid shape: {gpu_feature_grids[0].shape}")  # Only the first batch's grid
 
 cpu_indices = debug_kd_tree_cpu(full_data, x_coords_cpu, y_coords_cpu, constant_z_cpu)
 cpu_bulk_indices = debug_kd_tree_cpu_bulk(full_data, x_coords_cpu, y_coords_cpu, constant_z_cpu)
@@ -696,6 +647,6 @@ print('----------------------------KD TREE CHECKS ENDED-------------------------
 compare_feature_assignments(tree, full_data, x_coords_cpu, y_coords_cpu, constant_z_cpu, feature_indices, grid_resolution)
 
 compare_cpu_gpu_feature_assignment(full_data, x_coords_cpu, y_coords_cpu, constant_z_cpu, gpu_grid_coords_combined, feature_names, features_to_use, device)
-
+"""
 
 
