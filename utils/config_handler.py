@@ -47,9 +47,9 @@ def parse_arguments():
                         help='If set, preprocess raw data for training; otherwise use existing pre-processed data.')
     parser.add_argument('--save_model', action='store_true', default=config.get('save_model', False),
                         help='If set, save the trained model.')
-    parser.add_argument('--raw_data_dir', type=str, default=config.get('raw_data_dir', 'data/raw'),
-                        help='directory where raw data (to be eventually processed) is stored.')
-    parser.add_argument('--preprocessed_data_dir', type=str, default=config.get('preprocessed_data_dir', 'data/pre_processed_data'),
+    parser.add_argument('--raw_data_filepath', type=str, default=config.get('raw_data_dir', 'data/raw'),
+                        help='file path to where raw data (to be eventually processed) is stored.')
+    parser.add_argument('--preprocessed_data_dir', type=str, default=config.get('preprocessed_data_dir', 'data/pre_processed_data/saved_grids'),
                         help='directory where pre-processed data for training is stored.')
     parser.add_argument('--load_model', action='store_true', default=config.get('load_model', False),
                         help='If set, loads model from load_model_filepath to perform inference')

@@ -18,8 +18,8 @@ features_to_use: ['intensity', 'R', 'G', 'B', 'nvi', 'ndwi']  # features to be u
 models_save_dir: "models/saved/"      # Model save path base directory
 save_model: false    # whether to save the model or to discard. Default is False, i.e., discard the trained model.
 preprocess_data: false   # whether to preprocess raw data, or to use existing pre-processed data (if False)
-raw_data_dir: "data/raw"   # directory where raw data (to be eventually processed) is stored
-preprocessed_data_dir: "data/pre_processed_data"   # directory where pre-processed data for training is stored (or is to be stored, if generated).
+raw_data_filepath: "data/raw/features_F.las"   # directory where raw data (to be eventually processed) is stored
+preprocessed_data_dir: "data/pre_processed_data/saved_grids"   # directory where pre-processed data for training is stored (or is to be stored, if generated).
 load_model: false # whether to use an already trained model for inference or not
 load_model_filepath : "models/saved/mcnn_model_20240922_231624.pth" # file path to the model to load for inference
 
