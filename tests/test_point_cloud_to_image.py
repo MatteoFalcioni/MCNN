@@ -3,7 +3,7 @@ import numpy as np
 from utils.point_cloud_data_utils import read_las_file_to_numpy, numpy_to_dataframe
 from scripts.point_cloud_to_image import create_feature_grid, assign_features_to_grid, generate_multiscale_grids
 from utils.plot_utils import visualize_grid, visualize_grid_with_comparison
-from scipy.spatial import KDTree
+from scipy.spatial import cKDTree as KDTree
 import os
 
 
