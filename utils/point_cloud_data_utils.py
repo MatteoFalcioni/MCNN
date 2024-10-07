@@ -276,41 +276,98 @@ def read_csv_file_to_numpy(file_path, features_to_extract):
     
     return combined_data, feature_names
 
-def extract_num_classes(file_path):
+def extract_num_classes(file_path, pre_process_data, preprocessed_data_dir=None):
     """
-    Extracts the number of unique classes from the class label column in either a LAS or CSV file.
+    Extracts the number of unique classes from raw data (LAS, CSV, or NPY) or from preprocessed grid filenames.
 
     Args:
-    - file_path (str): Path to the input LAS or CSV file.
+    - file_path (str): Path to the input LAS, CSV, or NPY file.
+    - pre_process_data (bool): If True, extract classes from raw data; if False, extract classes from preprocessed files.
+    - preprocessed_data_dir (str, optional): Path to the preprocessed data directory (required if pre_process_data=False).
 
     Returns:
-    - int: The number of unique classes in the file.
+    - int: The number of unique classes.
     """
-    # Check file extension to handle different file types
-    if file_path.lower().endswith('.las'):
-        # Load LAS file
-        with laspy.read(file_path) as las_data:
-            # Convert LAS point data to a NumPy array, assuming the class labels are stored in the last column
-            data_array, _  = read_las_file_to_numpy(file_path)
-            class_labels = data_array[:, -1]  # Assuming the class label is in the last column
-        
-    elif file_path.lower().endswith('.csv'):
-        # Load CSV file
-        data = pd.read_csv(file_path)
-        # Assuming the class label is in the last column
-        class_labels = data.iloc[:, -1].values
 
-    elif file_path.lower().endswith('.npy'):
-        data = np.load(file_path)
-        class_labels = data[:, -1]
-        
-    else:
-        raise ValueError("Unsupported file format. Only .las,  .csv or .npy files are supported.")
+    if pre_process_data:
+        # Check file extension to handle different file types
+        if file_path.lower().endswith('.las'):
+            # Load LAS file
+            with laspy.read(file_path) as las_data:
+                # Convert LAS point data to a NumPy array, assuming the class labels are stored in the last column
+                data_array, _  = read_las_file_to_numpy(file_path)
+                class_labels = data_array[:, -1]  # Assuming the class label is in the last column
+            
+        elif file_path.lower().endswith('.csv'):
+            # Load CSV file
+            data = pd.read_csv(file_path)
+            # Assuming the class label is in the last column
+            class_labels = data.iloc[:, -1].values
 
-    # Extract the unique number of classes
-    num_classes = len(np.unique(class_labels))
+        elif file_path.lower().endswith('.npy'):
+            data = np.load(file_path)
+            class_labels = data[:, -1]
+            
+        else:
+            raise ValueError("Unsupported file format. Only .las,  .csv or .npy files are supported.")
+
+        # Extract the unique number of classes
+        num_classes = len(np.unique(class_labels))
+    else: 
+        # Helper function to extract the common identifier (e.g., 'grid_4998') from the filename
+        def get_common_identifier(filename):
+            return '_'.join(filename.split('_')[:2])  # Extracts 'grid_4998' from 'grid_4998_small_class_0.npy'
+
+        # Collect filenames and extract identifiers for each scale
+        small_files = {get_common_identifier(f): f for f in os.listdir(os.path.join(preprocessed_data_dir, 'small'))}
+        medium_files = {get_common_identifier(f): f for f in os.listdir(os.path.join(preprocessed_data_dir, 'medium'))}
+        large_files = {get_common_identifier(f): f for f in os.listdir(os.path.join(preprocessed_data_dir, 'large'))}
+
+        # Find common identifiers across all three scales
+        common_identifiers = set(small_files.keys()).intersection(medium_files.keys(), large_files.keys())
+
+        if not common_identifiers:
+            raise FileNotFoundError("No common grid files found across small, medium, and large scales.")
+
+        # Sort the common identifiers to ensure consistent ordering
+        common_identifiers = sorted(common_identifiers)
+
+        # Extract class labels from filenames in the 'small' directory using the common identifiers
+        class_labels = []
+        for identifier in common_identifiers:
+            file_name = f"grid_{identifier}_small_class_0.npy"  # Construct the filename format
+            class_label = int(file_name.split('_')[-1].split('.')[0].replace('class_', ''))
+            class_labels.append(class_label)
+        
+        num_classes = len(np.unique(class_labels))
+
+        print(f"Number of common grids: {len(common_identifiers)}")
     
     return num_classes
+
+def extract_num_channels(preprocessed_data_dir):
+    """
+    Extracts the number of channels from the preprocessed grid files.
+
+    Args:
+    - preprocessed_data_dir (str): Path to the preprocessed data directory.
+
+    Returns:
+    - int: The number of channels in the preprocessed grids.
+    """
+    # Assuming grids are stored in the 'small' directory (or any scale's directory)
+    grid_files = os.listdir(os.path.join(preprocessed_data_dir, 'small'))
+    
+    if not grid_files:
+        raise FileNotFoundError(f"No grid files found in the directory: {os.path.join(preprocessed_data_dir, 'small')}")
+
+    # Load one grid file to check its shape
+    sample_grid = np.load(os.path.join(preprocessed_data_dir, 'small', grid_files[0]))
+    
+    # The number of channels is the first dimension in the shape (assuming format: [channels, height, width])
+    num_channels = sample_grid.shape[0]
+    
+    return num_channels
 
 
 
