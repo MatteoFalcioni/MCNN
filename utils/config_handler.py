@@ -41,7 +41,7 @@ def parse_arguments():
                         help='Learning rate decay factor')
     parser.add_argument('--momentum', type=float, default=config.get('momentum', 0.9),
                         help='Momentum factor for the optimizer')
-    parser.add_argument('--models_save_dir', type=str, default=config.get('save_dir', 'models/saved/'),
+    parser.add_argument('--models_save_dir', type=str, default=config.get('models_save_dir', 'models/saved/'),
                         help='Directory to save trained models')
     parser.add_argument('--preprocess_data', action='store_true', default=config.get('preprocess_data', False),
                         help='If set, preprocess raw data for training; otherwise use existing pre-processed data.')
@@ -61,7 +61,8 @@ def parse_arguments():
                         help='List of window sizes for grid generation (e.g., "[(small, 2.5), (medium, 5.0), (large, 10.0)])"')
     parser.add_argument('--features_to_use', type=str, nargs='+', default=config.get('features_to_use'),
                     help='List of feature names to use for training (e.g., intensity R G B)')
-
+    parser.add_argument('--num_classes', type=int, default=config.get('num_classes'),
+                    help='number of classes. Needed only if raw data does not exist and we are using already generated feature imgs. Otherwise it will be automatically computed from raw data.')
 
     # Parsing arguments
     args = parser.parse_args()

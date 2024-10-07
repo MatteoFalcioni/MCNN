@@ -10,6 +10,7 @@ momentum: 0.9    # used in first article
 window_sizes: [('small', 2.5), ('medium', 5.0), ('large', 10.0)]  # window sizes to be used for grids
 
 features_to_use: ['intensity', 'R', 'G', 'B', 'nvi', 'ndwi']  # features to be used for training
+num_classes: 5  # number of classes. Needed only if raw data does not exist and we're using already generated feature imgs. Otherwise it will be automatically computed from raw data.
 
 # -- (!) -- note: features to use include only the additional features, meaning that x,y,z are always already included and not counted in the channels -------- 
 

@@ -6,7 +6,7 @@ from utils.train_data_utils import prepare_dataloader
 from scripts.train import train_epochs
 from scripts.inference import inference
 from utils.config_handler import parse_arguments
-from utils.point_cloud_data_utils import read_las_file_to_numpy, remap_labels
+from utils.point_cloud_data_utils import read_las_file_to_numpy, remap_labels, extract_num_classes
 import numpy as np
 
 
@@ -21,10 +21,14 @@ def main():
     # Extract user-selected features from the config
     features_to_use = args.features_to_use  # List of features chosen by the user
     num_channels = len(features_to_use)  # Determine the number of channels based on selected features
+    if args.pre_process_data:
+        num_classes = extract_num_classes(args.raw_data_filepath)   # determine the number of classes from the labeled raw data file
+    else:
+        num_classes = args.num_classes
 
     # Initialize model 
     print("Initializing MultiScaleCNN (MCNN) model...")
-    model = MultiScaleCNN(channels=num_channels, classes=5).to(device)  # Make sure to set classes correctly
+    model = MultiScaleCNN(channels=num_channels, classes=num_classes).to(device)  
 
     # Prepare DataLoader
     print("Preparing data loaders...")
@@ -33,7 +37,7 @@ def main():
         batch_size=args.batch_size,
         data_dir=args.raw_data_filepath,
         grid_save_dir='data/pre_processed_data/saved_grids',
-        pre_process_data=True,
+        pre_process_data=args.preprocess_data,
         window_sizes=[('small', 2.5), ('medium', 5.0), ('large', 10.0)],
         grid_resolution=128,
         channels=num_channels,
@@ -82,7 +86,7 @@ def main():
     load_model = args.load_model   # whether to load model for inference or train a new one
     model_path = args.load_model_filepath
     if load_model:
-        loaded_model = MultiScaleCNN(channels=num_channels, classes=5).to(device)
+        loaded_model = MultiScaleCNN(channels=num_channels, classes=num_classes).to(device)
         # Load the saved model state dictionary
         loaded_model.load_state_dict(torch.load(model_path, map_location=device))
         model = loaded_model
