@@ -69,11 +69,11 @@ def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw/labeled_
             for file_name in os.listdir(os.path.join(grid_save_dir, scale)):
                 grid = np.load(os.path.join(grid_save_dir, scale, file_name))
                 if scale == 'small':
-                    small_grids.append(torch.tensor(grid, dtype=torch.float32))
+                    small_grids.append(torch.tensor(grid, dtype=torch.float64))
                 elif scale == 'medium':
-                    medium_grids.append(torch.tensor(grid, dtype=torch.float32))
+                    medium_grids.append(torch.tensor(grid, dtype=torch.float64))
                 elif scale == 'large':
-                    large_grids.append(torch.tensor(grid, dtype=torch.float32))
+                    large_grids.append(torch.tensor(grid, dtype=torch.float64))
 
                 # Extract class label from filename (assuming format like grid_0_small_class_X.npy)
                 if scale == 'small':
@@ -88,14 +88,18 @@ def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw/labeled_
     # Create a TensorDataset with three grid sizes and labels
     dataset = TensorDataset(small_grids, medium_grids, large_grids, labels)
 
-    # Split the dataset into training and evaluation sets
-    train_size = int(train_split * len(dataset))
-    eval_size = len(dataset) - train_size
-    train_dataset, eval_dataset = random_split(dataset, [train_size, eval_size])
+    if train_split > 0.0: 
+        # Split the dataset into training and evaluation sets
+        train_size = int(train_split * len(dataset))
+        eval_size = len(dataset) - train_size
+        train_dataset, eval_dataset = random_split(dataset, [train_size, eval_size])
 
-    # Create DataLoaders for training and evaluation
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False)
+        # Create DataLoaders for training and evaluation
+        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+        eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False)
+    else: 
+        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+        eval_loader = None
 
     return train_loader, eval_loader
 
