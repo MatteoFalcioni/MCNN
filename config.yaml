@@ -24,6 +24,7 @@ save_model: false    # whether to save the model or to discard. Default is False
 preprocess_data: false   # whether to preprocess raw data, or to use existing pre-processed data (if False)
 raw_data_filepath: "data/raw/features_F.las"   # directory where raw data (to be eventually processed) is stored
 preprocessed_data_dir: "data/pre_processed_data/saved_grids"   # directory where pre-processed data for training is stored (or is to be stored, if generated).
+save_preprocessed_data: false # whether to save the preprocessed data to preprocessed_data_dir, or discard it after training on it
 load_model: false # whether to use an already trained model for inference or not
 load_model_filepath : "models/saved/mcnn_model_20240922_231624.pth" # file path to the model to load for inference
 

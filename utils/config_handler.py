@@ -51,6 +51,8 @@ def parse_arguments():
                         help='file path to where raw data (to be eventually processed) is stored.')
     parser.add_argument('--preprocessed_data_dir', type=str, default=config.get('preprocessed_data_dir', 'data/pre_processed_data/saved_grids'),
                         help='directory where pre-processed data for training is stored.')
+    parser.add_argument('--save_preprocessed_data', action='store_true', default=config.get('save_preprocessed_data', False),
+                        help='If set, saves the preprocessed data to preprocessed_data_dir')
     parser.add_argument('--load_model', action='store_true', default=config.get('load_model', False),
                         help='If set, loads model from load_model_filepath to perform inference')
     parser.add_argument('--load_model_filepath', type=str,

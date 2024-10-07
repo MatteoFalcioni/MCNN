@@ -44,7 +44,7 @@ def main():
         window_sizes=args.window_sizes,
         grid_resolution=128,
         features_to_use=features_to_use,
-        save_grids=True,
+        save_grids=False,
         train_split=0.8
     )
 
