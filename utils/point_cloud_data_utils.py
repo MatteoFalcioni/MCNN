@@ -267,5 +267,37 @@ def read_csv_file_to_numpy(file_path, features_to_extract):
     
     return combined_data, feature_names
 
+def extract_num_classes(file_path):
+    """
+    Extracts the number of unique classes from the class label column in either a LAS or CSV file.
+
+    Args:
+    - file_path (str): Path to the input LAS or CSV file.
+
+    Returns:
+    - int: The number of unique classes in the file.
+    """
+    # Check file extension to handle different file types
+    if file_path.lower().endswith('.las'):
+        # Load LAS file
+        with laspy.read(file_path) as las_data:
+            # Convert LAS point data to a NumPy array, assuming the class labels are stored in the last column
+            data_array, _  = read_las_file_to_numpy(file_path)
+            class_labels = data_array[:, -1]  # Assuming the class label is in the last column
+        
+    elif file_path.lower().endswith('.csv'):
+        # Load CSV file
+        data = pd.read_csv(file_path)
+        # Assuming the class label is in the last column
+        class_labels = data.iloc[:, -1].values
+        
+    else:
+        raise ValueError("Unsupported file format. Only .las and .csv files are supported.")
+
+    # Extract the unique number of classes
+    num_classes = len(np.unique(class_labels))
+    
+    return num_classes
+
 
 

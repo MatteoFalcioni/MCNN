@@ -65,7 +65,7 @@ def main():
         device,
         save=True,
         plot_dir='results/plots/',
-        save_dir="models/saved/"
+        model_save_dir="models/saved/"
     )
 
     print("Training finished")
@@ -82,7 +82,7 @@ def main():
     load_model = args.load_model   # whether to load model for inference or train a new one
     model_path = args.load_model_filepath
     if load_model:
-        loaded_model = MultiScaleCNN(channels=10, classes=5).to(device)
+        loaded_model = MultiScaleCNN(channels=num_channels, classes=5).to(device)
         # Load the saved model state dictionary
         loaded_model.load_state_dict(torch.load(model_path, map_location=device))
         model = loaded_model
@@ -110,6 +110,4 @@ if __name__ == "__main__":
     main()
 
 
-# Also, we might want to change the channels parameter to a list of features chosen by the user. that way we can
-# get channels from the lenght of features_to_train (for example) and avoid hard coding it everytime.
 
