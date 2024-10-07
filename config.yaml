@@ -7,9 +7,12 @@ learning_rate_decay_factor: 0.0005   # mentioned in first article
 learning_rate_decay_epochs: 1    # not mentioned, so assuming that lr decay is performed through each epoch
 momentum: 0.9    # used in first article
 
-window_sizes: [('small', 2.5), ('medium', 5.0), ('large', 10.0)]  # window sizes to be used for grids
+window_sizes:    # window sizes to be used for grids
+  - [small, 2.5]
+  - [medium, 5.0]
+  - [large, 10.0] 
 
-features_to_use: ['intensity', 'R', 'G', 'B', 'nvi', 'ndwi']  # features to be used for training
+features_to_use: ['intensity', 'R', 'G' , 'B' ,'nvi' ,'ndwi']  # features to be used for training
 num_classes: 5  # number of classes. Needed only if raw data does not exist and we're using already generated feature imgs. Otherwise it will be automatically computed from raw data.
 
 # -- (!) -- note: features to use include only the additional features, meaning that x,y,z are always already included and not counted in the channels -------- 

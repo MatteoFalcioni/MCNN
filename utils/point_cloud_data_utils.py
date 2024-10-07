@@ -196,16 +196,17 @@ def combine_and_save_csv_files(csv_files, save=False, save_dir='data/combined_da
     return combined_array
 
 
-def sample_data(input_file, sample_size, file_type='csv', save=False, save_dir='data/sampled_data'):
+def sample_data(input_file, sample_size, file_type='csv', save=False, save_dir='data/sampled_data', feature_names=None):
     """
-    Samples a subset of the data from a CSV or NumPy file.
+    Samples a subset of the data from a CSV, NumPy, or LAS file and saves it as a CSV with metadata.
 
     Args:
-    - input_file (str): Path to the input file (either a CSV or NumPy file).
+    - input_file (str): Path to the input file (either a CSV, NumPy file, or LAS file).
     - sample_size (int): The number of samples to extract.
-    - file_type (str): The type of the input file ('csv' or 'npy').
+    - file_type (str): The type of the input file ('csv', 'npy', or 'las').
     - save (bool): Whether to save the sampled data to a file. Default is False.
     - save_dir (str): Directory where the sampled data will be saved. Default is 'data/sampled_data'.
+    - feature_names (list): List of feature names for the data (required if input is NumPy).
 
     Returns:
     - np.ndarray: The sampled subset of the data.
@@ -215,28 +216,36 @@ def sample_data(input_file, sample_size, file_type='csv', save=False, save_dir='
         print("Reading data from CSV file...")
         data = []
         for file in tqdm(input_file, desc="Loading CSV files", unit="file"):
-            df = pd.read_csv(file).values
+            df = pd.read_csv(file)
             data.append(df)
-        data = np.vstack(data)
+        data = pd.concat(data)
+        feature_names = data.columns.tolist()  # Extract feature names from CSV
+        data_array = data.values  # Convert to NumPy array for sampling
     elif file_type == 'npy':
         print("Reading data from NumPy file...")
-        data = np.load(input_file)
+        data_array = np.load(input_file)
+        if feature_names is None:
+            raise ValueError("Feature names must be provided when using a NumPy file.")
+    elif file_type == 'las':
+        print("Reading data from LAS file...")
+        data_array, feature_names = read_las_file_to_numpy(input_file)
     else:
-        raise ValueError("Unsupported file type. Please specify 'csv' or 'npy'.")
+        raise ValueError("Unsupported file type. Please specify 'csv', 'npy', or 'las'.")
 
     # Check if sample_size is greater than the dataset size
-    if sample_size > data.shape[0]:
-        raise ValueError(f"Sample size {sample_size} is larger than the dataset size {data.shape[0]}.")
+    if sample_size > data_array.shape[0]:
+        raise ValueError(f"Sample size {sample_size} is larger than the dataset size {data_array.shape[0]}.")
 
     # Sample the data
     print(f"Sampling {sample_size} rows from the dataset...")
-    sampled_data = data[np.random.choice(data.shape[0], sample_size, replace=False)]
+    sampled_data = data_array[np.random.choice(data_array.shape[0], sample_size, replace=False)]
 
-    # Optionally save the sampled data
+    # Optionally save the sampled data as a CSV
     if save:
         os.makedirs(save_dir, exist_ok=True)
-        output_file_path = os.path.join(save_dir, f'sampled_data_{sample_size}.npy')
-        np.save(output_file_path, sampled_data)
+        output_file_path = os.path.join(save_dir, f'sampled_data_{sample_size}.csv')
+        df_sampled = pd.DataFrame(sampled_data, columns=feature_names)  # Convert to DataFrame with column names
+        df_sampled.to_csv(output_file_path, index=False)
         print(f"Sampled data saved to {output_file_path}")
 
     return sampled_data
@@ -290,9 +299,13 @@ def extract_num_classes(file_path):
         data = pd.read_csv(file_path)
         # Assuming the class label is in the last column
         class_labels = data.iloc[:, -1].values
+
+    elif file_path.lower().endswith('.npy'):
+        data = np.load(file_path)
+        class_labels = data[:, -1]
         
     else:
-        raise ValueError("Unsupported file format. Only .las and .csv files are supported.")
+        raise ValueError("Unsupported file format. Only .las,  .csv or .npy files are supported.")
 
     # Extract the unique number of classes
     num_classes = len(np.unique(class_labels))

@@ -2,13 +2,14 @@ import torch
 from torch.utils.data import DataLoader, TensorDataset, random_split
 import os
 import numpy as np
-from utils.point_cloud_data_utils import read_las_file_to_numpy
+from utils.point_cloud_data_utils import read_las_file_to_numpy, numpy_to_dataframe
 from scripts.point_cloud_to_image import generate_multiscale_grids
 from datetime import datetime
+import pandas as pd
 
 
 def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw/labeled_FSL.las', grid_save_dir='data/pre_processed_data',
-                       window_sizes=None, grid_resolution=None, channels=None, save_grids=True, train_split=0.8, features_to_use=None):
+                       window_sizes=None, grid_resolution=128, features_to_use=None, save_grids=True, train_split=0.8):
     """
         Prepares DataLoader objects for training and evaluation with three grid sizes (small, medium, large) and labels.
 
@@ -22,7 +23,7 @@ def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw/labeled_
         - grid_save_dir (str): Directory where the generated grids will be stored or loaded from. Default is 'data/pre_processed_data'.
         - window_sizes (list of tuples): List of window sizes for each scale (e.g., [('small', 2.5), ('medium', 5.0), ('large', 10.0)]).
         - grid_resolution (int): Resolution of the grid (e.g., 128x128). Required if generating grids.
-        - channels (int): Number of channels in the grids (e.g., 3). Required if generating grids.
+        - features_to_use (list): List of feature names to use for each grid.
         - save_grids (bool): Whether to save the generated grids to disk. Default is True.
         - train_split (float): Proportion of the data to be used for training (between 0 and 1). Default is 0.8 (80%).
 
@@ -41,26 +42,36 @@ def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw/labeled_
             f"No saved grids found in {grid_save_dir}. Please generate grids first or check the directory.")
 
     if pre_process_data:
-        if not window_sizes or not grid_resolution or not channels or not features_to_use:
-            raise ValueError("Window sizes, grid resolution, channels , and features_to_use must be provided when generating grids.")
+        if not window_sizes:
+            raise ValueError("Window sizes must be provided when generating grids.")
 
         # Check if the data is already in .npy format
         if data_dir.endswith('.npy'):
-            print("Loading pre-saved .npy data...")
-            data_array = np.load(data_dir)
-        else:
+            raise ValueError("Simple numpy files cannot be used for data preprocessing, feature names info is needed.")
+
+        elif data_dir.endswith('.las'):
             print("Generating new grids from raw LAS data...")
-            data_array = read_las_file_to_numpy(data_dir, features_to_extract=features_to_use)
+            # For LAS files, the function returns both the data array and the known features
+            data_array, known_features = read_las_file_to_numpy(data_dir, features_to_extract=features_to_use)
+        
+        elif data_dir.endswith('.csv'):
+            print("Generaing new grids from raw CSV data...")
+
+            # Read CSV into a DataFrame to extract column names
+            df = pd.read_csv(data_dir)
+            data_array = df.values
+            known_features = df.columns.tolist()  # Extract column names as features
 
         # label remapping is in the following function
-        grids_dict = generate_multiscale_grids(data_array, window_sizes, grid_resolution, features_to_use, grid_save_dir,
-                                               save=save_grids)
+        grids_dict = generate_multiscale_grids(data_array, window_sizes, grid_resolution, features_to_use, known_features, grid_save_dir,
+                                            save=save_grids)
 
         # Extract grids for each scale and class labels from grids_dict
         small_grids = torch.stack(grids_dict['small']['grids'])
         medium_grids = torch.stack(grids_dict['medium']['grids'])
         large_grids = torch.stack(grids_dict['large']['grids'])
         labels = torch.tensor(grids_dict['small']['class_labels'], dtype=torch.long)
+
 
     else:
         # Load saved grids from the directory

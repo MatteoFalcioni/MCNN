@@ -20,8 +20,9 @@ def main():
 
     # Extract user-selected features from the config
     features_to_use = args.features_to_use  # List of features chosen by the user
+    print(f'features to use {features_to_use}')
     num_channels = len(features_to_use)  # Determine the number of channels based on selected features
-    if args.pre_process_data:
+    if args.preprocess_data:
         num_classes = extract_num_classes(args.raw_data_filepath)   # determine the number of classes from the labeled raw data file
     else:
         num_classes = args.num_classes
@@ -33,14 +34,16 @@ def main():
     # Prepare DataLoader
     print("Preparing data loaders...")
 
+    print(f'window sizes: {args.window_sizes}')
+
     train_loader, val_loader = prepare_dataloader(
         batch_size=args.batch_size,
         data_dir=args.raw_data_filepath,
-        grid_save_dir='data/pre_processed_data/saved_grids',
+        grid_save_dir=args.preprocessed_data_dir,
         pre_process_data=args.preprocess_data,
-        window_sizes=[('small', 2.5), ('medium', 5.0), ('large', 10.0)],
+        window_sizes=args.window_sizes,
         grid_resolution=128,
-        channels=num_channels,
+        features_to_use=features_to_use,
         save_grids=True,
         train_split=0.8
     )
