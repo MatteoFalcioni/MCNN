@@ -1,4 +1,4 @@
-from scipy.spatial import KDTree
+from scipy.spatial import cKDTree
 from utils.point_cloud_data_utils import remap_labels
 import numpy as np
 import os
@@ -33,7 +33,7 @@ def compute_point_cloud_bounds(data_array, padding=0.0):
     return bounds_dict
 
 
-def create_feature_grid(center_point, window_size, grid_resolution=128.0, channels=3):
+def create_feature_grid(center_point, window_size, grid_resolution=128, channels=3):
     """
     Creates a grid around the center point and initializes cells to store feature values.
     Args:
@@ -87,15 +87,15 @@ def assign_features_to_grid(tree, data_array, grid, x_coords, y_coords, constant
     - grid (numpy.ndarray): The grid populated with the nearest point's feature values.
     """
 
-    for i in range(len(x_coords)):
-        for j in range(len(y_coords)):
+    # Generate grid coordinates for all cells in bulk
+    grid_x, grid_y = np.meshgrid(x_coords, y_coords, indexing='ij')
+    grid_coords = np.stack((grid_x.flatten(), grid_y.flatten(), np.full(grid_x.size, constant_z)), axis=-1)
 
-            # Find the nearest point to the cell center (x_coords[i], y_coords[j], constant_z)
-            dist, idx = tree.query([x_coords[i], y_coords[j], constant_z])
+    # Query the KDTree in bulk using all grid coordinates
+    _, indices = tree.query(grid_coords)
 
-            # Assign the features of the nearest point to the grid cell
-            grid[i, j, :] = data_array[idx, feature_indices]
-    
+    # Assign features using the bulk indices
+    grid[:, :, :] = data_array[indices, :][:, feature_indices].reshape(grid.shape)
 
     return grid
 
@@ -144,7 +144,7 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, feature
     feature_indices = [known_features.index(feature) for feature in features_to_use]
 
     # Create KDTree once for the entire dataset with x, y, z coordinates
-    tree = KDTree(data_array[:, :3])  # Use x, y, and z coordinates for 3D KDTree
+    tree = cKDTree(data_array[:, :3])  # Use x, y, and z coordinates for 3D KDTree
 
     for i in tqdm(range(num_points), desc="Generating grids", unit="grid"):
         # Select the current point as the center point for the grid
