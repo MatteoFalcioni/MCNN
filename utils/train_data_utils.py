@@ -22,49 +22,57 @@ def initialize_weights(model):
 
 
 class GridDataset(Dataset):
-    def __init__(self, grids_dict, labels):
+    def __init__(self, grids_dict, label_dir, scale_label):
         """
-        Initializes the dataset by storing the file paths to the grids and their corresponding labels.
+        Initializes the dataset by storing the file paths to the grids and loading the labels from the corresponding CSV file.
 
         Args:
-        - grids_dict (dict): Dictionary containing file paths to the grids ('small', 'medium', 'large').
-        - labels (list): List of labels for each grid.
+        - grids_dict (dict): Dictionary containing file paths to the grids.
+        - label_dir (str): Directory where the labels CSV file is stored.
+        - scale_label (str): The scale label ('small', 'medium', 'large').
         """
         self.grids_dict = grids_dict
-        self.labels = labels
+        self.labels = self.load_labels(label_dir, scale_label)
+
+    def load_labels(self, label_dir, scale_label):
+        """
+        Loads labels from the CSV file.
+
+        Args:
+        - label_dir (str): Directory where the labels CSV is stored.
+        - scale_label (str): The scale label ('small', 'medium', 'large').
+
+        Returns:
+        - list: List of labels corresponding to the grid files.
+        """
+        label_file = os.path.join(label_dir, f"{scale_label}_labels.csv")
+        df = pd.read_csv(label_file)
+        return df['label'].tolist()
 
     def __len__(self):
         return len(self.labels)
 
     def __getitem__(self, idx):
         """
-        Lazily loads and returns the grids and corresponding label for a given index.
+        Retrieves a grid and its corresponding label based on the index.
 
         Args:
-        - idx (int): Index of the sample to retrieve.
+        - idx (int): The index of the data point to retrieve.
 
         Returns:
-        - small_grid (torch.Tensor): Loaded small scale grid.
-        - medium_grid (torch.Tensor): Loaded medium scale grid.
-        - large_grid (torch.Tensor): Loaded large scale grid.
-        - label (int): Corresponding label.
+        - small_grid, medium_grid, large_grid (torch.Tensor): Grids loaded lazily from .npy files.
+        - label (torch.Tensor): Corresponding label for the grid.
         """
-        # Lazily load the grids from the saved paths
-        small_grid_path = self.grids_dict['small'][idx]
-        medium_grid_path = self.grids_dict['medium'][idx]
-        large_grid_path = self.grids_dict['large'][idx]
+        # Load grids lazily using the file paths stored in grids_dict
+        small_grid_path = self.grids_dict['small']['grid_paths'][idx]
+        medium_grid_path = self.grids_dict['medium']['grid_paths'][idx]
+        large_grid_path = self.grids_dict['large']['grid_paths'][idx]
 
-        # Load the grids from disk
-        small_grid = np.load(small_grid_path)
-        medium_grid = np.load(medium_grid_path)
-        large_grid = np.load(large_grid_path)
+        small_grid = torch.tensor(np.load(small_grid_path), dtype=torch.float32)
+        medium_grid = torch.tensor(np.load(medium_grid_path), dtype=torch.float32)
+        large_grid = torch.tensor(np.load(large_grid_path), dtype=torch.float32)
 
-        # Convert to PyTorch tensors
-        small_grid = torch.tensor(small_grid, dtype=torch.float32)
-        medium_grid = torch.tensor(medium_grid, dtype=torch.float32)
-        large_grid = torch.tensor(large_grid, dtype=torch.float32)
-
-        # Load the label
+        # Get the corresponding label
         label = torch.tensor(self.labels[idx], dtype=torch.long)
 
         return small_grid, medium_grid, large_grid, label
@@ -158,21 +166,20 @@ def save_model(model, save_dir='models/saved'):
 
 def load_saved_grids(grid_save_dir):
     """
-    Loads saved grid file paths and corresponding labels based on common identifiers across 'small', 'medium', and 'large' scales.
+    Loads saved grid file paths and corresponding labels from CSV files based on common identifiers across 'small', 'medium', and 'large' scales.
 
     Args:
     - grid_save_dir (str): Directory where the grids are saved.
-    
+
     Returns:
     - grids_dict (dict): Dictionary containing the file paths for each grid.
-    - labels (list): List of labels corresponding to the grids.
+    - labels (list): List of labels corresponding to the grids (loaded from CSV).
     """
     grids_dict = {'small': [], 'medium': [], 'large': []}
-    labels = []  # Initialize labels list
 
     # Helper function to extract the common identifier (e.g., 'grid_4998') from the filename
     def get_common_identifier(filename):
-        return '_'.join(filename.split('_')[:2])  # Extracts 'grid_4998' from 'grid_4998_small_class_0.npy'
+        return '_'.join(filename.split('_')[:2])  # Extracts 'grid_4998' from 'grid_4998_small.npy'
 
     # Collect filenames and extract identifiers for each scale
     small_files = {get_common_identifier(f): f for f in os.listdir(os.path.join(grid_save_dir, 'small'))}
@@ -188,7 +195,7 @@ def load_saved_grids(grid_save_dir):
     # Sort the common identifiers to ensure consistent ordering
     common_identifiers = sorted(common_identifiers)
 
-    # Store file paths for each scale
+    # Load grid paths for each scale based on common identifiers
     for identifier in common_identifiers:
         try:
             small_path = os.path.join(grid_save_dir, 'small', small_files[identifier])
@@ -199,13 +206,14 @@ def load_saved_grids(grid_save_dir):
             grids_dict['medium'].append(medium_path)
             grids_dict['large'].append(large_path)
 
-            # Extract the label from the filename (assuming it's the same across scales)
-            label = int(small_files[identifier].split('_')[-1].split('.')[0].replace('class_', ''))
-            labels.append(label)
-
         except Exception as e:
             print(f"Error loading files for identifier {identifier}: {e}")
             continue
+
+    # Load the labels from CSV files (assuming a CSV for each scale exists)
+    labels_file = os.path.join(grid_save_dir, 'small_labels.csv')  # Load labels from the small scale
+    labels_df = pd.read_csv(labels_file)
+    labels = labels_df['label'].tolist()  # Assuming 'label' is the column name in the CSV
 
     print(f"Number of common grids: {len(common_identifiers)}")
     return grids_dict, labels
