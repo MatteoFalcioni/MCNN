@@ -87,20 +87,16 @@ def assign_features_to_grid(tree, data_array, grid, x_coords, y_coords, constant
     Returns:
     - grid (numpy.ndarray): The grid populated with the nearest point's feature values.
     """
-    
+
     # Generate grid coordinates for all cells in bulk
     grid_x, grid_y = np.meshgrid(x_coords, y_coords, indexing='ij')
     grid_coords = np.stack((grid_x.flatten(), grid_y.flatten(), np.full(grid_x.size, constant_z)), axis=-1)
 
     # Query the KDTree in bulk using all grid coordinates
-    distances, indices = tree.query(grid_coords)
+    _, indices = tree.query(grid_coords)
 
-    # Check for valid indices or distances
-    valid_mask = ~np.isinf(distances) & (indices >= 0) & (indices < len(data_array))
-
-    # Assign features to valid cells
-    valid_indices = np.where(valid_mask)[0]
-    grid.flat[valid_indices] = data_array[indices[valid_indices], :][:, feature_indices].flatten()
+    # Assign features using the bulk indices
+    grid[:, :, :] = data_array[indices, :][:, feature_indices].reshape(grid.shape)
 
     return grid
 
