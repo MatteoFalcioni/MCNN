@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import os
 from tqdm import tqdm
+import csv
 
 
 def load_las_data(file_path):
@@ -394,18 +395,16 @@ def save_features_used(features_to_use, save_dir):
         writer.writerow(features_to_use)
     print(f"Features saved: {features_to_use}")
 
-import os
-
 
 def load_features_used(features_file_path):
     """
-    Loads the features used for grid generation from a saved file.
+    Loads the features used for grid generation from a saved CSV file.
 
     Args:
-    - features_file_path (str): Path to the file containing the saved features.
+    - features_file_path (str): Path to the CSV file containing the saved features.
 
     Returns:
-    - features_list (list): List of features loaded from the file.
+    - features_list (list): List of features loaded from the CSV file.
 
     Raises:
     - FileNotFoundError: If the features file is not found.
@@ -415,18 +414,72 @@ def load_features_used(features_file_path):
     # Check if the file exists
     if not os.path.exists(features_file_path):
         raise FileNotFoundError(f"Features file not found at {features_file_path}")
-    
-    # Load the features from the file
+
+    # Load the features from the CSV file
     try:
         with open(features_file_path, 'r') as f:
-            features_list = [line.strip() for line in f.readlines()]
-        
+            reader = csv.reader(f)
+            features_list = next(reader)  # Assuming the first row contains the feature names
+
         if not features_list:
             raise ValueError(f"The features file at {features_file_path} is empty or invalid.")
-        
+
         return features_list
 
     except Exception as e:
         raise ValueError(f"Error loading features from {features_file_path}: {e}")
 
 
+def load_saved_grids(grid_save_dir):
+    """
+    Loads saved grid file paths and corresponding labels from CSV files based on common identifiers across 'small', 'medium', and 'large' scales.
+
+    Args:
+    - grid_save_dir (str): Directory where the grids are saved.
+
+    Returns:
+    - grids_dict (dict): Dictionary containing the file paths for each grid.
+    - labels (list): List of labels corresponding to the grids (loaded from CSV).
+    """
+    grids_dict = {'small': [], 'medium': [], 'large': []}
+
+    # Helper function to extract the common identifier (e.g., 'grid_4998') from the filename
+    def get_common_identifier(filename):
+        return '_'.join(filename.split('_')[:2])  # Extracts 'grid_4998' from 'grid_4998_small.npy'
+
+    # Collect filenames and extract identifiers for each scale
+    small_files = {get_common_identifier(f): f for f in os.listdir(os.path.join(grid_save_dir, 'small'))}
+    medium_files = {get_common_identifier(f): f for f in os.listdir(os.path.join(grid_save_dir, 'medium'))}
+    large_files = {get_common_identifier(f): f for f in os.listdir(os.path.join(grid_save_dir, 'large'))}
+
+    # Find common identifiers across all three scales
+    common_identifiers = set(small_files.keys()).intersection(medium_files.keys(), large_files.keys())
+
+    if not common_identifiers:
+        raise FileNotFoundError("No common grid files found across small, medium, and large scales.")
+
+    # Sort the common identifiers to ensure consistent ordering
+    common_identifiers = sorted(common_identifiers)
+
+    # Load grid paths for each scale based on common identifiers
+    for identifier in common_identifiers:
+        try:
+            small_path = os.path.join(grid_save_dir, 'small', small_files[identifier])
+            medium_path = os.path.join(grid_save_dir, 'medium', medium_files[identifier])
+            large_path = os.path.join(grid_save_dir, 'large', large_files[identifier])
+
+            grids_dict['small'].append(small_path)
+            grids_dict['medium'].append(medium_path)
+            grids_dict['large'].append(large_path)
+
+        except Exception as e:
+            print(f"Error loading files for identifier {identifier}: {e}")
+            continue
+
+    # Load the labels from CSV files (assuming a CSV for each scale exists)
+    labels_file = os.path.join(grid_save_dir, 'small_labels.csv')  # Load labels from the small scale
+    labels_df = pd.read_csv(labels_file)
+    labels = labels_df['label'].tolist()  # Assuming 'label' is the column name in the CSV
+
+    print(f"Number of common grids: {len(common_identifiers)}")
+    return grids_dict, labels

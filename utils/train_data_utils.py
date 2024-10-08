@@ -2,7 +2,7 @@ import torch
 from torch.utils.data import Dataset, DataLoader, random_split, TensorDataset
 import os
 import numpy as np
-from utils.point_cloud_data_utils import read_las_file_to_numpy
+from utils.point_cloud_data_utils import read_las_file_to_numpy, load_features_used, load_saved_grids
 from scripts.point_cloud_to_image import generate_multiscale_grids
 from datetime import datetime
 import pandas as pd
@@ -79,7 +79,7 @@ class GridDataset(Dataset):
 
 
 def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw/labeled_FSL.las', grid_save_dir='data/pre_processed_data',
-                       window_sizes=None, grid_resolution=128, features_to_use=None, train_split=0.8):
+                       window_sizes=None, grid_resolution=128, features_to_use=None, train_split=0.8, features_file_path=None):
     """
     Prepares the DataLoader by either preprocessing the data and saving the grids to disk or by loading saved grids.
     Args:
@@ -91,6 +91,7 @@ def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw/labeled_
     - grid_resolution (int): Resolution of the grid (e.g., 128x128).
     - features_to_use (list): List of feature names to use for grid generation.
     - train_split (float): Ratio of the data to use for training (e.g., 0.8 for 80% training data).
+    - features_file_path: filepath to feature used in .npy data. Only needed if using raw data in .npy format for pre-processing.
 
     Returns:
     - train_loader (DataLoader): DataLoader for training.
@@ -102,11 +103,20 @@ def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw/labeled_
         if not window_sizes:
             raise ValueError("Window sizes must be provided when generating grids.")
 
-        if data_dir.endswith('.npy'):
-            raise ValueError("Simple numpy files cannot be used for data preprocessing, feature names info is needed.")
+        if data_dir.endswith('.npy'):   # enabled saving of raw data to .npy format (i.e., using directly data_array as raw data)
+            print("Generating new grids from numpy data...")
+            data_array = np.load(data_dir)
+            
+            try:
+                known_features = load_features_used(features_file_path)
+                print(f"Features loaded from {features_file_path}: {known_features}")
+            except Exception as e:
+                raise ValueError(f"Unable to load features from {features_file_path}: {e}")
+            
         elif data_dir.endswith('.las'):
             print("Generating new grids from raw LAS data...")
             data_array, known_features = read_las_file_to_numpy(data_dir, features_to_extract=features_to_use)
+
         elif data_dir.endswith('.csv'):
             print("Generating new grids from raw CSV data...")
             df = pd.read_csv(data_dir)
@@ -164,59 +174,7 @@ def save_model(model, save_dir='models/saved'):
     print(f'Model saved to {model_save_path}')
 
 
-def load_saved_grids(grid_save_dir):
-    """
-    Loads saved grid file paths and corresponding labels from CSV files based on common identifiers across 'small', 'medium', and 'large' scales.
 
-    Args:
-    - grid_save_dir (str): Directory where the grids are saved.
-
-    Returns:
-    - grids_dict (dict): Dictionary containing the file paths for each grid.
-    - labels (list): List of labels corresponding to the grids (loaded from CSV).
-    """
-    grids_dict = {'small': [], 'medium': [], 'large': []}
-
-    # Helper function to extract the common identifier (e.g., 'grid_4998') from the filename
-    def get_common_identifier(filename):
-        return '_'.join(filename.split('_')[:2])  # Extracts 'grid_4998' from 'grid_4998_small.npy'
-
-    # Collect filenames and extract identifiers for each scale
-    small_files = {get_common_identifier(f): f for f in os.listdir(os.path.join(grid_save_dir, 'small'))}
-    medium_files = {get_common_identifier(f): f for f in os.listdir(os.path.join(grid_save_dir, 'medium'))}
-    large_files = {get_common_identifier(f): f for f in os.listdir(os.path.join(grid_save_dir, 'large'))}
-
-    # Find common identifiers across all three scales
-    common_identifiers = set(small_files.keys()).intersection(medium_files.keys(), large_files.keys())
-
-    if not common_identifiers:
-        raise FileNotFoundError("No common grid files found across small, medium, and large scales.")
-
-    # Sort the common identifiers to ensure consistent ordering
-    common_identifiers = sorted(common_identifiers)
-
-    # Load grid paths for each scale based on common identifiers
-    for identifier in common_identifiers:
-        try:
-            small_path = os.path.join(grid_save_dir, 'small', small_files[identifier])
-            medium_path = os.path.join(grid_save_dir, 'medium', medium_files[identifier])
-            large_path = os.path.join(grid_save_dir, 'large', large_files[identifier])
-
-            grids_dict['small'].append(small_path)
-            grids_dict['medium'].append(medium_path)
-            grids_dict['large'].append(large_path)
-
-        except Exception as e:
-            print(f"Error loading files for identifier {identifier}: {e}")
-            continue
-
-    # Load the labels from CSV files (assuming a CSV for each scale exists)
-    labels_file = os.path.join(grid_save_dir, 'small_labels.csv')  # Load labels from the small scale
-    labels_df = pd.read_csv(labels_file)
-    labels = labels_df['label'].tolist()  # Assuming 'label' is the column name in the CSV
-
-    print(f"Number of common grids: {len(common_identifiers)}")
-    return grids_dict, labels
 
 
 
