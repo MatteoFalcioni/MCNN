@@ -112,7 +112,7 @@ class TestPointCloudToImage(unittest.TestCase):
         # Transpose the grid to match PyTorch's 'channels x height x width' format for visualization
         grid_with_features = np.transpose(grid_with_features, (2, 0, 1))
 
-        """# Visualize and eventually save feature images (if save = True)
+        # Visualize and eventually save feature images (if save = True)
         for chan in range(0, self.channels):
             # Create a filename for saving the image
             feature_name = self.feature_names[3 + chan] if len(self.feature_names) > 3 + chan else f"Channel_{chan}"
@@ -125,7 +125,7 @@ class TestPointCloudToImage(unittest.TestCase):
         # visualize and eventually save feature image compared with point cloud
         chosen_chan = 3  # channel to visualize on feature image (8=nir)
         visualize_grid_with_comparison(grid_with_features, self.df, center_point, window_size=self.window_size, feature_names=self.feature_names,
-                                       channel=chosen_chan, visual_size=50, save=self.save_imgs_bool, file_path=file_path)"""
+                                       channel=chosen_chan, visual_size=50, save=self.save_imgs_bool, file_path=file_path)
 
     def test_kd_tree(self):
         """

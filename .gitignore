@@ -2,6 +2,10 @@ data/raw/features_F.las
 data/raw/labeled_FSL.las
 tests/test_grids/
 /data/
+data/
+data
+data/raw/
+data/preprocessed_data/
 __pycache__/debug_grid_assignment.cpython-310.pyc
 __pycache__/debug_grid_real.cpython-310.pyc
 scripts/__pycache__/optimized_pc_to_img.cpython-310.pyc
