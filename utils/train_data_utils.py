@@ -114,7 +114,7 @@ def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw/labeled_
             known_features = df.columns.tolist()
 
         # Generate and save the grids
-        grids_dict = generate_multiscale_grids(data_array, window_sizes, grid_resolution, features_to_use, known_features, grid_save_dir, save=True)
+        generate_multiscale_grids(data_array, window_sizes, grid_resolution, features_to_use, known_features, grid_save_dir)
 
     # Load saved grids based on the saved file paths
     print("Loading saved grids...")

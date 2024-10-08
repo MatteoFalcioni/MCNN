@@ -370,10 +370,63 @@ def extract_num_channels(preprocessed_data_dir):
     
     return num_channels
 
-"""def clean_point_cloud_data(data_array):
+
+def clean_point_cloud_data(data_array):
     # Remove rows where any element is NaN or Inf
     valid_mask = ~np.isnan(data_array).any(axis=1) & ~np.isinf(data_array).any(axis=1)
-    return data_array[valid_mask]"""
+    return data_array[valid_mask]
 
+
+def save_features_used(features_to_use, save_dir):
+    """
+    Saves the features used during grid generation to a CSV file.
+
+    Args:
+    - features_to_use (list): List of features used in grid generation.
+    - save_dir (str): Directory where the grids are saved.
+
+    Returns:
+    - None
+    """
+    feature_file = os.path.join(save_dir, 'features_used.csv')
+    with open(feature_file, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(features_to_use)
+    print(f"Features saved: {features_to_use}")
+
+import os
+
+
+def load_features_used(features_file_path):
+    """
+    Loads the features used for grid generation from a saved file.
+
+    Args:
+    - features_file_path (str): Path to the file containing the saved features.
+
+    Returns:
+    - features_list (list): List of features loaded from the file.
+
+    Raises:
+    - FileNotFoundError: If the features file is not found.
+    - ValueError: If the file is empty or not in the expected format.
+    """
+
+    # Check if the file exists
+    if not os.path.exists(features_file_path):
+        raise FileNotFoundError(f"Features file not found at {features_file_path}")
+    
+    # Load the features from the file
+    try:
+        with open(features_file_path, 'r') as f:
+            features_list = [line.strip() for line in f.readlines()]
+        
+        if not features_list:
+            raise ValueError(f"The features file at {features_file_path} is empty or invalid.")
+        
+        return features_list
+
+    except Exception as e:
+        raise ValueError(f"Error loading features from {features_file_path}: {e}")
 
 

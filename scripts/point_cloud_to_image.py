@@ -1,5 +1,5 @@
 from scipy.spatial import cKDTree
-from utils.point_cloud_data_utils import remap_labels
+from utils.point_cloud_data_utils import remap_labels, save_features_used
 import numpy as np
 import os
 from tqdm import tqdm
@@ -115,17 +115,15 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, feature
     - grid_resolution (int): The resolution of the grid (e.g., 128 for 128x128 grids).
     - features_to_use (list): A list of feature names (strings) to use for each grid (e.g., ['intensity', 'R', 'G', 'B']).
     - known_features (list): A list of all possible feature names in the order they appear in `data_array`. Used to extract the indices of the features to use.
-    - save_dir (str): The directory where the generated grids and labels will be saved. Default is None (grids won't be saved if not specified).
+    - save_dir (str): The directory where the generated grids, labels and used features will be saved. Default is None. 
 
     Returns:
-    - labeled_grids_dict (dict): A dictionary with scale labels as keys. For each scale, it contains:
-        - 'grid_paths' (list): List of file paths to the saved grids in .npy format.
+    - None, just saves the grids and labels to files.
 
     Behavior:
     - For each point in the data array, multiscale grids are generated using the provided window sizes and features.
     - The grids are saved to disk in .npy format, without class labels embedded in the filenames.
     - Class labels are saved separately in a CSV file for each scale (e.g., small_labels.csv, medium_labels.csv, large_labels.csv).
-    - The function returns metadata containing the paths to the saved grids, which can be used for lazy loading during training.
 
     Example:
     If the function is called with window sizes [('small', 2.5), ('medium', 5.0), ('large', 10.0)], and save_dir is set to 'data/preprocessed/', the output directory will look like this:
@@ -153,21 +151,25 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, feature
 
     if save_dir is not None:
         os.makedirs(save_dir, exist_ok=True)
+    else:
+        raise ValueError('Error: no specified directory to save grids.')
 
     # Remap labels to continuous integers (needed for cross-entropy loss)
     data_array, _ = remap_labels(data_array)
 
     num_points = len(data_array)
-    labeled_grids_dict = {scale_label: {'grid_paths': []} for scale_label, _ in window_sizes}
 
     point_cloud_bounds = compute_point_cloud_bounds(data_array)
-    feature_indices = [known_features.index(feature) for feature in features_to_use]
+    feature_indices = [known_features.index(feature) for feature in features_to_use]    # get feature indices (not order-dependant)
+    save_features_used(features_to_use, save_dir)   # save used feature for inference or successive loading of files
 
     tree = cKDTree(data_array[:, :3])
 
     for size_label, window_size in window_sizes:
+
         # Open the CSV file once per scale to save labels
         label_file_path = os.path.join(save_dir, f"{size_label}_labels.csv")
+
         with open(label_file_path, mode='w', newline='') as label_file:
             label_writer = csv.writer(label_file)
             label_writer.writerow(['point_idx', 'label'])  # Write header
@@ -192,7 +194,7 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, feature
 
     print('Multiscale grid generation and label saving completed successfully.')
 
-    return labeled_grids_dict
+    return 
 
 
 def save_grid_if_valid(grid, label, point_idx, scale_label, save_dir, label_writer=None):
@@ -225,4 +227,5 @@ def save_grid_if_valid(grid, label, point_idx, scale_label, save_dir, label_writ
         label_writer.writerow([point_idx, label])
 
     return True
+
 
