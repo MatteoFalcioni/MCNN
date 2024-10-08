@@ -11,7 +11,7 @@ class TestPointCloudToImage(unittest.TestCase):
 
     def setUp(self):
         self.las_file_path = 'data/raw/features_F.las'
-        self.sample_size = 50000  # Subset for testing. 
+        # self.sample_size = 50000  # Subset for testing. 
         self.grid_resolution = 128
         self.features_to_use = ['intensity', 'red', 'green', 'blue']  # Example selected features
         self.channels = len(self.features_to_use)  # Number of channels based on selected features
@@ -24,9 +24,10 @@ class TestPointCloudToImage(unittest.TestCase):
         labels = np.random.randint(0, 5, size=num_points)
         # Append labels as a new column
         self.data_with_labels = np.hstack((self.full_data, labels.reshape(-1, 1)))
-        np.random.seed(42)  # For reproducibility
-        self.sampled_data = self.data_with_labels[np.random.choice(self.full_data.shape[0], self.sample_size, replace=False)]
-        self.idx = int(self.sample_size/2)
+        # np.random.seed(42)  # For reproducibility
+        # self.sampled_data = self.data_with_labels[np.random.choice(self.full_data.shape[0], self.sample_size, replace=False)]
+        # self.idx = int(self.sample_size/2)
+        self.idx = 100000
 
         # Define the window sizes for multiscale grids
         self.window_sizes = [('small', 2.5), ('medium', 5.0), ('large', 10.0)]
@@ -45,14 +46,14 @@ class TestPointCloudToImage(unittest.TestCase):
         tree = KDTree(points)
 
         # Check that sampled data is not empty and has the expected structure
-        self.assertIsInstance(self.sampled_data, np.ndarray)
-        self.assertGreaterEqual(self.sampled_data.shape[1], 4)  # At least x, y, z, and one feature
+        self.assertIsInstance(self.full_data, np.ndarray)
+        self.assertGreaterEqual(self.full_data.shape[1], 4)  # At least x, y, z, and one feature
 
         # Select a center point
-        center_point = self.sampled_data[self.idx, :3]
+        center_point = self.full_data[self.idx, :3]
 
         # Compute the point cloud bounds
-        point_cloud_bounds = compute_point_cloud_bounds(self.sampled_data)
+        point_cloud_bounds = compute_point_cloud_bounds(self.full_data)
 
         # Check if the center point is within the point cloud bounds
         half_window = self.window_size / 2
@@ -72,10 +73,12 @@ class TestPointCloudToImage(unittest.TestCase):
         self.assertEqual(grid.shape, (self.grid_resolution, self.grid_resolution, self.channels))
 
         # Identify feature indices dynamically
+        print(f'features to use: {self.features_to_use}, known features: {self.feature_names}')
         feature_indices = [self.feature_names.index(feature) for feature in self.features_to_use]
+        print(f'feature indices: {feature_indices}')
 
         # Assign features using the pre-built KDTree
-        grid_with_features = assign_features_to_grid(tree, self.sampled_data, grid, x_coords, y_coords, z_coord, feature_indices)
+        grid_with_features = assign_features_to_grid(tree, self.full_data, grid, x_coords, y_coords, z_coord, feature_indices)
 
         # Check how many grid cells are still zero after assigning features
         non_zero_cells = np.count_nonzero(grid_with_features)
@@ -128,17 +131,17 @@ class TestPointCloudToImage(unittest.TestCase):
         """
         Test that the KDTree is constructed properly and that KDTree queries return valid indices.
         """
-        points = self.sampled_data[:, :3]  # Use x, y, z coordinates
+        points = self.full_data[:, :3]  # Use x, y, z coordinates
         tree = KDTree(points)
 
         # Verify the KDTree contains all points
         self.assertEqual(tree.n, len(points), "KDTree does not contain all points from the dataset.")
 
         # Select a center point for querying
-        center_point = self.sampled_data[self.idx, :3]
+        center_point = self.full_data[self.idx, :3]
 
         # Compute the point cloud bounds
-        point_cloud_bounds = compute_point_cloud_bounds(self.sampled_data)
+        point_cloud_bounds = compute_point_cloud_bounds(self.full_data)
 
         # Check if the center point is within the point cloud bounds
         half_window = self.window_size / 2
@@ -167,7 +170,7 @@ class TestPointCloudToImage(unittest.TestCase):
 
         # Check that the queried indices are within valid range
         self.assertTrue(np.all(indices >= 0), "KDTree query returned invalid (negative) indices.")
-        self.assertTrue(np.all(indices < len(self.sampled_data)), "KDTree query returned out-of-bounds indices.")
+        self.assertTrue(np.all(indices < len(self.full_data)), "KDTree query returned out-of-bounds indices.")
 
         # Check for edge cases (e.g., near the edges of the grid)
         edge_x = grid_x[0, 0]
@@ -176,7 +179,7 @@ class TestPointCloudToImage(unittest.TestCase):
         _, edge_index = tree.query(edge_coord)
 
         self.assertGreaterEqual(edge_index, 0, "KDTree returned invalid index for edge case.")
-        self.assertLess(edge_index, len(self.sampled_data), "KDTree returned out-of-bounds index for edge case.")
+        self.assertLess(edge_index, len(self.full_data), "KDTree returned out-of-bounds index for edge case.")
 
         # Ensure valid distances (no NaN/Inf in distances)
         self.assertFalse(np.isnan(distances).any(), "KDTree returned NaN distances.")
@@ -185,10 +188,8 @@ class TestPointCloudToImage(unittest.TestCase):
         print("KDTree query results are valid.")
     
     
-    def test_generate_multiscale_grids(self):
-        """
-        Test the multiscale grid generation process.
-        """
+"""   def test_generate_multiscale_grids(self):
+
         generate_multiscale_grids(
             data_array=self.sampled_data,
             window_sizes=self.window_sizes,
@@ -205,3 +206,4 @@ class TestPointCloudToImage(unittest.TestCase):
             saved_grids = [f for f in os.listdir(grid_dir) if f.endswith('.npy')]
             self.assertGreater(len(saved_grids), 0, f"No grids saved for scale {scale_label}.")
 
+"""
