@@ -4,11 +4,12 @@ tests/test_grids/
 /data/
 data/
 data
-data/raw/
-data/preprocessed_data/
+data/pre_processed_data
+data/raw
 __pycache__/debug_grid_assignment.cpython-310.pyc
 __pycache__/debug_grid_real.cpython-310.pyc
 scripts/__pycache__/optimized_pc_to_img.cpython-310.pyc
 scripts/__pycache__/point_cloud_to_image.cpython-310.pyc
 scripts/__pycache__/optimized_pc_to_img.cpython-310.pyc
 scripts/__pycache__/point_cloud_to_image.cpython-310.pyc
+tests/test_optimized_grids_real_data

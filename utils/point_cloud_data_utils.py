@@ -163,6 +163,52 @@ def remap_labels(data_array, label_column_index=-1):
     return data_array, label_mapping
 
 
+def read_csv_file_to_numpy(file_path, features_to_extract=None):
+    """
+    Reads a CSV file and extracts the specified features along with coordinates.
+
+    Args:
+    - file_path (str): Path to the CSV file.
+    - features_to_extract (list of str): List of feature names to extract. 
+                                         If None, default features will be extracted.
+
+    Returns:
+    - np.ndarray: Numpy array containing the extracted features and coordinates.
+    - feature_names (list of str): List of feature names corresponding to the columns in the array.
+    """
+    # Set default features if none are provided
+    if features_to_extract is None:
+        features_to_extract = ['intensity', 'return_number', 'red', 'green', 'blue', 'nir',
+                               'ndvi', 'ndwi', 'ssi', 'l1_b', 'l2_b', 'l3_b', 'planarity_b', 'sphericity_b',
+                               'linearity_b', 'entropy_b', 'theta_b', 'theta_variance_b', 'mad_b', 'delta_z_b', 'N_h',
+                               'delta_z_fl']
+
+    # Read the CSV file into a pandas DataFrame
+    df = pd.read_csv(file_path)
+    
+    # Ensure 'x', 'y', 'z' coordinates are present
+    if not all(coord in df.columns for coord in ['x', 'y', 'z']):
+        raise ValueError(f"CSV file {file_path} is missing required coordinates ('x', 'y', 'z').")
+
+    # Extract the coordinates
+    coords = df[['x', 'y', 'z']].values
+
+    # Extract the features, checking if they exist in the CSV
+    available_features = [f for f in features_to_extract if f in df.columns]
+    if not available_features:
+        raise ValueError(f"No valid features found in {file_path} from the provided list.")
+
+    feature_data = df[available_features].values
+
+    # Combine coordinates and selected features into a single array
+    combined_data = np.hstack((coords, feature_data))
+    
+    # Combine 'x', 'y', 'z' with the feature names to keep track of the columns
+    feature_names = ['x', 'y', 'z'] + available_features
+
+    return combined_data, feature_names
+
+
 def combine_and_save_csv_files(csv_files, save=False, save_dir='data/combined_data'):
     """
     Combines multiple CSV files into a single NumPy array and optionally saves the combined data to a file.
@@ -251,31 +297,6 @@ def sample_data(input_file, sample_size, file_type='csv', save=False, save_dir='
 
     return sampled_data
 
-
-def read_csv_file_to_numpy(file_path, features_to_extract):
-    """
-    Reads a CSV file and extracts the specified features along with coordinates.
-
-    Args:
-    - file_path (str): Path to the CSV file.
-    - features_to_extract (list of str): List of feature names to extract.
-
-    Returns:
-    - np.ndarray: Numpy array containing the extracted features and coordinates.
-    """
-    df = pd.read_csv(file_path)
-    
-    # Extract coordinates
-    coords = df[['x', 'y', 'z']].values
-    
-    # Extract the desired features based on names
-    feature_data = df[features_to_extract].values
-    feature_names = features_to_extract
-    
-    # Combine coordinates and selected features into a single array
-    combined_data = np.hstack((coords, feature_data))
-    
-    return combined_data, feature_names
 
 def extract_num_classes(file_path, pre_process_data, preprocessed_data_dir=None):
     """

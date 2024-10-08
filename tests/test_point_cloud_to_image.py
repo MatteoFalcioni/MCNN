@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from utils.point_cloud_data_utils import read_las_file_to_numpy, numpy_to_dataframe
+from utils.point_cloud_data_utils import read_las_file_to_numpy, numpy_to_dataframe, read_csv_file_to_numpy, sample_data
 from scripts.point_cloud_to_image import create_feature_grid, assign_features_to_grid, generate_multiscale_grids, compute_point_cloud_bounds
 from utils.plot_utils import visualize_grid, visualize_grid_with_comparison
 from scipy.spatial import cKDTree as KDTree
@@ -10,23 +10,24 @@ import os
 class TestPointCloudToImage(unittest.TestCase):
 
     def setUp(self):
-        self.las_file_path = 'data/raw/features_F.las'
-        # self.sample_size = 50000  # Subset for testing. 
+        self.file_path = 'data/raw/features_F.las'
+        # self.file_path = 'data/training_data/test_21.csv'
+        self.sample_size = 5000  # Subset for testing. 
         self.grid_resolution = 128
         self.features_to_use = ['intensity', 'red', 'green', 'blue']  # Example selected features
         self.channels = len(self.features_to_use)  # Number of channels based on selected features
         self.window_size = 5.0
 
         # Load LAS file and get data with user-selected features
-        self.full_data, self.feature_names = read_las_file_to_numpy(self.las_file_path, features_to_extract=self.features_to_use)
+        self.full_data, self.feature_names = read_las_file_to_numpy(self.file_path, features_to_extract=self.features_to_use)
+        print(f'feature names in csv test file: {self.feature_names}')
         self.df = numpy_to_dataframe(self.full_data, self.feature_names)
         num_points = self.full_data.shape[0]
         labels = np.random.randint(0, 5, size=num_points)
         # Append labels as a new column
         self.data_with_labels = np.hstack((self.full_data, labels.reshape(-1, 1)))
         # np.random.seed(42)  # For reproducibility
-        # self.sampled_data = self.data_with_labels[np.random.choice(self.full_data.shape[0], self.sample_size, replace=False)]
-        # self.idx = int(self.sample_size/2)
+        self.sampled_data = self.data_with_labels[np.random.choice(self.full_data.shape[0], self.sample_size, replace=False)]
         self.idx = 100000
 
         # Define the window sizes for multiscale grids
@@ -38,6 +39,9 @@ class TestPointCloudToImage(unittest.TestCase):
 
         self.save_grids_dir = 'tests/test_feature_imgs/test_grid_np'  # directory to save test grids
         os.makedirs(self.save_imgs_dir, exist_ok=True)
+        
+        # Compute the point cloud bounds
+        self.point_cloud_bounds = compute_point_cloud_bounds(self.full_data)
 
     def test_create_and_assign_grids(self):
 
@@ -57,10 +61,10 @@ class TestPointCloudToImage(unittest.TestCase):
 
         # Check if the center point is within the point cloud bounds
         half_window = self.window_size / 2
-        if (center_point[0] - half_window < point_cloud_bounds['x_min'] or 
-            center_point[0] + half_window > point_cloud_bounds['x_max'] or
-            center_point[1] - half_window < point_cloud_bounds['y_min'] or
-            center_point[1] + half_window > point_cloud_bounds['y_max']):
+        if (center_point[0] - half_window < self.point_cloud_bounds['x_min'] or 
+            center_point[0] + half_window > self.point_cloud_bounds['x_max'] or
+            center_point[1] - half_window < self.point_cloud_bounds['y_min'] or
+            center_point[1] + half_window > self.point_cloud_bounds['y_max']):
             self.skipTest(f"Skipping test: center point {center_point} is out of bounds for the selected window size.")
     
 
@@ -145,10 +149,10 @@ class TestPointCloudToImage(unittest.TestCase):
 
         # Check if the center point is within the point cloud bounds
         half_window = self.window_size / 2
-        if (center_point[0] - half_window < point_cloud_bounds['x_min'] or 
-            center_point[0] + half_window > point_cloud_bounds['x_max'] or
-            center_point[1] - half_window < point_cloud_bounds['y_min'] or
-            center_point[1] + half_window > point_cloud_bounds['y_max']):
+        if (center_point[0] - half_window < self.point_cloud_bounds['x_min'] or 
+            center_point[0] + half_window > self.point_cloud_bounds['x_max'] or
+            center_point[1] - half_window < self.point_cloud_bounds['y_min'] or
+            center_point[1] + half_window > self.point_cloud_bounds['y_max']):
             self.skipTest(f"Skipping test: center point {center_point} is out of bounds for the selected window size.")
     
 
@@ -188,7 +192,7 @@ class TestPointCloudToImage(unittest.TestCase):
         print("KDTree query results are valid.")
     
     
-"""   def test_generate_multiscale_grids(self):
+def test_generate_multiscale_grids(self):
 
         generate_multiscale_grids(
             data_array=self.sampled_data,
@@ -206,4 +210,3 @@ class TestPointCloudToImage(unittest.TestCase):
             saved_grids = [f for f in os.listdir(grid_dir) if f.endswith('.npy')]
             self.assertGreater(len(saved_grids), 0, f"No grids saved for scale {scale_label}.")
 
-"""
