@@ -370,5 +370,10 @@ def extract_num_channels(preprocessed_data_dir):
     
     return num_channels
 
+"""def clean_point_cloud_data(data_array):
+    # Remove rows where any element is NaN or Inf
+    valid_mask = ~np.isnan(data_array).any(axis=1) & ~np.isinf(data_array).any(axis=1)
+    return data_array[valid_mask]"""
+
 
 

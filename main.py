@@ -32,7 +32,7 @@ def main():
     # Initialize model 
     print("Initializing MultiScaleCNN (MCNN) model...")
     model = MultiScaleCNN(channels=num_channels, classes=num_classes).to(device)  
-    model.apply(initialize_weights)     # initialize model weights
+    # model.apply(initialize_weights)     # initialize model weights
 
     # Prepare DataLoader
     print("Preparing data loaders...")
