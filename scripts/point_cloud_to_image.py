@@ -86,16 +86,20 @@ def assign_features_to_grid(tree, data_array, grid, x_coords, y_coords, constant
     Returns:
     - grid (numpy.ndarray): The grid populated with the nearest point's feature values.
     """
-
+    
     # Generate grid coordinates for all cells in bulk
     grid_x, grid_y = np.meshgrid(x_coords, y_coords, indexing='ij')
     grid_coords = np.stack((grid_x.flatten(), grid_y.flatten(), np.full(grid_x.size, constant_z)), axis=-1)
 
     # Query the KDTree in bulk using all grid coordinates
-    _, indices = tree.query(grid_coords)
+    distances, indices = tree.query(grid_coords)
 
-    # Assign features using the bulk indices
-    grid[:, :, :] = data_array[indices, :][:, feature_indices].reshape(grid.shape)
+    # Check for valid indices or distances
+    valid_mask = ~np.isinf(distances) & (indices >= 0) & (indices < len(data_array))
+
+    # Assign features to valid cells
+    valid_indices = np.where(valid_mask)[0]
+    grid.flat[valid_indices] = data_array[indices[valid_indices], :][:, feature_indices].flatten()
 
     return grid
 
@@ -221,12 +225,19 @@ def save_grid_if_valid(grid, label, point_idx, scale_label, save_dir):
     if np.isnan(grid).any() or np.isinf(grid).any():
         print(f"Invalid grid found for {point_idx}_{scale_label}. Skipping save.")
         return False  # Skip saving if invalid
-    
+
+    # Convert label to an integer to avoid issues with floating point labels
+    label = int(label)
+
     # Construct the file name and save the grid
     file_name = f"{point_idx}_{scale_label}_class_{label}.npy"
     file_path = os.path.join(save_dir, scale_label, file_name)
     os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    
+    # Save the grid
     np.save(file_path, grid)
+    # print(f"Saved grid: {file_path}")  # Add a log statement to confirm the save
+
     return True
 
 
