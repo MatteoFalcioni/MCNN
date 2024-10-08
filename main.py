@@ -24,10 +24,11 @@ def main():
         features_to_use = args.features_to_use  # List of features chosen by the user
         num_channels = len(features_to_use)  # Determine the number of channels based on selected features
     else:
-        features_to_use=None
+        features_to_use=None    # no need to select features if train data already exists
         num_channels=extract_num_channels(args.preprocessed_data_dir)   # extract number of channels from existing grids
 
-    num_classes = extract_num_classes(args.raw_data_filepath, args.preprocess_data, args.preprocessed_data_dir)   # determine the number of classes 
+    # determine the number of classes
+    num_classes = extract_num_classes(args.raw_data_filepath, args.preprocess_data, args.preprocessed_data_dir)   
 
     # Initialize model 
     print("Initializing MultiScaleCNN (MCNN) model...")
@@ -47,7 +48,6 @@ def main():
         window_sizes=args.window_sizes,
         grid_resolution=128,
         features_to_use=features_to_use,
-        save_grids=True,
         train_split=0.8
     )
 
@@ -62,7 +62,7 @@ def main():
                                           gamma=args.learning_rate_decay_factor)
 
     # Start training with early stopping
-    print("Starting training process with early stopping...")
+    print("Starting training process...")
     train_epochs(
         model,
         train_loader,
