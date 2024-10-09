@@ -3,11 +3,13 @@ import torch
 from torch.utils.data import DataLoader, TensorDataset
 import pandas as pd  # Import pandas for DataFrame
 from scripts.optimized_pc_to_img import gpu_generate_multiscale_grids, prepare_grids_dataloader, gpu_assign_features_to_grid, gpu_create_feature_grid
-from scripts.point_cloud_to_image import generate_multiscale_grids, assign_features_to_grid, create_feature_grid, compute_point_cloud_bounds
+from scripts.point_cloud_to_image import generate_multiscale_grids, assign_features_to_grid, create_feature_grid, compute_point_cloud_bounds, load_saved_grids
 from utils.point_cloud_data_utils import read_las_file_to_numpy, remap_labels
 from scipy.spatial import cKDTree as KDTree
 from utils.plot_utils import visualize_grid_with_comparison, visualize_grid
 from tqdm import tqdm
+import os
+import csv
 
 
 # -------------------------------- GPU grid coordinates and stacking debug, trying to work in parallel ---------------------------------
@@ -18,7 +20,7 @@ def debug_create_feature_grid(center_point, window_size, grid_resolution=128, ch
     """
     # Calculate the size of each cell in meters
     cell_size = window_size / grid_resolution
-    print(f"[DEBUG - CPU] Cell size: {cell_size}")
+    # print(f"[DEBUG - CPU] Cell size: {cell_size}")
     
     # Initialize the grid to zeros
     grid = np.zeros((grid_resolution, grid_resolution, channels))
@@ -32,9 +34,9 @@ def debug_create_feature_grid(center_point, window_size, grid_resolution=128, ch
     x_coords = center_point[0] - (half_resolution_minus_half - j_indices) * cell_size
     y_coords = center_point[1] - (half_resolution_minus_half - i_indices) * cell_size
     
-    print(f"[DEBUG - CPU] X-coordinates (sample): {x_coords[:5]} ... {x_coords[-5:]}")
-    print(f"[DEBUG - CPU] Y-coordinates (sample): {y_coords[:5]} ... {y_coords[-5:]}")
-    print(f"[DEBUG - CPU] Grid shape: {grid.shape}")
+    # print(f"[DEBUG - CPU] X-coordinates (sample): {x_coords[:5]} ... {x_coords[-5:]}")
+    # print(f"[DEBUG - CPU] Y-coordinates (sample): {y_coords[:5]} ... {y_coords[-5:]}")
+    # print(f"[DEBUG - CPU] Grid shape: {grid.shape}")
 
     constant_z = center_point[2]  # Z coordinate is constant for all cells
 
@@ -61,18 +63,18 @@ def debug_gpu_create_feature_grid(center_points, window_size, grid_resolution=12
     batch_size = center_points.shape[0]
 
     # Calculate the size of each cell in meters
-    cell_size = torch.tensor(float(window_size) / float(grid_resolution), dtype=torch.float64, device=device)
+    cell_size = torch.tensor(float(window_size) / float(grid_resolution), dtype=torch.float32, device=device)
 
     # Initialize the grids with zeros; one grid for each point in the batch
-    grids = torch.zeros((batch_size, channels, grid_resolution, grid_resolution), dtype=torch.float64, device=device)
+    grids = torch.zeros((batch_size, channels, grid_resolution, grid_resolution), dtype=torch.float32, device=device)
 
     # Calculate the coordinates of the grid cells
-    half_resolution_minus_half = torch.tensor((grid_resolution / 2) - 0.5, dtype=torch.float64, device=device)
+    half_resolution_minus_half = torch.tensor((grid_resolution / 2) - 0.5, dtype=torch.float32, device=device)
 
 
     # Use meshgrid to create the x and y coordinates for each grid
-    x_range = torch.arange(grid_resolution, dtype=torch.float64, device=device)  # Shape: [grid_resolution]
-    y_range = torch.arange(grid_resolution, dtype=torch.float64, device=device)  # Shape: [grid_resolution]
+    x_range = torch.arange(grid_resolution, dtype=torch.float32, device=device)  # Shape: [grid_resolution]
+    y_range = torch.arange(grid_resolution, dtype=torch.float32, device=device)  # Shape: [grid_resolution]
 
     # Create 2D grid coordinates using meshgrid
     y_grid, x_grid = torch.meshgrid(y_range, x_range, indexing='ij')  # Shape: [grid_resolution, grid_resolution]
@@ -89,9 +91,9 @@ def debug_gpu_create_feature_grid(center_points, window_size, grid_resolution=12
         grid_coords_list.append(grid_coords)
 
         # Debug: Print the range of coordinates for this batch
-        print(f"[DEBUG - GPU] Batch {i} x_coords range: ({x_coords.min().item()}, {x_coords.max().item()})")
-        print(f"[DEBUG - GPU] Batch {i} y_coords range: ({y_coords.min().item()}, {y_coords.max().item()})")
-        print(f"[DEBUG - GPU] Batch {i} z_coords range: ({z_coords.min().item()}, {z_coords.max().item()})")
+        # print(f"[DEBUG - GPU] Batch {i} x_coords range: ({x_coords.min().item()}, {x_coords.max().item()})")
+        # print(f"[DEBUG - GPU] Batch {i} y_coords range: ({y_coords.min().item()}, {y_coords.max().item()})")
+        # print(f"[DEBUG - GPU] Batch {i} z_coords range: ({z_coords.min().item()}, {z_coords.max().item()})")
 
     # Combine into a single tensor of shape [batch_size, 3, grid_resolution, grid_resolution]
     grid_coords_combined = torch.stack(grid_coords_list)
@@ -114,12 +116,12 @@ def debug_kd_tree_cpu(data_array, x_coords, y_coords, constant_z):
     Returns:
     - indices (list): Indices of the nearest points in the point cloud for each grid cell.
     """
-    tree = KDTree(data_array[:, :3].astype(np.float64))
+    tree = KDTree(data_array[:, :3])
     indices = []
 
     for i in range(len(x_coords)):
         for j in range(len(y_coords)):
-            _, idx = tree.query([x_coords[i].astype(np.float64), y_coords[j].astype(np.float64), constant_z.astype(np.float64)])
+            _, idx = tree.query([x_coords[i], y_coords[j], constant_z])
             indices.append(idx)
 
     # Print the coordinates associated with the indices
@@ -174,8 +176,8 @@ def debug_kd_tree_gpu(data_array, grid_coords, device):
     Returns:
     - all_indices (list): List of indices of the nearest points for each grid cell in each batch.
     """
-    # Create KDTree using point cloud data (enforcing float64)
-    tree = KDTree(data_array[:, :3].astype(np.float64))
+    # Create KDTree using point cloud data 
+    tree = KDTree(data_array[:, :3])
 
     batch_size = grid_coords.shape[0]
     all_indices = []
@@ -183,7 +185,7 @@ def debug_kd_tree_gpu(data_array, grid_coords, device):
     # Iterate over each batch element
     for i in range(batch_size):
         # Extract the grid coordinates for the current batch element
-        grid_coords_flat = grid_coords[i].permute(1, 2, 0).reshape(-1, 3).cpu().numpy().astype(np.float64)
+        grid_coords_flat = grid_coords[i].permute(1, 2, 0).reshape(-1, 3).cpu().numpy()
 
         # Debug: Print grid coordinates range before KDTree query
         # print(f"[DEBUG - GPU] Batch {i} grid_coords range: ({grid_coords_flat.min(axis=0)}, {grid_coords_flat.max(axis=0)})")
@@ -286,7 +288,7 @@ def compare_feature_assignments(tree, data_array, x_coords, y_coords, constant_z
     - None
     """
     # Initialize grids
-    grid_nested = np.zeros((grid_resolution, grid_resolution, len(feature_indices)), dtype=np.float64)
+    grid_nested = np.zeros((grid_resolution, grid_resolution, len(feature_indices)))
     grid_bulk = np.zeros_like(grid_nested)
 
     # Perform feature assignment using the nested loop
@@ -322,7 +324,7 @@ def assign_features_to_grid_gpu(data_array, grid_coords, feature_indices, device
     - feature_grids (torch.Tensor): Tensor of shape [batch_size, num_features, grid_resolution, grid_resolution].
     """
     # Move data_array to the appropriate precision and device
-    data_array = data_array.astype(np.float64)
+    data_array = data_array
     
     # Create KDTree on CPU
     tree = KDTree(data_array[:, :3])
@@ -332,12 +334,12 @@ def assign_features_to_grid_gpu(data_array, grid_coords, feature_indices, device
     num_features = len(feature_indices)
 
     # Initialize a tensor to hold the feature grids
-    feature_grids = torch.zeros((batch_size, num_features, grid_resolution, grid_resolution), dtype=torch.float64, device=device)
+    feature_grids = torch.zeros((batch_size, num_features, grid_resolution, grid_resolution), dtype=torch.float32, device=device)
 
     # Iterate over each batch element
     for i in range(batch_size):
         # Flatten grid coordinates for querying
-        grid_coords_flat = grid_coords[i].permute(1, 2, 0).reshape(-1, 3).cpu().numpy().astype(np.float64)
+        grid_coords_flat = grid_coords[i].permute(1, 2, 0).reshape(-1, 3).cpu().numpy()
 
         # Query KDTree to find nearest point indices
         _, indices = tree.query(grid_coords_flat)
@@ -346,7 +348,7 @@ def assign_features_to_grid_gpu(data_array, grid_coords, feature_indices, device
         nearest_features = data_array[indices][:, feature_indices]  # Correctly extract features using advanced indexing
 
         # Reshape features to fit the grid and assign to the feature grid tensor
-        feature_grids[i] = torch.tensor(nearest_features.reshape(grid_resolution, grid_resolution, num_features).transpose(2, 0, 1), dtype=torch.float64, device=device)
+        feature_grids[i] = torch.tensor(nearest_features.reshape(grid_resolution, grid_resolution, num_features).transpose(2, 0, 1), dtype=torch.float32, device=device)
 
         # Debugging: Print a sample of the grid features
         # print(f"[DEBUG - GPU] Assigned features for batch {i} (sample): {feature_grids[i, :, :5, :5]}")
@@ -361,7 +363,7 @@ def compare_cpu_gpu_feature_assignment(data_array, x_coords_cpu, y_coords_cpu, c
     feature_indices = [known_features.index(feature) for feature in features_to_use]
 
     # CPU (bulk) feature assignment
-    tree_cpu = KDTree(data_array[:, :3].astype(np.float64))
+    tree_cpu = KDTree(data_array[:, :3])
     grid_cpu = np.zeros((128, 128, len(features_to_use)), dtype=np.float64)  # Assuming grid_resolution=128
     grid_cpu = assign_features_to_grid_bulk(tree_cpu, data_array, grid_cpu, x_coords_cpu, y_coords_cpu, constant_z_cpu, feature_indices)
 
@@ -386,11 +388,11 @@ def compare_cpu_gpu_feature_assignment(data_array, x_coords_cpu, y_coords_cpu, c
     # Visualize the grids to inspect differences
     print("Visualizing CPU grid...")
     grid_cpu = np.transpose(grid_cpu, (2,0,1))
-    visualize_grid(grid_cpu, channel=3, save=True, file_path='tests/debug_imgs/CPU', feature_names=feature_names)
+    visualize_grid(grid_cpu, title='CPU', channel=3, save=True, file_path='tests/debug_imgs/CPU', feature_names=feature_names)
 
     print("Visualizing GPU grid (first batch)...")
     grid_gpu_visual = np.transpose(grid_gpu, (0, 2, 1))
-    visualize_grid(grid_gpu_visual, channel=3, save=True, file_path='tests/debug_imgs/GPU', feature_names=feature_names)
+    visualize_grid(grid_gpu_visual, title='GPU', channel=3, save=True, file_path='tests/debug_imgs/GPU', feature_names=feature_names)
 
 # ----------------------------------- FEATURE ASSIGNMENT WORKING, the small differences between kd tree's indices dont seem a problem ---------------------------------------------
 
@@ -399,144 +401,232 @@ def compare_cpu_gpu_feature_assignment(data_array, x_coords_cpu, y_coords_cpu, c
 #------------------------------------ DEBUGGGING MULTISCALE GEN -------------------------------------------------------
 
 
-def debug_gpu_multiscale_grids(data_loader, window_sizes, grid_resolution, features_to_use, known_features, channels, device, full_data, stop_after_batches=None):
+def debug_gpu_multiscale_grids(data_loader, window_sizes, grid_resolution, features_to_use, known_features, channels, device, full_data, save_dir, stop_after_batches=None):
     """
-    Debugging function for generating and assigning features to multiscale grids on the GPU.
+    Debugging function for generating and saving multiscale grids on the GPU, saving both grids and labels to disk.
 
     Args:
     - data_loader (DataLoader): DataLoader for the unified dataset.
-    - window_sizes (list of tuples): Window sizes for different scales.
+    - window_sizes (list): List of tuples for window sizes.
     - grid_resolution (int): Grid resolution.
-    - features_to_use (list): Features to include in the grid.
+    - features_to_use (list): List of features to include in the grid.
     - known_features (list): List of all possible feature names in `full_data`.
     - channels (int): Number of feature channels in the grid.
     - device (torch.device): The device (CPU or GPU).
     - full_data (np.ndarray): The entire point cloud data.
+    - save_dir (str): Directory where grids and labels will be saved.
     - stop_after_batches (int, optional): Limit for debugging.
 
     Returns:
-    - labeled_grids_dict (dict): Dictionary containing the generated grids and corresponding labels for each scale.
+    - None. The grids and labels are saved to disk.
     """
-
-    # Ensure full_data is in float64 precision
-    full_data = full_data.astype(np.float64)
 
     # Determine feature indices
     feature_indices = [known_features.index(feature) for feature in features_to_use]
 
-    # Create the KDTree for the point cloud data
+    # Create KDTree for the point cloud data
     print("Creating KDTree...")
-    tree = KDTree(full_data[:, :3])  # Make sure KDTree is using float64 data
+    tree = KDTree(full_data[:, :3])
     print("KDTree created successfully.")
 
-    # Dictionary to hold grids and class labels for each scale
-    labeled_grids_dict = {scale_label: {'grids': [], 'class_labels': []} for scale_label, _ in window_sizes}
+    if save_dir is not None:
+        os.makedirs(save_dir, exist_ok=True)
+    else:
+        raise ValueError("Error: no specified directory to save grids.")
 
-    # Iterate over the DataLoader batches
-    for batch_idx, batch_data in enumerate(data_loader):
-        print(f"Processing batch {batch_idx + 1}/{len(data_loader)}...")
+    # Open a single CSV file to save labels
+    label_file_path = os.path.join(save_dir, "labels.csv")
+    with open(label_file_path, mode='w', newline='') as label_file:
+        label_writer = csv.writer(label_file)
+        label_writer.writerow(['point_idx', 'label'])  # Write header
 
-        # Extract coordinates and labels from the batch, ensuring float64 precision
-        batch_tensor = batch_data[0].to(device, dtype=torch.float64)
-        coordinates = batch_tensor[:, :3]
-        labels = batch_tensor[:, 3]
+        # Iterate over DataLoader batches
+        for batch_idx, batch_data in enumerate(data_loader):
+            print(f"Processing batch {batch_idx + 1}/{len(data_loader)}...")
 
-        # Iterate over each scale
-        for size_label, window_size in window_sizes:
-            print(f"[DEBUG] Processing scale: {size_label}...")
+            # Extract coordinates and labels from the batch
+            batch_tensor = batch_data[0].to(device, dtype=torch.float32)
+            coordinates = batch_tensor[:, :3]
+            labels = batch_tensor[:, 3]
 
-            # Use the debugging version of grid creation
-            _, _, grid_coords = debug_gpu_create_feature_grid(coordinates, window_size, grid_resolution, channels, device)
+            all_grids_valid = True
+            grids_to_save = {}
 
-            # Use the debugging version of feature assignment
-            feature_grids = assign_features_to_grid_gpu(full_data, grid_coords, feature_indices, device)
+            for size_label, window_size in window_sizes:
+                print(f"Processing scale: {size_label}...")
 
-            # Append the grids and labels to the dictionary
-            labeled_grids_dict[size_label]['grids'].append(feature_grids.cpu().numpy().astype(np.float64))  # Store as numpy arrays in float64
-            labeled_grids_dict[size_label]['class_labels'].append(labels.cpu().numpy().astype(np.float64))
+                # Generate grids
+                _, _, grid_coords = debug_gpu_create_feature_grid(coordinates, window_size, grid_resolution, channels, device)
 
-        # Break early if debugging is limited to a few batches
-        if stop_after_batches is not None and batch_idx >= stop_after_batches:
-            break
+                # Assign features to grids
+                feature_grids = assign_features_to_grid_gpu(full_data, grid_coords, feature_indices, device)
 
-        # Clear variables to free memory
-        del batch_data, labels, feature_grids
+                if torch.isnan(feature_grids).any() or torch.isinf(feature_grids).any():
+                    all_grids_valid = False
+                    break  # Skip this batch if any grid contains NaN or Inf values
 
-    print("[DEBUG] Multiscale grid generation completed.")
-    return labeled_grids_dict
+                grids_to_save[size_label] = feature_grids.cpu().numpy()
+
+            if all_grids_valid:
+                for size_label, grid in grids_to_save.items():
+                    for i, single_grid in enumerate(grid):
+                        file_name = f"{batch_idx * len(grid) + i}_{size_label}.npy"
+                        file_path = os.path.join(save_dir, size_label, file_name)
+                        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                        np.save(file_path, single_grid)
+
+                for i, label in enumerate(labels.cpu().numpy()):
+                    label_writer.writerow([batch_idx * len(labels) + i, label])
+
+            # Stop early for debugging
+            if stop_after_batches is not None and batch_idx >= stop_after_batches:
+                break
+
+            del batch_data, labels, feature_grids
+
+    print("Multiscale grid generation and label saving completed.")
 
 
 
-def debug_cpu_bulk_multiscale_grids(index, data_array, window_sizes, grid_resolution, features_to_use, known_features):
+def debug_cpu_bulk_multiscale_grids(data_array, window_sizes, grid_resolution, features_to_use, known_features, save_dir):
     """
-    Generates grids for each point in the data array with different window sizes using bulk feature assignment.
+    Generates multiscale grids for each point in the data array, saving the grids and labels to disk in a single label CSV.
 
     Args:
-    - index (int): index of the center point for which the multiscale grids will be generated.
-    - data_array (numpy.ndarray): Array where each row represents a point with its x, y, z coordinates and features.
+    - data_array (numpy.ndarray): Array containing point cloud data where each row is a point.
     - window_sizes (list): List of tuples where each tuple contains (scale_label, window_size).
     - grid_resolution (int): Resolution of the grid (e.g., 128x128).
     - features_to_use (list): List of feature names to use for each grid.
     - known_features (list): List of all possible feature names in the order they appear in `data_array`.
+    - save_dir (str): Directory where grids and labels will be saved.
 
     Returns:
-    - labeled_grids_dict (dict): A dictionary with scale labels as keys, where each entry contains 'grids' (list of grids)
-      and 'class_labels' (list of corresponding class labels).
+    - None. The grids and labels are saved to disk.
     """
 
-    channels = len(features_to_use)  # Calculate the number of channels based on the selected features
+    channels = len(features_to_use)  # Number of channels based on the selected features
 
-    # Initialize a dictionary to store the generated grids and labels by window size (grids in Torch standard formats, channel first)
-    num_points = 1
-    labeled_grids_dict = {
-        scale_label: {
-            'grids': np.zeros((num_points, channels, grid_resolution, grid_resolution), dtype=np.float64),  # Channel-first
-            'class_labels': np.zeros((num_points,) )
-        }
-        for scale_label, _ in window_sizes
-    }
+    if save_dir is not None:
+        os.makedirs(save_dir, exist_ok=True)
+    else:
+        raise ValueError("Error: no specified directory to save grids.")
 
-    # Compute point cloud bounds
     point_cloud_bounds = compute_point_cloud_bounds(data_array)
-
-    # Find the indices of the requested features in the known features list
     feature_indices = [known_features.index(feature) for feature in features_to_use]
 
-    # Create KDTree once for the entire dataset with x, y, z coordinates
-    tree = KDTree(data_array[:, :3].astype(np.float64))  # Use x, y, and z coordinates for 3D KDTree
+    tree = KDTree(data_array[:, :3])  # KDTree for fast nearest-neighbor search
 
-    center_point = data_array[index, :3]
-    label = data_array[index, -1]  # Assuming the class label is in the last column
+    # Open a single CSV file to save labels
+    label_file_path = os.path.join(save_dir, "labels.csv")
+    with open(label_file_path, mode='w', newline='') as label_file:
+        label_writer = csv.writer(label_file)
+        label_writer.writerow(['point_idx', 'label'])  # Write header
 
-    for size_label, window_size in window_sizes:
+        num_points = data_array.shape[0]
 
-        # Check if the grid centered at center_point would fall out of point cloud bounds
-        half_window = window_size / 2
-        if (center_point[0] - half_window < point_cloud_bounds['x_min'] or 
-            center_point[0] + half_window > point_cloud_bounds['x_max'] or 
-            center_point[1] - half_window < point_cloud_bounds['y_min'] or 
-            center_point[1] + half_window > point_cloud_bounds['y_max']):
-            # Skip generating this grid if it falls out of bounds
-            continue
+        for i in tqdm(range(num_points), desc="Generating multiscale grids", unit="grid"):
+
+            all_grids_valid = True
+            grids_to_save = {}
+
+            center_point = data_array[i, :3]
+            label = data_array[i, -1]
+
+            for size_label, window_size in window_sizes:
+
+                half_window = window_size / 2
+                if (center_point[0] - half_window < point_cloud_bounds['x_min'] or
+                    center_point[0] + half_window > point_cloud_bounds['x_max'] or
+                    center_point[1] - half_window < point_cloud_bounds['y_min'] or
+                    center_point[1] + half_window > point_cloud_bounds['y_max']):
+                    all_grids_valid = False
+                    break  # Skip this point for all scales if any grid is out of bounds
+
+                grid, _, x_coords, y_coords, z_coord = debug_create_feature_grid(
+                    center_point, window_size, grid_resolution, channels
+                )
+                grid_with_features = assign_features_to_grid_bulk(tree, data_array, grid, x_coords, y_coords, z_coord, feature_indices)
+                grid_with_features = np.transpose(grid_with_features, (2, 0, 1))  # Convert grid to channels first (PyTorch format)
+
+                if np.isnan(grid_with_features).any() or np.isinf(grid_with_features).any():
+                    all_grids_valid = False
+                    break  # Skip if any grid contains NaN or Inf values
+
+                grids_to_save[size_label] = grid_with_features
+
+            if all_grids_valid:
+                for size_label, grid in grids_to_save.items():
+                    file_name = f"{i}_{size_label}.npy"
+                    file_path = os.path.join(save_dir, size_label, file_name)
+                    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+                    np.save(file_path, grid)
+
+                # Save the label in the CSV file
+                label_writer.writerow([i, label])
+
+    print("Multiscale grid generation and label saving completed.")
+
+
+def compare_ms(data_loader, data_array, window_sizes, grid_resolution, features_to_use, known_features, save_dir_gpu, save_dir_cpu):
+    """
+    Compares the grids generated by the CPU and GPU implementations to ensure consistency.
+
+    Args:
+    - data_loader (DataLoader): DataLoader for the unified dataset.
+    - data_array (numpy.ndarray): The input data array.
+    - window_sizes (list): List of tuples containing scale labels and window sizes.
+    - grid_resolution (int): The resolution of the grids (e.g., 128x128).
+    - features_to_use (list): List of feature names to use in the grids.
+    - known_features (list): List of known features in the dataset.
+    - save_dir_gpu (str): Directory where the GPU-generated grids are saved.
+    - save_dir_cpu (str): Directory where the CPU-generated grids are saved.
+
+    Returns:
+    - None. Prints out the comparison results for each scale and grid.
+    """
+    
+    # Step 1: Generate grids for both CPU and GPU
+    print("Generating CPU grids...")
+    debug_cpu_bulk_multiscale_grids(data_array, window_sizes, grid_resolution, features_to_use, known_features, save_dir_cpu)
+    
+    print("Generating GPU grids...")
+    debug_gpu_multiscale_grids(data_loader, data_array, window_sizes, grid_resolution, features_to_use, known_features, len(features_to_use), torch.device('cuda'), data_array, save_dir_gpu)
+
+    # Step 2: Load the grids for both CPU and GPU using the load_saved_grids function
+    print("Loading CPU grids...")
+    cpu_grids_dict, cpu_labels = load_saved_grids(save_dir_cpu)
+
+    print("Loading GPU grids...")
+    gpu_grids_dict, gpu_labels = load_saved_grids(save_dir_gpu)
+
+    # Ensure that the number of labels matches between CPU and GPU
+    assert cpu_labels == gpu_labels, "Mismatch in labels between CPU and GPU grids!"
+
+    # Step 3: Iterate over the scales and compare the grids
+    for size_label, _ in window_sizes:
+        print(f"Comparing grids for scale: {size_label}")
         
-        # Create a grid around the current center point
-        grid, _, x_coords, y_coords, z_coord = create_feature_grid(center_point, window_size, grid_resolution, channels)
+        cpu_grids = cpu_grids_dict[size_label]
+        gpu_grids = gpu_grids_dict[size_label]
 
-        # Assign features to the grid cells using the bulk assignment
-        grid_with_features = assign_features_to_grid_bulk(tree, data_array, grid, x_coords, y_coords, z_coord, feature_indices)
+        # Ensure the number of grids matches between CPU and GPU
+        assert len(cpu_grids) == len(gpu_grids), f"Mismatch in number of grids for {size_label} scale!"
 
-        # Transpose the grid to match PyTorch's 'channels x height x width' format
-        grid_with_features = np.transpose(grid_with_features, (2, 0, 1))
+        # Iterate through the grids and compare them
+        for i, (cpu_grid, gpu_grid) in enumerate(zip(cpu_grids, gpu_grids)):
+            cpu_grid_data = np.load(cpu_grid)
+            gpu_grid_data = np.load(gpu_grid)
 
-        # Store the grid and label
-        labeled_grids_dict[size_label]['grids'][0] = grid_with_features
-        labeled_grids_dict[size_label]['class_labels'][0] = label
+            # Compare the grids
+            if np.allclose(cpu_grid_data, gpu_grid_data, rtol=1e-5, atol=1e-8):
+                print(f"Grid {i} for {size_label} scale matches!")
+            else:
+                print(f"Grid {i} for {size_label} scale does not match.")
+                difference = np.abs(cpu_grid_data - gpu_grid_data)
+                print(f"Max difference: {difference.max()}, Mean difference: {difference.mean()}")
 
-    print('Multiscale grid generation with bulk assignment completed successfully.')
-
-    return labeled_grids_dict
-
-
+    print("Comparison complete.")
+    
 #----------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # Load real data from LAS file
@@ -554,11 +644,11 @@ window_size = 10
 grid_resolution=128
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-tree = KDTree(full_data[:, :3].astype(np.float64))
+tree = KDTree(full_data[:, :3])
 
-index = 100000
+index = 30000
 center_point = full_data[index, :3]
-center_point_tensor = torch.tensor(center_point, dtype=torch.float64).unsqueeze(0)
+center_point_tensor = torch.tensor(center_point, dtype=torch.float32).unsqueeze(0)
 
 num_points = full_data.shape[0]
 # Generate dummy labels spanning from 0 to 2
@@ -566,10 +656,14 @@ dummy_labels = np.random.randint(0, 3, size=num_points)
 # Append the dummy labels as the last column in `data_array`
 data_array_with_labels = np.hstack((full_data, dummy_labels.reshape(-1, 1)))
 
+# Sample n_samples from full data
+n_samples = 2000
+sampled_data = full_data[np.random.choice(full_data.shape[0], n_samples, replace=False)]
+
 center_point_labeled = data_array_with_labels[index, [0, 1, 2, -1]]
 
 # Create a TensorDataset and DataLoader for a single point
-center_point_tensor_labeled = torch.tensor(center_point_labeled , dtype=torch.float64).unsqueeze(0)
+center_point_tensor_labeled = torch.tensor(center_point_labeled , dtype=torch.float32).unsqueeze(0)
 single_point_dataset = TensorDataset(center_point_tensor_labeled)
 data_loader = DataLoader(single_point_dataset, batch_size=1, num_workers=0)
 
@@ -579,30 +673,6 @@ torch.set_printoptions(precision=8)
 print(f'center point data: {center_point_labeled}')
 print(f'center point tensor data: {center_point_tensor_labeled}')
 
-
-# Assuming `labeled_grids_dict_cpu` and `labeled_grids_dict_gpu` are generated by the CPU and GPU functions
-labeled_grids_dict_cpu = debug_cpu_bulk_multiscale_grids(
-    index=index,
-    data_array=data_array_with_labels,
-    window_sizes=window_sizes,
-    grid_resolution=grid_resolution,
-    features_to_use=features_to_use,
-    known_features=feature_names
-)
-
-labeled_grids_dict_gpu = debug_gpu_multiscale_grids(
-    data_loader=data_loader,  
-    window_sizes=window_sizes,
-    grid_resolution=grid_resolution,
-    features_to_use=features_to_use,
-    known_features=feature_names,
-    channels=channels, 
-    device=torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
-    full_data=data_array_with_labels 
-)
-
-
-"""
 gpu_feature_grids, gpu_cell_size, gpu_grid_coords_combined = debug_gpu_create_feature_grid(center_point_tensor, window_size=10.0, grid_resolution=128, channels=channels, device=None)
 
 grid_cpu, _, x_coords_cpu, y_coords_cpu, constant_z_cpu = debug_create_feature_grid(center_point, window_size=10.0, grid_resolution=128, channels=channels)
@@ -646,7 +716,5 @@ print('----------------------------KD TREE CHECKS ENDED-------------------------
 
 compare_feature_assignments(tree, full_data, x_coords_cpu, y_coords_cpu, constant_z_cpu, feature_indices, grid_resolution)
 
-compare_cpu_gpu_feature_assignment(full_data, x_coords_cpu, y_coords_cpu, constant_z_cpu, gpu_grid_coords_combined, feature_names, features_to_use, device)
-"""
-
+compare_ms(data_array=sampled_data, window_sizes=window_sizes, grid_resolution=grid_resolution, features_to_use=features_to_use, known_features=feature_names, save_dir_gpu='tests/debug/GPU_grids', save_dir_cpu='tests/debug/CPU_grids')
 

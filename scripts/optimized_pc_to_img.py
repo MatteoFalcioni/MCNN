@@ -4,6 +4,64 @@ import os
 from torch.utils.data import DataLoader, TensorDataset
 from scipy.spatial import KDTree
 from scripts.point_cloud_to_image import compute_point_cloud_bounds
+from torch.utils.data import Dataset, DataLoader, TensorDataset
+import torch
+
+
+class PointCloudDataset(Dataset):
+    def __init__(self, data_array):
+        """
+        Initializes the dataset with coordinates and labels.
+        
+        Args:
+        - data_array (np.ndarray): The dataset containing (x, y, z) coordinates, features, and class labels.
+        """
+        # Create tensors for coordinates and labels
+        self.coords_tensor = torch.tensor(data_array[:, :3], dtype=torch.float32)  # Shape: [num_points, 3]
+        self.labels_tensor = torch.tensor(data_array[:, -1], dtype=torch.float32)      # Shape: [num_points]. No training now so labels can be float (otherwise, long)
+        
+        # Combine them into a single tensor of shape [num_points, 4] (coords + label)
+        self.data_tensor = torch.empty((self.coords_tensor.size(0), 4), dtype=torch.float32)
+        self.data_tensor[:, :3] = self.coords_tensor  # First 3 columns are coordinates
+        self.data_tensor[:, 3] = self.labels_tensor  # Last column is the label as float (for uniformity)
+
+    def __len__(self):
+        # Return the number of points
+        return self.data_tensor.size(0)
+
+    def __getitem__(self, idx):
+        """
+        Retrieves a single point's data (coordinates and label) based on the index.
+        
+        Args:
+        - idx (int): The index of the point to retrieve.
+        
+        Returns:
+        - point_data (torch.Tensor): A tensor of shape [4] containing (x, y, z, label).
+        """
+        return self.data_tensor[idx]
+    
+
+def prepare_grids_dataloader(data_array, batch_size, num_workers):
+    """
+    Prepares the DataLoader for batching the point cloud data using the custom PointCloudDataset.
+
+    Args:
+    - data_array (np.ndarray): The dataset containing (x, y, z) coordinates, features, and class labels.
+    - batch_size (int): The number of points to process in each batch.
+    - num_workers (int): Number of workers for data loading.
+
+    Returns:
+    - data_loader (DataLoader): A DataLoader that batches the dataset.
+    """
+
+    # Create an instance of the custom dataset
+    dataset = PointCloudDataset(data_array)
+
+    # Create the DataLoader
+    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
+
+    return data_loader
 
 
 
@@ -92,35 +150,7 @@ def gpu_assign_features_to_grid(batch_data, grids, x_coords, y_coords, constant_
     return grids
 
 
-def prepare_grids_dataloader(data_array, batch_size, num_workers):
-    """
-    Prepares the DataLoader for batching the point cloud data.
 
-    Args:
-    - data_array (np.ndarray): The dataset containing (x, y, z) coordinates, features, and class labels.
-    - batch_size (int): The number of points to process in each batch.
-    - num_workers (int): Number of workers for data loading.
-
-    Returns:
-    - data_loader (DataLoader): A DataLoader that batches the dataset.
-    """
-    
-    # Create tensors for coordinates and labels
-    coords_tensor = torch.tensor(data_array[:, :3], dtype=torch.float32)  # Shape: [num_points, 3]
-    labels_tensor = torch.tensor(data_array[:, -1], dtype=torch.long)      # Shape: [num_points]
-    
-    # Combine them into a single tensor of shape [num_points, 4]
-    combined_tensor = torch.empty((coords_tensor.size(0), 4), dtype=torch.float32)
-    combined_tensor[:, :3] = coords_tensor  # First 3 columns are coordinates
-    combined_tensor[:, 3] = labels_tensor.float()  # Last column is the label as float (for uniformity)
-
-    # Create TensorDataset with the combined tensor
-    dataset = TensorDataset(combined_tensor)
-
-    # Create the DataLoader
-    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False, num_workers=num_workers)
-
-    return data_loader
 
     
 
