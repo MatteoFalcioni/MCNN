@@ -396,7 +396,7 @@ def compare_cpu_gpu_feature_assignment(data_array, x_coords_cpu, y_coords_cpu, c
 
 
 
-#------------------------------------ DEBUGGGING MULTISCALE GEN -------------------------------------------------------
+#------------------------------------ DEBUGGING MULTISCALE GEN -------------------------------------------------------
 
 
 def debug_gpu_multiscale_grids(data_loader, window_sizes, grid_resolution, features_to_use, known_features, channels, device, full_data, stop_after_batches=None):
