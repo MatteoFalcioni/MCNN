@@ -13,6 +13,7 @@ import numpy as np
 def main():
     # Parse arguments with defaults from config.yaml
     args = parse_arguments()
+    print(f'window sizes: {args.window_sizes}')
 
     # Set device (GPU if available)
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
@@ -24,7 +25,7 @@ def main():
         features_to_use = args.features_to_use  # List of features chosen by the user
         num_channels = len(features_to_use)  # Determine the number of channels based on selected features
     else:
-        features_to_use=None    # no need to select features if train data already exists
+        features_to_use = None    # no need to select features if training data already exists
         num_channels=extract_num_channels(args.preprocessed_data_dir)   # extract number of channels from existing grids
 
     # determine the number of classes
@@ -33,12 +34,10 @@ def main():
     # Initialize model 
     print("Initializing MultiScaleCNN (MCNN) model...")
     model = MultiScaleCNN(channels=num_channels, classes=num_classes).to(device)  
-    # model.apply(initialize_weights)     # initialize model weights
+    model.apply(initialize_weights)     # initialize model weights (optional, but recommended)
 
     # Prepare DataLoader
     print("Preparing data loaders...")
-
-    print(f'window sizes: {args.window_sizes}')
 
     train_loader, val_loader = prepare_dataloader(
         batch_size=args.batch_size,

@@ -3,7 +3,7 @@ from torch.utils.data import Dataset, DataLoader, random_split, TensorDataset
 import os
 import numpy as np
 from utils.point_cloud_data_utils import read_file_to_numpy
-from scripts.point_cloud_to_image import generate_multiscale_grids, load_features_used, load_saved_grids
+from scripts.point_cloud_to_image import generate_multiscale_grids, load_saved_grids
 from datetime import datetime
 import pandas as pd
 import torch.nn as nn

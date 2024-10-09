@@ -12,6 +12,8 @@ class TestGridDataset(unittest.TestCase):
         # Create the dataset instance
         self.dataset = GridDataset(grids_dict=self.grids_dict, labels=self.labels)  
 
+        self.train_split = 0.8
+
     def test_len(self):
         # Test that the length of the dataset matches the number of grids and labels
         self.assertEqual(len(self.dataset), len(self.labels))
@@ -73,4 +75,35 @@ class TestPrepareDataloader(unittest.TestCase):
         print("Medium Grid Shape:", medium_grid.shape)
         print("Large Grid Shape:", large_grid.shape)
         print("Labels:", labels)
+
+        def test_train_eval_dataloader(self):
+            # Load both train and eval DataLoader
+            train_loader, eval_loader = prepare_dataloader(
+                batch_size=self.batch_size,
+                pre_process_data=False,
+                grid_save_dir=self.grid_save_dir,
+                train_split=self.train_split
+            )
+
+            # Test the train_loader
+            for first_batch in train_loader:
+                small_grid, medium_grid, large_grid, labels = first_batch
+                # Check the shape of the grids
+                self.assertEqual(small_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Small grid resolution mismatch.")
+                self.assertEqual(medium_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Medium grid resolution mismatch.")
+                self.assertEqual(large_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Large grid resolution mismatch.")
+                self.assertEqual(len(labels), self.batch_size, "Batch size mismatch in training DataLoader.")
+                break  # Just testing the first batch
+
+            # Test the eval_loader (ensure it was created and works)
+            self.assertIsNotNone(eval_loader, "Evaluation DataLoader is None when it shouldn't be.")
+
+            for first_batch in eval_loader:
+                small_grid, medium_grid, large_grid, labels = first_batch
+                # Check the shape of the grids for evaluation DataLoader
+                self.assertEqual(small_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Small grid resolution mismatch in eval.")
+                self.assertEqual(medium_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Medium grid resolution mismatch in eval.")
+                self.assertEqual(large_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Large grid resolution mismatch in eval.")
+                self.assertEqual(len(labels), self.batch_size, "Batch size mismatch in evaluation DataLoader.")
+                break  # Just testing the first batch
 

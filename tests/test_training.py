@@ -4,7 +4,8 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from models.mcnn import MultiScaleCNN
-from utils.train_data_utils import prepare_dataloader
+from utils.point_cloud_data_utils import extract_num_channels, extract_num_classes
+from utils.train_data_utils import prepare_dataloader, initialize_weights
 from scripts.train import train, validate, train_epochs
 
 
@@ -13,28 +14,56 @@ class TestTrainingProcess(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Run once for the entire test class
-        cls.device = torch.device('cpu')  # Use CPU for testing
-        cls.model = MultiScaleCNN(channels=10, classes=5).to(cls.device)
+        device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+        cls.grid_save_dir = 'tests/multiscale_grids'
+        cls.num_channels = extract_num_channels(preprocessed_data_dir=cls.grid_save_dir)
+        cls.num_classes = extract_num_classes(pre_process_data=False, preprocessed_data_dir=cls.grid_save_dir)
+        cls.model = MultiScaleCNN(channels=cls.num_channels, classes=cls.num_classes).to(cls.device)
+        cls.model.apply(initialize_weights)
         cls.criterion = nn.CrossEntropyLoss()
         cls.optimizer = optim.SGD(cls.model.parameters(), lr=0.01)
         cls.scheduler = optim.lr_scheduler.StepLR(cls.optimizer, step_size=5, gamma=0.5)
 
         # Mocked DataLoader with random data
-        cls.train_loader, cls.val_loader = prepare_dataloader(batch_size=2, pre_process_data=False, grid_save_dir='tests/test_feature_imgs/test_grid_np')
+        cls.train_loader, cls.val_loader = prepare_dataloader(
+                                                                batch_size=16,
+                                                                pre_process_data=False,                                                                    
+                                                                grid_save_dir='tests/multiscale_grids',
+                                                                grid_resolution=128,
+                                                                train_split=0.8  
+                                                            )
 
     def test_model_initialization(self):
         """Test if the model initializes correctly."""
         self.assertIsInstance(self.model, MultiScaleCNN, "Model should be an instance of MultiScaleCNN.")
         self.assertTrue(next(self.model.parameters()).is_cuda == False, "Model should be on CPU for testing.")
 
-    def test_data_loader(self):
-        """Test if data loaders are working properly."""
-        batch = next(iter(self.train_loader))
-        small_grids, medium_grids, large_grids, labels = batch
+    def test_integration_loader_model(self):
+        """Test the integration between the DataLoader and the MultiScaleCNN model."""
+        # Get a batch from the DataLoader
+        first_batch = next(iter(self.train_loader))
 
-        self.assertEqual(small_grids.size(0), 2, "Batch size should be 2.")
-        self.assertEqual(small_grids.ndim, 4, "Inputs should be 4-dimensional (batch, channels, H, W.")
-        self.assertEqual(labels.ndim, 1, "Labels should be 1-dimensional.")
+        # Extract the grids and labels
+        small_grid, medium_grid, large_grid, labels = first_batch
+
+        # Ensure that the grids and labels have the correct shapes and types
+        self.assertEqual(small_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Small grid resolution mismatch.")
+        self.assertEqual(medium_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Medium grid resolution mismatch.")
+        self.assertEqual(large_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Large grid resolution mismatch.")
+        self.assertIsInstance(labels, torch.Tensor, "Labels should be a tensor.")
+        self.assertEqual(labels.dtype, torch.long, "Labels should be of type long.")
+
+        # Pass the grids through the model
+        outputs = self.model(small_grid, medium_grid, large_grid)
+
+        # Check that the output shape matches the number of classes
+        self.assertEqual(outputs.shape[1], self.model.classes, f"Output shape mismatch. Expected {self.model.classes} classes.")
+
+        # Check that the model output is not NaN or Inf
+        self.assertFalse(torch.isnan(outputs).any(), "Model output contains NaN values.")
+        self.assertFalse(torch.isinf(outputs).any(), "Model output contains Inf values.")
+
+
 
     def test_training_step(self):
         """Test the training step for a single batch."""
@@ -44,7 +73,7 @@ class TestTrainingProcess(unittest.TestCase):
     def test_model_training_over_multiple_epochs(self):
         """Test that the model trains correctly over multiple epochs without crashing."""
         # Run the training loop for a fixed number of epochs
-        epochs_to_run = 5
+        epochs_to_run = 3
         initial_patience = 10  # Set a high patience to ensure it doesn't trigger early stopping
 
         # Run training with a few epochs to ensure it works
@@ -109,5 +138,20 @@ class TestTrainingProcess(unittest.TestCase):
             self.assertLessEqual(mock_validate.call_count, 3, "Early stopping did not trigger correctly.")
 
 
+    def test_sanity_check_full_pipeline(self):
+        """Run a sanity check for the full training pipeline with a small dataset."""
+        # Run training loop for 2 epochs as a sanity check
+        epochs_to_run = 2
 
+        # Capture initial training and validation loss
+        initial_train_loss = train(self.model, self.train_loader, self.criterion, self.optimizer, self.device)
+        initial_val_loss = validate(self.model, self.val_loader, self.criterion, self.device)
 
+        # Run the training loop for a few epochs
+        train_epochs(self.model, self.train_loader, self.val_loader, self.criterion,
+                    self.optimizer, self.scheduler, epochs=epochs_to_run, patience=3,
+                    device=self.device, save_dir='tests/sanity_check', plot_dir='tests/sanity_check', save=False)
+
+        # Capture final training and validation loss
+        final_train_loss = train(self.model, self.train_loader, self.criterion, self.optimizer, self.device)
+        final_val_loss = validate(self.model, self.val_loader, self.criterion, self.device)

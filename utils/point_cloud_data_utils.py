@@ -389,12 +389,12 @@ def remap_labels(data_array, label_column_index=-1):
     return data_array, label_mapping
 
 
-def extract_num_classes(file_path, pre_process_data, preprocessed_data_dir=None):
+def extract_num_classes(pre_process_data, preprocessed_data_dir=None, raw_file_path=None):
     """
-    Extracts the number of unique classes from raw data (LAS, CSV, or NPY) or from preprocessed grid filenames.
+    Extracts the number of unique classes from raw data (LAS, CSV, or NPY) or from preprocessed labels.
 
     Args:
-    - file_path (str): Path to the input LAS, CSV, or NPY file.
+    - raw_file_path (str): Path to the input LAS, CSV, or NPY file.
     - pre_process_data (bool): If True, extract classes from raw data; if False, extract classes from preprocessed files.
     - preprocessed_data_dir (str, optional): Path to the preprocessed data directory (required if pre_process_data=False).
 
@@ -403,61 +403,36 @@ def extract_num_classes(file_path, pre_process_data, preprocessed_data_dir=None)
     """
 
     if pre_process_data:
-        # Check file extension to handle different file types
-        if file_path.lower().endswith('.las'):
-            # Load LAS file
-            with laspy.read(file_path) as las_data:
-                # Convert LAS point data to a NumPy array, assuming the class labels are stored in the last column
-                data_array, _  = read_las_file_to_numpy(file_path)
-                class_labels = data_array[:, -1]  # Assuming the class label is in the last column
-            
-        elif file_path.lower().endswith('.csv'):
-            # Load CSV file
-            data = pd.read_csv(file_path)
-            # Assuming the class label is in the last column
-            class_labels = data.iloc[:, -1].values
-
-        elif file_path.lower().endswith('.npy'):
-            data = np.load(file_path)
-            class_labels = data[:, -1]
-            
-        else:
-            raise ValueError("Unsupported file format. Only .las,  .csv or .npy files are supported.")
+        # Load data from raw files
+        data_array, _ = read_file_to_numpy(raw_file_path)
+        
+        # Extract class labels from the last column of the data array
+        class_labels = data_array[:, -1]
 
         # Extract the unique number of classes
         num_classes = len(np.unique(class_labels))
         
     else: 
-        # Helper function to extract the common identifier (e.g., 'grid_4998') from the filename
-        def get_common_identifier(filename):
-            return '_'.join(filename.split('_')[:2])  # Extracts 'grid_4998' from 'grid_4998_small_class_0.npy'
+        if preprocessed_data_dir is None:
+            raise ValueError("preprocessed_data_dir is required when pre_process_data is False.")
 
-        # Collect filenames and extract identifiers for each scale
-        small_files = {get_common_identifier(f): f for f in os.listdir(os.path.join(preprocessed_data_dir, 'small'))}
-        medium_files = {get_common_identifier(f): f for f in os.listdir(os.path.join(preprocessed_data_dir, 'medium'))}
-        large_files = {get_common_identifier(f): f for f in os.listdir(os.path.join(preprocessed_data_dir, 'large'))}
-
-        # Find common identifiers across all three scales
-        common_identifiers = set(small_files.keys()).intersection(medium_files.keys(), large_files.keys())
-
-        if not common_identifiers:
-            raise FileNotFoundError("No common grid files found across small, medium, and large scales.")
-
-        # Sort the common identifiers to ensure consistent ordering
-        common_identifiers = sorted(common_identifiers)
-
-        # Extract class labels from filenames in the 'small' directory using the common identifiers
-        class_labels = []
-        for identifier in common_identifiers:
-            file_name = f"grid_{identifier}_small_class_0.npy"  # Construct the filename format
-            class_label = int(file_name.split('_')[-1].split('.')[0].replace('class_', ''))
-            class_labels.append(class_label)
+        # Load the labels from the unified 'labels.csv' file
+        labels_file = os.path.join(preprocessed_data_dir, 'labels.csv')
         
+        if not os.path.exists(labels_file):
+            raise FileNotFoundError(f"Labels file not found in {labels_file}")
+        
+        # Read the labels CSV and extract the class labels
+        labels_df = pd.read_csv(labels_file)
+        class_labels = labels_df['label'].values
+
+        # Extract the unique number of classes from the labels
         num_classes = len(np.unique(class_labels))
 
-        print(f"Number of common grids: {len(common_identifiers)}")
+    print(f"Number of unique classes: {num_classes}")
     
     return num_classes
+
 
 def extract_num_channels(preprocessed_data_dir):
     """
