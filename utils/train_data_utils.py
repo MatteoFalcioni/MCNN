@@ -2,7 +2,7 @@ import torch
 from torch.utils.data import Dataset, DataLoader, random_split, TensorDataset
 import os
 import numpy as np
-from utils.point_cloud_data_utils import read_las_file_to_numpy
+from utils.point_cloud_data_utils import read_file_to_numpy
 from scripts.point_cloud_to_image import generate_multiscale_grids, load_features_used, load_saved_grids
 from datetime import datetime
 import pandas as pd
@@ -22,32 +22,16 @@ def initialize_weights(model):
 
 
 class GridDataset(Dataset):
-    def __init__(self, grids_dict, label_dir, scale_label):
+    def __init__(self, grids_dict, labels):
         """
-        Initializes the dataset by storing the file paths to the grids and loading the labels from the corresponding CSV file.
+        Initializes the dataset by storing the file paths to the grids and loading the provided labels.
 
         Args:
-        - grids_dict (dict): Dictionary containing file paths to the grids.
-        - label_dir (str): Directory where the labels CSV file is stored.
-        - scale_label (str): The scale label ('small', 'medium', 'large').
+        - grids_dict (dict): Dictionary containing file paths to the grids for each scale.
+        - labels (list): List of labels corresponding to the grid files.
         """
         self.grids_dict = grids_dict
-        self.labels = self.load_labels(label_dir, scale_label)
-
-    def load_labels(self, label_dir, scale_label):
-        """
-        Loads labels from the CSV file.
-
-        Args:
-        - label_dir (str): Directory where the labels CSV is stored.
-        - scale_label (str): The scale label ('small', 'medium', 'large').
-
-        Returns:
-        - list: List of labels corresponding to the grid files.
-        """
-        label_file = os.path.join(label_dir, f"{scale_label}_labels.csv")
-        df = pd.read_csv(label_file)
-        return df['label'].tolist()
+        self.labels = labels
 
     def __len__(self):
         return len(self.labels)
@@ -64,9 +48,9 @@ class GridDataset(Dataset):
         - label (torch.Tensor): Corresponding label for the grid.
         """
         # Load grids lazily using the file paths stored in grids_dict
-        small_grid_path = self.grids_dict['small']['grid_paths'][idx]
-        medium_grid_path = self.grids_dict['medium']['grid_paths'][idx]
-        large_grid_path = self.grids_dict['large']['grid_paths'][idx]
+        small_grid_path = self.grids_dict['small'][idx]
+        medium_grid_path = self.grids_dict['medium'][idx]
+        large_grid_path = self.grids_dict['large'][idx]
 
         small_grid = torch.tensor(np.load(small_grid_path), dtype=torch.float32)
         medium_grid = torch.tensor(np.load(medium_grid_path), dtype=torch.float32)
@@ -103,25 +87,7 @@ def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw/labeled_
         if not window_sizes:
             raise ValueError("Window sizes must be provided when generating grids.")
 
-        if data_dir.endswith('.npy'):   # enabled saving of raw data to .npy format (i.e., using directly data_array as raw data)
-            print("Generating new grids from numpy data...")
-            data_array = np.load(data_dir)
-            
-            try:
-                known_features = load_features_used(features_file_path)
-                print(f"Features loaded from {features_file_path}: {known_features}")
-            except Exception as e:
-                raise ValueError(f"Unable to load features from {features_file_path}: {e}")
-            
-        elif data_dir.endswith('.las'):
-            print("Generating new grids from raw LAS data...")
-            data_array, known_features = read_las_file_to_numpy(data_dir, features_to_extract=features_to_use)
-
-        elif data_dir.endswith('.csv'):
-            print("Generating new grids from raw CSV data...")
-            df = pd.read_csv(data_dir)
-            data_array = df.values
-            known_features = df.columns.tolist()
+        data_array, known_features = read_file_to_numpy(data_dir=data_dir, features_to_use=features_to_use, features_file_path=features_file_path)
 
         # Generate and save the grids
         generate_multiscale_grids(data_array, window_sizes, grid_resolution, features_to_use, known_features, grid_save_dir)

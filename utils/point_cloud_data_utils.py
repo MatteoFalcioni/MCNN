@@ -130,39 +130,6 @@ def numpy_to_dataframe(data_array, feature_names=None):
     return pd.DataFrame(data_array, columns=feature_names)
 
 
-def remap_labels(data_array, label_column_index=-1):
-    """
-    Automatically remaps the labels in the given data array to a continuous range starting from 0. Needed for
-    training purpose (in order to feed labels as targets to the loss).
-    Stores the mapping for future reference.
-
-    Args:
-    - data_array (np.ndarray): The input data array where the last column (by default) contains the labels.
-    - label_column_index (int): The index of the column containing the labels (default is the last column).
-
-    Returns:
-    - np.ndarray: The data array with the labels remapped.
-    - dict: A dictionary that stores the original to new label mapping.
-    """
-    # Extract the label column
-    labels = data_array[:, label_column_index]
-
-    # Get the unique labels
-    unique_labels = np.unique(labels)
-
-    # Create a mapping from the unique labels to continuous integers
-    label_mapping = {label: idx for idx, label in enumerate(unique_labels)}
-
-    # Apply the mapping to the labels
-    remapped_labels = np.array([label_mapping[label] for label in labels])
-
-    # Replace the original labels in the data array with the remapped labels
-    data_array[:, label_column_index] = remapped_labels
-
-    # Return the remapped data array and the mapping dictionary
-    return data_array, label_mapping
-
-
 def read_csv_file_to_numpy(file_path, features_to_extract=None):
     """
     Reads a CSV file and extracts the specified features along with coordinates.
@@ -207,6 +174,45 @@ def read_csv_file_to_numpy(file_path, features_to_extract=None):
     feature_names = ['x', 'y', 'z'] + available_features
 
     return combined_data, feature_names
+
+
+def read_file_to_numpy(data_dir, features_to_use=None, features_file_path=None):
+    """
+    Loads the raw data from a .npy, .las, or .csv file and returns the data array along with the known features.
+
+    Args:
+    - data_dir (str): Path to the raw data file.
+    - features_to_use (list): List of features to extract (only used for .las files).
+    - features_file_path (str): Path to the features file (only used for .npy files).
+
+    Returns:
+    - data_array (np.ndarray): The raw data array (x, y, z, features).
+    - known_features (list): List of feature names corresponding to the data array.
+    """
+    if data_dir.endswith('.npy'):  # Directly using a NumPy array as raw data
+        print("Loading raw data from numpy file...")
+        data_array = np.load(data_dir)
+        try:
+            known_features = load_features_used(features_file_path)
+            print(f"Features loaded from {features_file_path}: {known_features}")
+        except Exception as e:
+            raise ValueError(f"Unable to load features from {features_file_path}: {e}")
+
+    elif data_dir.endswith('.las'):  # Raw LAS file
+        print("Loading raw data from LAS file...")
+        data_array, known_features = read_las_file_to_numpy(data_dir, features_to_extract=features_to_use)
+
+    elif data_dir.endswith('.csv'):  # Raw CSV file
+        print("Loading raw data from CSV file...")
+        df = pd.read_csv(data_dir)
+        data_array = df.values
+        known_features = df.columns.tolist()
+
+    else:
+        raise ValueError("Unsupported data format. Please provide a .npy, .las, or .csv file.")
+
+    return data_array, known_features
+
 
 
 def combine_and_save_csv_files(csv_files, save=False, save_dir='data/combined_data'):
@@ -296,6 +302,91 @@ def sample_data(input_file, sample_size, file_type='csv', save=False, save_dir='
         print(f"Sampled data saved to {output_file_path}")
 
     return sampled_data
+
+
+def save_features_used(features_to_use, save_dir):
+    """
+    Saves the features used during grid generation to a CSV file.
+
+    Args:
+    - features_to_use (list): List of features used in grid generation.
+    - save_dir (str): Directory where the grids are saved.
+
+    Returns:
+    - None
+    """
+    feature_file = os.path.join(save_dir, 'features_used.csv')
+    with open(feature_file, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(features_to_use)
+    print(f"Features saved: {features_to_use}")
+
+
+def load_features_used(features_file_path):
+    """
+    Loads the features used for grid generation from a saved CSV file.
+
+    Args:
+    - features_file_path (str): Path to the CSV file containing the saved features.
+
+    Returns:
+    - features_list (list): List of features loaded from the CSV file.
+
+    Raises:
+    - FileNotFoundError: If the features file is not found.
+    - ValueError: If the file is empty or not in the expected format.
+    """
+
+    # Check if the file exists
+    if not os.path.exists(features_file_path):
+        raise FileNotFoundError(f"Features file not found at {features_file_path}")
+
+    # Load the features from the CSV file
+    try:
+        with open(features_file_path, 'r') as f:
+            reader = csv.reader(f)
+            features_list = next(reader)  # Assuming the first row contains the feature names
+
+        if not features_list:
+            raise ValueError(f"The features file at {features_file_path} is empty or invalid.")
+
+        return features_list
+
+    except Exception as e:
+        raise ValueError(f"Error loading features from {features_file_path}: {e}")
+
+
+def remap_labels(data_array, label_column_index=-1):
+    """
+    Automatically remaps the labels in the given data array to a continuous range starting from 0. Needed for
+    training purpose (in order to feed labels as targets to the loss).
+    Stores the mapping for future reference.
+
+    Args:
+    - data_array (np.ndarray): The input data array where the last column (by default) contains the labels.
+    - label_column_index (int): The index of the column containing the labels (default is the last column).
+
+    Returns:
+    - np.ndarray: The data array with the labels remapped.
+    - dict: A dictionary that stores the original to new label mapping.
+    """
+    # Extract the label column
+    labels = data_array[:, label_column_index]
+
+    # Get the unique labels
+    unique_labels = np.unique(labels)
+
+    # Create a mapping from the unique labels to continuous integers
+    label_mapping = {label: idx for idx, label in enumerate(unique_labels)}
+
+    # Apply the mapping to the labels
+    remapped_labels = np.array([label_mapping[label] for label in labels])
+
+    # Replace the original labels in the data array with the remapped labels
+    data_array[:, label_column_index] = remapped_labels
+
+    # Return the remapped data array and the mapping dictionary
+    return data_array, label_mapping
 
 
 def extract_num_classes(file_path, pre_process_data, preprocessed_data_dir=None):
@@ -391,29 +482,3 @@ def extract_num_channels(preprocessed_data_dir):
     num_channels = sample_grid.shape[0]
     
     return num_channels
-
-
-def clean_point_cloud_data(data_array):
-    # Remove rows where any element is NaN or Inf
-    valid_mask = ~np.isnan(data_array).any(axis=1) & ~np.isinf(data_array).any(axis=1)
-    return data_array[valid_mask]
-
-
-def save_features_used(features_to_use, save_dir):
-    """
-    Saves the features used during grid generation to a CSV file.
-
-    Args:
-    - features_to_use (list): List of features used in grid generation.
-    - save_dir (str): Directory where the grids are saved.
-
-    Returns:
-    - None
-    """
-    feature_file = os.path.join(save_dir, 'features_used.csv')
-    with open(feature_file, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(features_to_use)
-    print(f"Features saved: {features_to_use}")
-
-

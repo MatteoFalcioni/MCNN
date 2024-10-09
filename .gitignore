@@ -13,3 +13,4 @@ scripts/__pycache__/point_cloud_to_image.cpython-310.pyc
 scripts/__pycache__/optimized_pc_to_img.cpython-310.pyc
 scripts/__pycache__/point_cloud_to_image.cpython-310.pyc
 tests/test_optimized_grids_real_data
+tests/multiscale_grids
