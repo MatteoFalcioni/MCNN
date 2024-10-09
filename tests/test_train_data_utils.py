@@ -1,46 +1,29 @@
 import unittest
-import torch
-from utils.train_data_utils import prepare_dataloader
+from utils.train_data_utils import GridDataset, load_saved_grids
 
-
-class TestPrepareDataLoader(unittest.TestCase):
-
+class TestGridDataset(unittest.TestCase):
     def setUp(self):
-        """Set up the parameters for testing."""
-        self.batch_size = 2  # Small batch size for testing
-        self.train_split = 0.8  # 80% training, 20% evaluation
-        self.device = torch.device('cpu')
+        # Load the grids and labels using the load_saved_grids function
+        self.grid_save_dir = 'tests/multiscale_grids'  # replace with the actual path
+        self.grids_dict, self.labels = load_saved_grids(self.grid_save_dir)
 
-        self.grid_save_dir = 'tests/test_feature_imgs/test_grid_np'
+        # Create the dataset instance
+        self.dataset = GridDataset(grids_dict=self.grids_dict, labels=self.labels)  
 
-    def test_train_loader(self):
-        """Test that the train DataLoader is functioning correctly."""
-        # Call the prepare_dataloader function with a small test dataset
-        train_loader, eval_loader = prepare_dataloader(
-            batch_size=self.batch_size,
-            pre_process_data=False,  # Assume the grids are pre-saved
-            grid_save_dir=self.grid_save_dir,
-            save_grids=False,  # No need to save grids for testing
-            train_split=self.train_split
-        )
+    def test_len(self):
+        # Test that the length of the dataset matches the number of grids and labels
+        self.assertEqual(len(self.dataset), len(self.labels))
 
-        # Test training set
-        for batch_idx, (small_grids, medium_grids, large_grids, labels) in enumerate(train_loader):
-            with self.subTest(batch_idx=batch_idx):
-                self.assertEqual(small_grids.shape[0], self.batch_size, "Incorrect batch size for small grids")
-                self.assertEqual(medium_grids.shape[0], self.batch_size, "Incorrect batch size for medium grids")
-                self.assertEqual(large_grids.shape[0], self.batch_size, "Incorrect batch size for large grids")
-                self.assertEqual(labels.shape[0], self.batch_size, "Incorrect batch size for labels")
-                # Stop after one batch for simplicity
-                break
-
-        # Test evaluation set
-        for batch_idx, (small_grids, medium_grids, large_grids, labels) in enumerate(eval_loader):
-            with self.subTest(batch_idx=batch_idx):
-                self.assertEqual(small_grids.shape[0], self.batch_size, "Incorrect batch size for small grids")
-                self.assertEqual(medium_grids.shape[0], self.batch_size, "Incorrect batch size for medium grids")
-                self.assertEqual(large_grids.shape[0], self.batch_size, "Incorrect batch size for large grids")
-                self.assertEqual(labels.shape[0], self.batch_size, "Incorrect batch size for labels")
-                # Stop after one batch for simplicity
-                break
+    def test_getitem(self):
+        # Test retrieving a sample grid and label
+        sample_idx = 0 
+        small_grid, medium_grid, large_grid, label = self.dataset[sample_idx]
+        
+        # Test that the grids are non-empty
+        self.assertIsNotNone(small_grid)
+        self.assertIsNotNone(medium_grid)
+        self.assertIsNotNone(large_grid)
+        
+        # Check that the retrieved label matches the corresponding one
+        self.assertEqual(label, self.labels[sample_idx])
 

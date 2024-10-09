@@ -196,40 +196,6 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, feature
                 label_writer.writerow([i, label])
 
     print('Multiscale grid generation and single label file saving completed successfully.')
- 
-
-def load_features_used(features_file_path):
-    """
-    Loads the features used for grid generation from a saved CSV file.
-
-    Args:
-    - features_file_path (str): Path to the CSV file containing the saved features.
-
-    Returns:
-    - features_list (list): List of features loaded from the CSV file.
-
-    Raises:
-    - FileNotFoundError: If the features file is not found.
-    - ValueError: If the file is empty or not in the expected format.
-    """
-
-    # Check if the file exists
-    if not os.path.exists(features_file_path):
-        raise FileNotFoundError(f"Features file not found at {features_file_path}")
-
-    # Load the features from the CSV file
-    try:
-        with open(features_file_path, 'r') as f:
-            reader = csv.reader(f)
-            features_list = next(reader)  # Assuming the first row contains the feature names
-
-        if not features_list:
-            raise ValueError(f"The features file at {features_file_path} is empty or invalid.")
-
-        return features_list
-
-    except Exception as e:
-        raise ValueError(f"Error loading features from {features_file_path}: {e}")
 
 
 def load_saved_grids(grid_save_dir):
