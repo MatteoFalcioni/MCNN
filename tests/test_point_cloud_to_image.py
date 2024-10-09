@@ -1,18 +1,18 @@
 import unittest
 import numpy as np
 from utils.point_cloud_data_utils import read_las_file_to_numpy, numpy_to_dataframe, read_csv_file_to_numpy, sample_data
-from scripts.point_cloud_to_image import create_feature_grid, assign_features_to_grid, generate_multiscale_grids, compute_point_cloud_bounds
+from scripts.point_cloud_to_image import create_feature_grid, assign_features_to_grid, generate_multiscale_grids, compute_point_cloud_bounds, load_saved_grids
 from utils.plot_utils import visualize_grid, visualize_grid_with_comparison
 from scipy.spatial import cKDTree as KDTree
 import os
-
+import pandas as pd
 
 class TestPointCloudToImage(unittest.TestCase):
 
     def setUp(self):
         self.file_path = 'data/raw/features_F.las'
         # self.file_path = 'data/training_data/test_21.csv'
-        self.sample_size = 5000  # Subset for testing. 
+        self.sample_size = 2000  # Subset for testing. 
         self.grid_resolution = 128
         self.features_to_use = ['intensity', 'red', 'green', 'blue']  # Example selected features
         self.channels = len(self.features_to_use)  # Number of channels based on selected features
@@ -37,8 +37,8 @@ class TestPointCloudToImage(unittest.TestCase):
         self.save_imgs_dir = 'tests/test_feature_imgs'   # directory to save test images
         os.makedirs(self.save_imgs_dir, exist_ok=True)
 
-        self.save_grids_dir = 'tests/test_feature_imgs/test_grid_np'  # directory to save test grids
-        os.makedirs(self.save_imgs_dir, exist_ok=True)
+        self.grid_save_dir = 'tests/multiscale_grids'
+        os.makedirs(self.grid_save_dir, exist_ok=True)
         
         # Compute the point cloud bounds
         self.point_cloud_bounds = compute_point_cloud_bounds(self.full_data)
@@ -116,7 +116,7 @@ class TestPointCloudToImage(unittest.TestCase):
         # Transpose the grid to match PyTorch's 'channels x height x width' format for visualization
         grid_with_features = np.transpose(grid_with_features, (2, 0, 1))
 
-        # Visualize and eventually save feature images (if save = True)
+        """# Visualize and eventually save feature images (if save = True)
         for chan in range(0, self.channels):
             # Create a filename for saving the image
             feature_name = self.feature_names[3 + chan] if len(self.feature_names) > 3 + chan else f"Channel_{chan}"
@@ -130,6 +130,7 @@ class TestPointCloudToImage(unittest.TestCase):
         chosen_chan = 3  # channel to visualize on feature image (8=nir)
         visualize_grid_with_comparison(grid_with_features, self.df, center_point, window_size=self.window_size, feature_names=self.feature_names,
                                        channel=chosen_chan, visual_size=50, save=self.save_imgs_bool, file_path=file_path)
+        """
 
     def test_kd_tree(self):
         """
@@ -144,9 +145,6 @@ class TestPointCloudToImage(unittest.TestCase):
         # Select a center point for querying
         center_point = self.full_data[self.idx, :3]
 
-        # Compute the point cloud bounds
-        point_cloud_bounds = compute_point_cloud_bounds(self.full_data)
-
         # Check if the center point is within the point cloud bounds
         half_window = self.window_size / 2
         if (center_point[0] - half_window < self.point_cloud_bounds['x_min'] or 
@@ -154,7 +152,6 @@ class TestPointCloudToImage(unittest.TestCase):
             center_point[1] - half_window < self.point_cloud_bounds['y_min'] or
             center_point[1] + half_window > self.point_cloud_bounds['y_max']):
             self.skipTest(f"Skipping test: center point {center_point} is out of bounds for the selected window size.")
-    
 
         # Create grid and query KDTree for nearest neighbors
         grid, _, x_coords, y_coords, z_coord = create_feature_grid(
@@ -192,21 +189,63 @@ class TestPointCloudToImage(unittest.TestCase):
         print("KDTree query results are valid.")
     
     
-def test_generate_multiscale_grids(self):
+    def test_generate_multiscale_grids(self):
 
-        generate_multiscale_grids(
-            data_array=self.sampled_data,
-            window_sizes=self.window_sizes,
-            grid_resolution=self.grid_resolution,
-            features_to_use=self.features_to_use,
-            known_features=self.feature_names,
-            save_dir='tests/multiscale_grids'
-        )
+            print('testing multiscale gen...')
+            generate_multiscale_grids(
+                data_array=self.sampled_data,
+                window_sizes=self.window_sizes,
+                grid_resolution=self.grid_resolution,
+                features_to_use=self.features_to_use,
+                known_features=self.feature_names,
+                save_dir='tests/multiscale_grids'
+            )
 
-        # Verify that the grids and corresponding labels were saved correctly
-        for scale_label, _ in self.window_sizes:
-            grid_dir = f'tests/multiscale_grids/{scale_label}'
-            self.assertTrue(os.path.exists(grid_dir), f"Directory {grid_dir} does not exist.")
-            saved_grids = [f for f in os.listdir(grid_dir) if f.endswith('.npy')]
-            self.assertGreater(len(saved_grids), 0, f"No grids saved for scale {scale_label}.")
+            # Verify that the grids and corresponding labels were saved correctly
+            for scale_label, _ in self.window_sizes:
+                grid_dir = f'tests/multiscale_grids/{scale_label}'
+                self.assertTrue(os.path.exists(grid_dir), f"Directory {grid_dir} does not exist.")
+                saved_grids = [f for f in os.listdir(grid_dir) if f.endswith('.npy')]
+                self.assertGreater(len(saved_grids), 0, f"No grids saved for scale {scale_label}.")
 
+                # Load the grids for each scale and ensure they have valid values
+                for grid_file in saved_grids:
+                    grid_path = os.path.join(grid_dir, grid_file)
+                    grid = np.load(grid_path)
+
+                    # Check for NaN, Inf, or all-zero grids
+                    self.assertFalse(np.isnan(grid).any(), f"Grid {grid_file} contains NaN values.")
+                    self.assertFalse(np.isinf(grid).any(), f"Grid {grid_file} contains Inf values.")
+                    self.assertGreater(np.count_nonzero(grid), 0, f"Grid {grid_file} is all zeros.")
+
+    
+    def test_load_saved_grids(self):
+        """
+        Test loading saved multiscale grids, ensuring consistency across scales and validation of grid contents.
+        """
+        print("Testing loading of saved grids...")
+
+        # Load the grids and labels
+        grids_dict, labels = load_saved_grids(self.grid_save_dir)
+
+        # Ensure grids for all scales are consistent in number
+        num_small = len(grids_dict['small'])
+        num_medium = len(grids_dict['medium'])
+        num_large = len(grids_dict['large'])
+        num_labels = len(labels)
+
+        # Check that the number of grids is the same across all scales and labels
+        self.assertEqual(num_small, num_medium, "Mismatch between small and medium grid counts.")
+        self.assertEqual(num_small, num_large, "Mismatch between small and large grid counts.")
+        self.assertEqual(num_small, num_labels, "Mismatch between grid count and label count.")
+
+        print(f"Loaded {num_small} grids for each scale with {num_labels} labels.")
+
+        # Check that the grid paths are valid files
+        for scale in ['small', 'medium', 'large']:
+            for grid_path in grids_dict[scale]:
+                self.assertTrue(os.path.exists(grid_path), f"Grid file not found: {grid_path}")
+
+        # Optionally print the first few grids and labels for manual inspection
+        print(f"First 5 grid paths for 'small' scale: {grids_dict['small'][:5]}")
+        print(f"First 5 labels: {labels[:5]}")
