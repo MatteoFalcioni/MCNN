@@ -21,6 +21,10 @@ class MultiScaleCNN(nn.Module):
         Initializes the MultiScaleCNN model with three SCNNs and fully connected layers.
         """
         super(MultiScaleCNN, self).__init__()
+        
+        # Store the number of classes
+        self.channels = channels
+        self.classes = classes
 
         # Initialize three SCNNs
         self.scnn1 = SingleScaleCNN(channels=channels)

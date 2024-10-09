@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
-from utils.point_cloud_data_utils import read_las_file_to_numpy, numpy_to_dataframe, read_csv_file_to_numpy, sample_data, load_saved_grids
-from scripts.point_cloud_to_image import create_feature_grid, assign_features_to_grid, generate_multiscale_grids, compute_point_cloud_bounds 
+from utils.point_cloud_data_utils import read_las_file_to_numpy, numpy_to_dataframe, read_csv_file_to_numpy, sample_data, read_file_to_numpy
+from scripts.point_cloud_to_image import create_feature_grid, assign_features_to_grid, generate_multiscale_grids, compute_point_cloud_bounds, load_saved_grids
 from utils.plot_utils import visualize_grid, visualize_grid_with_comparison
 from scipy.spatial import cKDTree as KDTree
 import os
@@ -10,8 +10,8 @@ import pandas as pd
 class TestPointCloudToImage(unittest.TestCase):
 
     def setUp(self):
-        self.file_path = 'data/raw/features_F.las'
-        # self.file_path = 'data/training_data/test_21.csv'
+        # self.file_path = 'data/raw/features_F.las'
+        self.file_path = 'data/training_data/test_21.csv'
         self.sample_size = 2000  # Subset for testing. 
         self.grid_resolution = 128
         self.features_to_use = ['intensity', 'red', 'green', 'blue']  # Example selected features
@@ -19,7 +19,7 @@ class TestPointCloudToImage(unittest.TestCase):
         self.window_size = 5.0
 
         # Load LAS file and get data with user-selected features
-        self.full_data, self.feature_names = read_las_file_to_numpy(self.file_path, features_to_extract=self.features_to_use)
+        self.full_data, self.feature_names = read_file_to_numpy(data_dir=self.file_path, features_to_use=self.features_to_use)
         print(f'feature names in csv test file: {self.feature_names}')
         self.df = numpy_to_dataframe(self.full_data, self.feature_names)
         num_points = self.full_data.shape[0]

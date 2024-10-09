@@ -29,7 +29,7 @@ def main():
         num_channels=extract_num_channels(args.preprocessed_data_dir)   # extract number of channels from existing grids
 
     # determine the number of classes
-    num_classes = extract_num_classes(args.raw_data_filepath, args.preprocess_data, args.preprocessed_data_dir)   
+    num_classes = extract_num_classes(raw_file_path=args.raw_data_filepath, pre_process_data=args.preprocess_data, preprocessed_data_dir=args.preprocessed_data_dir)   
 
     # Initialize model 
     print("Initializing MultiScaleCNN (MCNN) model...")
