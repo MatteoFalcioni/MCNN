@@ -14,7 +14,7 @@ class TestTrainingProcess(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Run once for the entire test class
-        device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+        cls.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
         cls.grid_save_dir = 'tests/multiscale_grids'
         cls.num_channels = extract_num_channels(preprocessed_data_dir=cls.grid_save_dir)
         cls.num_classes = extract_num_classes(pre_process_data=False, preprocessed_data_dir=cls.grid_save_dir)
@@ -23,6 +23,7 @@ class TestTrainingProcess(unittest.TestCase):
         cls.criterion = nn.CrossEntropyLoss()
         cls.optimizer = optim.SGD(cls.model.parameters(), lr=0.01)
         cls.scheduler = optim.lr_scheduler.StepLR(cls.optimizer, step_size=5, gamma=0.5)
+        cls.grid_resolution = 128
 
         # Mocked DataLoader with random data
         cls.train_loader, cls.val_loader = prepare_dataloader(
@@ -36,7 +37,7 @@ class TestTrainingProcess(unittest.TestCase):
     def test_model_initialization(self):
         """Test if the model initializes correctly."""
         self.assertIsInstance(self.model, MultiScaleCNN, "Model should be an instance of MultiScaleCNN.")
-        self.assertTrue(next(self.model.parameters()).is_cuda == False, "Model should be on CPU for testing.")
+        self.assertTrue(next(self.model.parameters()).is_cuda == True, "Model should be on GPU.")
 
     def test_integration_loader_model(self):
         """Test the integration between the DataLoader and the MultiScaleCNN model."""
@@ -45,6 +46,12 @@ class TestTrainingProcess(unittest.TestCase):
 
         # Extract the grids and labels
         small_grid, medium_grid, large_grid, labels = first_batch
+        
+        # Move the input grids to the same device as the model (GPU in this case)
+        small_grid = small_grid.to(self.device)
+        medium_grid = medium_grid.to(self.device)
+        large_grid = large_grid.to(self.device)
+        labels = labels.to(self.device)
 
         # Ensure that the grids and labels have the correct shapes and types
         self.assertEqual(small_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Small grid resolution mismatch.")
@@ -79,7 +86,7 @@ class TestTrainingProcess(unittest.TestCase):
         # Run training with a few epochs to ensure it works
         train_epochs(self.model, self.train_loader, self.val_loader, self.criterion,
                      self.optimizer, self.scheduler, epochs=epochs_to_run, patience=initial_patience,
-                     device=self.device, save_dir='tests/test_training_saved', plot_dir='tests/test_training_saved',
+                     device=self.device, plot_dir='tests/test_training_plots',
                      save=False)
 
         # Check that the training completes without any exceptions
@@ -132,7 +139,7 @@ class TestTrainingProcess(unittest.TestCase):
         with patch('scripts.train.validate', return_value=1.0) as mock_validate:
             train_epochs(self.model, self.train_loader, self.val_loader, self.criterion,
                          self.optimizer, self.scheduler, epochs=10, patience=2, device=self.device,
-                         save_dir='tests/test_training_saved', plot_dir='tests/test_training_saved')
+                         model_save_dir='tests/test_training_saved', plot_dir='tests/test_training_plots', save=False)
 
             # Check how many times validate was called
             self.assertLessEqual(mock_validate.call_count, 3, "Early stopping did not trigger correctly.")
@@ -150,8 +157,13 @@ class TestTrainingProcess(unittest.TestCase):
         # Run the training loop for a few epochs
         train_epochs(self.model, self.train_loader, self.val_loader, self.criterion,
                     self.optimizer, self.scheduler, epochs=epochs_to_run, patience=3,
-                    device=self.device, save_dir='tests/sanity_check', plot_dir='tests/sanity_check', save=False)
+                    device=self.device, model_save_dir='tests/sanity_check/model', plot_dir='tests/sanity_check', save=False)
 
         # Capture final training and validation loss
         final_train_loss = train(self.model, self.train_loader, self.criterion, self.optimizer, self.device)
         final_val_loss = validate(self.model, self.val_loader, self.criterion, self.device)
+        
+        print(f'initial train loss: {initial_train_loss}')
+        print(f'initial val loss: {initial_val_loss}')
+        print(f'final train loss: {final_train_loss}')
+        print(f'final val loss: {final_train_loss}')
