@@ -1,35 +1,49 @@
 import unittest
-from utils.train_data_utils import GridDataset, load_saved_grids
-from utils.train_data_utils import prepare_dataloader
 from torch.utils.data import DataLoader
+from utils.point_cloud_data_utils import read_file_to_numpy, remap_labels
+from scripts.point_cloud_to_image import compute_point_cloud_bounds
+from scipy.spatial import cKDTree
+from utils.train_data_utils import PointCloudDataset, prepare_dataloader
 
-class TestGridDataset(unittest.TestCase):
+
+class TestPointCloudDataset(unittest.TestCase):
     def setUp(self):
-        # Load the grids and labels using the load_saved_grids function
-        self.grid_save_dir = 'tests/multiscale_grids'  # replace with the actual path
-        self.grids_dict, self.labels = load_saved_grids(self.grid_save_dir)
+        # Mock point cloud data for the test
+        self.data_array, self.known_features = read_file_to_numpy(data_dir='data/sampled/sampled_data_500000.csv')
+        self.data_array, _ = remap_labels(self.data_array)
+        self.window_sizes = [('small', 2.5), ('medium', 5.0), ('large', 10.0)]
+        self.grid_resolution = 128
+        self.features_to_use = ['intensity', 'red', 'green', 'blue']
+
+        # Build the KDTree once for the test
+        self.kdtree = cKDTree(self.data_array[:, :3])
+        self.point_cloud_bounds = compute_point_cloud_bounds(self.data_array)
 
         # Create the dataset instance
-        self.dataset = GridDataset(grids_dict=self.grids_dict, labels=self.labels)  
-
-        self.train_split = 0.8
+        self.dataset = PointCloudDataset(
+            data_array=self.data_array,
+            window_sizes=self.window_sizes,
+            grid_resolution=self.grid_resolution,
+            features_to_use=self.features_to_use,
+            known_features=self.known_features
+        )
 
     def test_len(self):
-        # Test that the length of the dataset matches the number of grids and labels
-        self.assertEqual(len(self.dataset), len(self.labels))
+        # Test that the length of the dataset matches the number of points
+        self.assertEqual(len(self.dataset), len(self.data_array))
 
     def test_getitem(self):
         # Test retrieving a sample grid and label
         sample_idx = 0 
         small_grid, medium_grid, large_grid, label = self.dataset[sample_idx]
-        
+
         # Test that the grids are non-empty
         self.assertIsNotNone(small_grid)
         self.assertIsNotNone(medium_grid)
         self.assertIsNotNone(large_grid)
-        
-        # Check that the retrieved label matches the corresponding one
-        self.assertEqual(label, self.labels[sample_idx])
+
+        # Check that the retrieved label matches the expected label
+        self.assertEqual(label, self.data_array[sample_idx, -1])
 
 
 class TestPrepareDataloader(unittest.TestCase):
@@ -37,73 +51,60 @@ class TestPrepareDataloader(unittest.TestCase):
     def setUp(self):
         # Configurable parameters for the test
         self.batch_size = 16
-        self.grid_save_dir = 'tests/multiscale_grids'
-        self.pre_process_data = False  # Since we're focusing on loading saved grids
         self.grid_resolution = 128
-        # self.data_dir = 'data/raw/labeled_FSL.las'  # Path to raw data (not needed for this test)
-        # self.window_sizes = [('small', 2.5), ('medium', 5.0), ('large', 10.0)]
-        # self.features_to_use = ['intensity', 'red', 'green', 'blue']
+        self.train_split = 0.8
+        self.data_dir = 'data/sampled/sampled_data_500000.csv'  # Path to raw data for this test
+        self.window_sizes = [('small', 2.5), ('medium', 5.0), ('large', 10.0)]
+        self.features_to_use = ['intensity', 'red', 'green', 'blue']
 
     def test_dataloader_full_dataset(self):
-        # Load the full dataset using the prepare_dataloader function
+        # Prepare DataLoader without train/test split (using full dataset)
         train_loader, eval_loader = prepare_dataloader(
             batch_size=self.batch_size,
-            pre_process_data=self.pre_process_data,
-            # data_dir=self.data_dir,
-            grid_save_dir=self.grid_save_dir,
-            # window_sizes=self.window_sizes,
+            data_dir=self.data_dir,
+            window_sizes=self.window_sizes,
             grid_resolution=self.grid_resolution,
-            # features_to_use=self.features_to_use,
+            features_to_use=self.features_to_use,
             train_split=0.0  # No train/test split, using full dataset
         )
 
-        # Ensure that the DataLoader is returned properly and not None
+        # Ensure that the train_loader is returned properly and eval_loader is None
         self.assertIsInstance(train_loader, DataLoader, "train_loader is not a DataLoader instance.")
         self.assertIsNone(eval_loader, "eval_loader should be None when train_split=0.0.")
 
         # Fetch the first batch and verify its structure
         first_batch = next(iter(train_loader))
         self.assertEqual(len(first_batch), 4, "Expected 4 elements in the batch (small_grid, medium_grid, large_grid, label).")
-        
+
         small_grid, medium_grid, large_grid, labels = first_batch
         self.assertEqual(small_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Small grid resolution mismatch.")
         self.assertEqual(medium_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Medium grid resolution mismatch.")
         self.assertEqual(large_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Large grid resolution mismatch.")
-        
-        # Print some of the first batch data to check if it's loaded correctly
-        print("Small Grid Shape:", small_grid.shape)
-        print("Medium Grid Shape:", medium_grid.shape)
-        print("Large Grid Shape:", large_grid.shape)
-        print("Labels:", labels)
 
-        def test_train_eval_dataloader(self):
-            # Load both train and eval DataLoader
-            train_loader, eval_loader = prepare_dataloader(
-                batch_size=self.batch_size,
-                pre_process_data=False,
-                grid_save_dir=self.grid_save_dir,
-                train_split=self.train_split
-            )
+    def test_train_eval_dataloader(self):
+        # Load both train and eval DataLoader
+        train_loader, eval_loader = prepare_dataloader(
+            batch_size=self.batch_size,
+            data_dir=self.data_dir,
+            window_sizes=self.window_sizes,
+            grid_resolution=self.grid_resolution,
+            features_to_use=self.features_to_use,
+            train_split=self.train_split
+        )
 
-            # Test the train_loader
-            for first_batch in train_loader:
-                small_grid, medium_grid, large_grid, labels = first_batch
-                # Check the shape of the grids
-                self.assertEqual(small_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Small grid resolution mismatch.")
-                self.assertEqual(medium_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Medium grid resolution mismatch.")
-                self.assertEqual(large_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Large grid resolution mismatch.")
-                self.assertEqual(len(labels), self.batch_size, "Batch size mismatch in training DataLoader.")
-                break  # Just testing the first batch
+        # Test the train_loader
+        first_batch = next(iter(train_loader))
+        small_grid, medium_grid, large_grid, labels = first_batch
+        self.assertEqual(small_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Small grid resolution mismatch.")
+        self.assertEqual(medium_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Medium grid resolution mismatch.")
+        self.assertEqual(large_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Large grid resolution mismatch.")
+        self.assertEqual(len(labels), self.batch_size, "Batch size mismatch in training DataLoader.")
 
-            # Test the eval_loader (ensure it was created and works)
-            self.assertIsNotNone(eval_loader, "Evaluation DataLoader is None when it shouldn't be.")
-
-            for first_batch in eval_loader:
-                small_grid, medium_grid, large_grid, labels = first_batch
-                # Check the shape of the grids for evaluation DataLoader
-                self.assertEqual(small_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Small grid resolution mismatch in eval.")
-                self.assertEqual(medium_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Medium grid resolution mismatch in eval.")
-                self.assertEqual(large_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Large grid resolution mismatch in eval.")
-                self.assertEqual(len(labels), self.batch_size, "Batch size mismatch in evaluation DataLoader.")
-                break  # Just testing the first batch
-
+        # Test the eval_loader (ensure it was created and works)
+        self.assertIsNotNone(eval_loader, "Evaluation DataLoader is None when it shouldn't be.")
+        first_batch_eval = next(iter(eval_loader))
+        small_grid, medium_grid, large_grid, labels_eval = first_batch_eval
+        self.assertEqual(small_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Small grid resolution mismatch in eval.")
+        self.assertEqual(medium_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Medium grid resolution mismatch in eval.")
+        self.assertEqual(large_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Large grid resolution mismatch in eval.")
+        self.assertEqual(len(labels_eval), self.batch_size, "Batch size mismatch in evaluation DataLoader.")

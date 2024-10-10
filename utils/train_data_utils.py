@@ -1,9 +1,9 @@
 import torch
-from torch.utils.data import Dataset, DataLoader, random_split, TensorDataset
+from torch.utils.data import Dataset, DataLoader, random_split
 import os
 import numpy as np
 from utils.point_cloud_data_utils import read_file_to_numpy
-from scripts.point_cloud_to_image import generate_multiscale_grids, load_saved_grids, compute_point_cloud_bounds
+from scripts.point_cloud_to_image import generate_multiscale_grids, compute_point_cloud_bounds
 from datetime import datetime
 import pandas as pd
 import torch.nn as nn
@@ -58,7 +58,7 @@ class PointCloudDataset(Dataset):
         label = self.data_array[idx, -1]  # Get the label for this point
 
         # Generate multiscale grids for this point
-        grids_dict = self.generate_multiscale_grids(center_point, data_array=self.data_array, window_sizes=self.window_sizes, grid_resolution=self.grid_resolution, feature_indices=self.feature_indices, kdtree=self.kdtree, point_cloud_bounds=self.point_cloud_bounds)
+        grids_dict = generate_multiscale_grids(center_point, data_array=self.data_array, window_sizes=self.window_sizes, grid_resolution=self.grid_resolution, feature_indices=self.feature_indices, kdtree=self.kdtree, point_cloud_bounds=self.point_cloud_bounds)
 
         # Convert grids to PyTorch tensors
         small_grid = torch.tensor(grids_dict['small'], dtype=torch.float32)
@@ -73,50 +73,48 @@ class PointCloudDataset(Dataset):
     
 
 
-def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw/labeled_FSL.las', grid_save_dir='data/pre_processed_data',
-                       window_sizes=None, grid_resolution=128, features_to_use=None, train_split=0.8, features_file_path=None):
+def prepare_dataloader(batch_size, data_dir='data/raw/labeled_FSL.las', 
+                       window_sizes=None, grid_resolution=128, features_to_use=None, 
+                       train_split=0.8, features_file_path=None):
     """
-    Prepares the DataLoader by either preprocessing the data and saving the grids to disk or by loading saved grids.
+    Prepares the DataLoader by loading the raw data and streaming multiscale grid generation.
+    
     Args:
     - batch_size (int): The batch size to be used for training.
-    - pre_process_data (bool): If True, generates new grids and saves them to disk.
     - data_dir (str): Path to the raw data (e.g., .las or .csv file).
-    - grid_save_dir (str): Directory where the pre-processed grids are saved.
-    - window_sizes (list): List of window sizes to use for grid generation (needed if pre_process_data=True).
+    - window_sizes (list): List of window sizes to use for grid generation.
     - grid_resolution (int): Resolution of the grid (e.g., 128x128).
     - features_to_use (list): List of feature names to use for grid generation.
     - train_split (float): Ratio of the data to use for training (e.g., 0.8 for 80% training data).
-    - features_file_path: filepath to feature used in .npy data. Only needed if using raw data in .npy format for pre-processing.
+    - features_file_path: File path to feature metadata, needed if using raw data in .npy format.
 
     Returns:
     - train_loader (DataLoader): DataLoader for training.
     - eval_loader (DataLoader): DataLoader for validation (if train_split > 0).
     """
 
-    if pre_process_data:
-        # Preprocess and generate grids, always saving them to disk
-        if not window_sizes:
-            raise ValueError("Window sizes must be provided when generating grids.")
+    # Step 1: Read the raw point cloud data into memory
+    data_array, known_features = read_file_to_numpy(data_dir=data_dir, features_to_use=features_to_use, features_file_path=features_file_path)
 
-        data_array, known_features = read_file_to_numpy(data_dir=data_dir, features_to_use=features_to_use, features_file_path=features_file_path)
+    # Step 2: Compute point cloud bounds for validation during grid generation
+    point_cloud_bounds = compute_point_cloud_bounds(data_array)
 
-        # Generate and save the grids
-        generate_multiscale_grids(data_array, window_sizes, grid_resolution, features_to_use, known_features, grid_save_dir)
+    # Step 3: Create the dataset using the new streaming-based approach
+    full_dataset = PointCloudDataset(
+        data_array=data_array,
+        window_sizes=window_sizes,
+        grid_resolution=grid_resolution,
+        features_to_use=features_to_use,
+        known_features=known_features,
+    )
 
-    # Load saved grids based on the saved file paths
-    print("Loading saved grids...")
-    grids_dict, labels = load_saved_grids(grid_save_dir)
-
-    # Create the dataset using the file paths and labels
-    full_dataset = GridDataset(grids_dict, labels)
-
+    # Step 5: Split the dataset into training and evaluation sets (if train_split is provided)
     if train_split > 0.0:
-        # Split the dataset into training and evaluation sets
         train_size = int(train_split * len(full_dataset))
         eval_size = len(full_dataset) - train_size
         train_dataset, eval_dataset = random_split(full_dataset, [train_size, eval_size])
 
-        # Create DataLoaders for training and evaluation
+        # Step 6: Create DataLoaders for training and evaluation
         train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
         eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False)
     else:
@@ -125,6 +123,7 @@ def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw/labeled_
         eval_loader = None
 
     return train_loader, eval_loader
+
 
 
 

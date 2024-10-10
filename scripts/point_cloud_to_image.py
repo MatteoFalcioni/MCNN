@@ -126,6 +126,7 @@ def generate_multiscale_grids(center_point, data_array, window_sizes, grid_resol
     
     grids_dict = {}  # To store grids for each scale
     channels = len(feature_indices)
+    
 
     for size_label, window_size in window_sizes:
         half_window = window_size / 2
@@ -135,7 +136,8 @@ def generate_multiscale_grids(center_point, data_array, window_sizes, grid_resol
             center_point[0] + half_window > point_cloud_bounds['x_max'] or
             center_point[1] - half_window < point_cloud_bounds['y_min'] or
             center_point[1] + half_window > point_cloud_bounds['y_max']):
-            raise ValueError(f"Point {center_point} out of bounds for window size {size_label}.")
+            # skip grid generation for all scales if one scale is invalid
+            break
 
         # Generate the grid for the current scale
         grid, _, x_coords, y_coords, z_coord = create_feature_grid(
@@ -148,7 +150,8 @@ def generate_multiscale_grids(center_point, data_array, window_sizes, grid_resol
 
         # Check for NaN or Inf in the grid
         if np.isnan(grid_with_features).any() or np.isinf(grid_with_features).any():
-            raise ValueError(f"NaN or Inf values found in grid for point {center_point} at scale {size_label}")
+            # skip grid generation for all scales if one scale is invalid
+            break
 
         grids_dict[size_label] = grid_with_features
 
