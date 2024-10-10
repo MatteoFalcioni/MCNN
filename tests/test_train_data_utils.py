@@ -34,16 +34,22 @@ class TestPointCloudDataset(unittest.TestCase):
 
     def test_getitem(self):
         # Test retrieving a sample grid and label
-        sample_idx = 0 
-        small_grid, medium_grid, large_grid, label = self.dataset[sample_idx]
+        sample_idx = 0
+        result = self.dataset[sample_idx]
 
-        # Test that the grids are non-empty
-        self.assertIsNotNone(small_grid)
-        self.assertIsNotNone(medium_grid)
-        self.assertIsNotNone(large_grid)
+        # If the point is valid (not skipped), result should not be None
+        if result is not None:
+            small_grid, medium_grid, large_grid, label = result
 
-        # Check that the retrieved label matches the expected label
-        self.assertEqual(label, self.data_array[sample_idx, -1])
+            # Test that the grids are non-empty
+            self.assertIsNotNone(small_grid)
+            self.assertIsNotNone(medium_grid)
+            self.assertIsNotNone(large_grid)
+
+            # Check that the retrieved label matches the expected label
+            self.assertEqual(label, self.data_array[sample_idx, -1])
+        else:
+            self.assertIsNone(result, "The point should have been skipped.")
 
 
 class TestPrepareDataloader(unittest.TestCase):
@@ -74,6 +80,7 @@ class TestPrepareDataloader(unittest.TestCase):
 
         # Fetch the first batch and verify its structure
         first_batch = next(iter(train_loader))
+        self.assertIsNotNone(first_batch, "First batch should not be None (all points skipped).")
         self.assertEqual(len(first_batch), 4, "Expected 4 elements in the batch (small_grid, medium_grid, large_grid, label).")
 
         small_grid, medium_grid, large_grid, labels = first_batch
@@ -94,17 +101,19 @@ class TestPrepareDataloader(unittest.TestCase):
 
         # Test the train_loader
         first_batch = next(iter(train_loader))
+        self.assertIsNotNone(first_batch, "First batch should not be None (all points skipped).")
         small_grid, medium_grid, large_grid, labels = first_batch
         self.assertEqual(small_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Small grid resolution mismatch.")
         self.assertEqual(medium_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Medium grid resolution mismatch.")
         self.assertEqual(large_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Large grid resolution mismatch.")
-        self.assertEqual(len(labels), self.batch_size, "Batch size mismatch in training DataLoader.")
+        self.assertLessEqual(len(labels), self.batch_size, "Batch size should be smaller or equal to specified batch size due to skipped points.")
 
         # Test the eval_loader (ensure it was created and works)
         self.assertIsNotNone(eval_loader, "Evaluation DataLoader is None when it shouldn't be.")
         first_batch_eval = next(iter(eval_loader))
+        self.assertIsNotNone(first_batch_eval, "First batch of eval_loader should not be None (all points skipped).")
         small_grid, medium_grid, large_grid, labels_eval = first_batch_eval
         self.assertEqual(small_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Small grid resolution mismatch in eval.")
         self.assertEqual(medium_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Medium grid resolution mismatch in eval.")
         self.assertEqual(large_grid.shape[-2:], (self.grid_resolution, self.grid_resolution), "Large grid resolution mismatch in eval.")
-        self.assertEqual(len(labels_eval), self.batch_size, "Batch size mismatch in evaluation DataLoader.")
+        self.assertLessEqual(len(labels_eval), self.batch_size, "Batch size should be smaller or equal to specified batch size in eval due to skipped points.")

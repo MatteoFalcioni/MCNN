@@ -152,7 +152,6 @@ def prepare_dataloader(batch_size, data_dir='data/raw/labeled_FSL.las',
 
 
 
-
 def save_model(model, save_dir='models/saved'):
     """
     Saves the PyTorch model with a filename that includes the current date and time.
