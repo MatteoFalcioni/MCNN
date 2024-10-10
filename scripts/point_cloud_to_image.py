@@ -122,10 +122,14 @@ def generate_multiscale_grids(center_point, data_array, window_sizes, grid_resol
     
     Returns:
     - grids_dict (dict): Dictionary of generated grids for each scale.
+    - label (int): The label of the point.
+    - skipped (bool): Flag indicating if the point was skipped.
     """
     
     grids_dict = {}  # To store grids for each scale
     channels = len(feature_indices)
+    
+    skipped = False
     
 
     for size_label, window_size in window_sizes:
@@ -136,6 +140,7 @@ def generate_multiscale_grids(center_point, data_array, window_sizes, grid_resol
             center_point[0] + half_window > point_cloud_bounds['x_max'] or
             center_point[1] - half_window < point_cloud_bounds['y_min'] or
             center_point[1] + half_window > point_cloud_bounds['y_max']):
+            skipped = True
             # skip grid generation for all scales if one scale is invalid
             break
 
@@ -150,12 +155,13 @@ def generate_multiscale_grids(center_point, data_array, window_sizes, grid_resol
 
         # Check for NaN or Inf in the grid
         if np.isnan(grid_with_features).any() or np.isinf(grid_with_features).any():
+            skipped = True
             # skip grid generation for all scales if one scale is invalid
             break
 
         grids_dict[size_label] = grid_with_features
 
-    return grids_dict
+    return grids_dict, skipped
 
 
 

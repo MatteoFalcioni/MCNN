@@ -58,18 +58,44 @@ class PointCloudDataset(Dataset):
         label = self.data_array[idx, -1]  # Get the label for this point
 
         # Generate multiscale grids for this point
-        grids_dict = generate_multiscale_grids(center_point, data_array=self.data_array, window_sizes=self.window_sizes, grid_resolution=self.grid_resolution, feature_indices=self.feature_indices, kdtree=self.kdtree, point_cloud_bounds=self.point_cloud_bounds)
+        grids_dict, skipped = generate_multiscale_grids(center_point, data_array=self.data_array, window_sizes=self.window_sizes, grid_resolution=self.grid_resolution, feature_indices=self.feature_indices, kdtree=self.kdtree, point_cloud_bounds=self.point_cloud_bounds)
 
-        # Convert grids to PyTorch tensors
-        small_grid = torch.tensor(grids_dict['small'], dtype=torch.float32)
-        medium_grid = torch.tensor(grids_dict['medium'], dtype=torch.float32)
-        large_grid = torch.tensor(grids_dict['large'], dtype=torch.float32)
+        if not skipped: 
+            # Convert grids to PyTorch tensors
+            small_grid = torch.tensor(grids_dict['small'], dtype=torch.float32)
+            medium_grid = torch.tensor(grids_dict['medium'], dtype=torch.float32)
+            large_grid = torch.tensor(grids_dict['large'], dtype=torch.float32)
 
-        # Convert label to tensor
-        label = torch.tensor(label, dtype=torch.long)
+            # Convert label to tensor
+            label = torch.tensor(label, dtype=torch.long)
+        else:
+            return None
 
         # Return the grids and label
         return small_grid, medium_grid, large_grid, label
+    
+
+def custom_collate_fn(batch):
+    """
+    Custom collate function to filter out None values (skipped points).
+    """
+    # Filter out any None values (i.e., skipped points)
+    batch = [item for item in batch if item is not None]
+    
+    # If the batch is empty (all points were skipped), return None
+    if len(batch) == 0:
+        return None
+    
+    # Unpack the batch into grids and labels
+    small_grids, medium_grids, large_grids, labels = zip(*batch)
+    
+    # Stack the grids and labels to create tensors for the batch
+    small_grids = torch.stack(small_grids)
+    medium_grids = torch.stack(medium_grids)
+    large_grids = torch.stack(large_grids)
+    labels = torch.stack(labels)
+    
+    return small_grids, medium_grids, large_grids, labels
     
 
 
@@ -115,11 +141,11 @@ def prepare_dataloader(batch_size, data_dir='data/raw/labeled_FSL.las',
         train_dataset, eval_dataset = random_split(full_dataset, [train_size, eval_size])
 
         # Step 6: Create DataLoaders for training and evaluation
-        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-        eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False)
+        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, collate_fn=custom_collate_fn)
+        eval_loader = DataLoader(eval_dataset, batch_size=batch_size, shuffle=False, collate_fn=custom_collate_fn)
     else:
         # If no train/test split, create one DataLoader for the full dataset
-        train_loader = DataLoader(full_dataset, batch_size=batch_size, shuffle=True)
+        train_loader = DataLoader(full_dataset, batch_size=batch_size, shuffle=True, collate_fn=custom_collate_fn)
         eval_loader = None
 
     return train_loader, eval_loader
