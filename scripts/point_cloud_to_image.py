@@ -105,7 +105,7 @@ def assign_features_to_grid(tree, data_array, grid, x_coords, y_coords, constant
 
 def generate_multiscale_grids(data_array, window_sizes, grid_resolution, features_to_use, known_features, save_dir=None):
     """
-    Generates multiscale grids for each point in the data array, saves the grids to disk in .npy format, 
+    Generates multiscale grids for each point in the data array, saves the grids to disk in a zipped .npy format, 
     and saves the class labels in a single CSV file.
 
     Args:

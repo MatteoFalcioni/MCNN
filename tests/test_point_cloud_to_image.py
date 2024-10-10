@@ -10,8 +10,8 @@ import pandas as pd
 class TestPointCloudToImage(unittest.TestCase):
 
     def setUp(self):
-        # self.file_path = 'data/raw/features_F.las'
-        self.file_path = 'data/training_data/test_21.csv'
+        self.file_path = 'data/raw/features_F.las'
+        # self.file_path = 'data/training_data/test_21.csv'
         self.sample_size = 2000  # Subset for testing. 
         self.grid_resolution = 128
         self.features_to_use = ['intensity', 'red', 'green', 'blue']  # Example selected features
@@ -20,8 +20,10 @@ class TestPointCloudToImage(unittest.TestCase):
 
         # Load LAS file and get data with user-selected features
         self.full_data, self.feature_names = read_file_to_numpy(data_dir=self.file_path, features_to_use=self.features_to_use)
-        print(f'feature names in csv test file: {self.feature_names}')
+        print(f'feature names in test file: {self.feature_names}')
         self.df = numpy_to_dataframe(self.full_data, self.feature_names)
+
+        # to do only if using las file without labels:
         num_points = self.full_data.shape[0]
         labels = np.random.randint(0, 5, size=num_points)
         # Append labels as a new column
