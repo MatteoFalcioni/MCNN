@@ -5,6 +5,7 @@ import os
 from tqdm import tqdm
 import csv
 import pandas as pd
+import zipfile
 
 
 def compute_point_cloud_bounds(data_array, padding=0.0):
@@ -143,71 +144,77 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, feature
 
     tree = cKDTree(data_array[:, :3])  # Prebuild the KDTree
 
-    # Open a single CSV file to save labels
-    label_file_path = os.path.join(save_dir, "labels.csv")
-    with open(label_file_path, mode='w', newline='') as label_file:
-        label_writer = csv.writer(label_file)
-        label_writer.writerow(['point_idx', 'label'])  # Write header
+    # Open a single ZIP file for grids and CSV for labels
+    zip_file_path = os.path.join(save_dir, "grids.zip")
+    with zipfile.ZipFile(zip_file_path, 'w') as zip_file:
+        label_file_path = os.path.join(save_dir, "labels.csv")
         
-        skipped_nan_grids = 0
-        skipped_out_of_bounds = 0
+        with open(label_file_path, mode='w', newline='') as label_file:
+            label_writer = csv.writer(label_file)
+            label_writer.writerow(['point_idx', 'label'])  # Write header
+            
+            skipped_nan_grids = 0
+            skipped_out_of_bounds = 0
 
-        for i in tqdm(range(num_points), desc="Generating multiscale grids", unit="grid"):
+            for i in tqdm(range(num_points), desc="Generating multiscale grids", unit="grid"):
 
-            # Track whether all grids for this point are valid
-            all_grids_valid = True
-            grids_to_save = {}
+                # Track whether all grids for this point are valid
+                all_grids_valid = True
+                grids_to_save = {}
 
-            center_point = data_array[i, :3]
-            label = data_array[i, -1]
+                center_point = data_array[i, :3]
+                label = data_array[i, -1]
 
-            # Loop through all scales and generate grids
-            for size_label, window_size in window_sizes:
+                # Loop through all scales and generate grids
+                for size_label, window_size in window_sizes:
 
-                half_window = window_size / 2
-                if (center_point[0] - half_window < point_cloud_bounds['x_min'] or
-                    center_point[0] + half_window > point_cloud_bounds['x_max'] or
-                    center_point[1] - half_window < point_cloud_bounds['y_min'] or
-                    center_point[1] + half_window > point_cloud_bounds['y_max']):
-                    all_grids_valid = False
-                    skipped_out_of_bounds += 1
-                    break  # If the grid is out-of-bounds, skip this point for all scales
+                    half_window = window_size / 2
+                    if (center_point[0] - half_window < point_cloud_bounds['x_min'] or
+                        center_point[0] + half_window > point_cloud_bounds['x_max'] or
+                        center_point[1] - half_window < point_cloud_bounds['y_min'] or
+                        center_point[1] + half_window > point_cloud_bounds['y_max']):
+                        all_grids_valid = False
+                        skipped_out_of_bounds += 1
+                        break  # If the grid is out-of-bounds, skip this point for all scales
 
-                # Generate the grid for the current scale
-                grid, _, x_coords, y_coords, z_coord = create_feature_grid(
-                    center_point, window_size, grid_resolution, channels
-                )
-                grid_with_features = assign_features_to_grid(tree, data_array, grid, x_coords, y_coords, z_coord, feature_indices)
-                grid_with_features = np.transpose(grid_with_features, (2, 0, 1))  # Convert grid to Torch format (channels first)
+                    # Generate the grid for the current scale
+                    grid, _, x_coords, y_coords, z_coord = create_feature_grid(
+                        center_point, window_size, grid_resolution, channels
+                    )
+                    grid_with_features = assign_features_to_grid(tree, data_array, grid, x_coords, y_coords, z_coord, feature_indices)
+                    grid_with_features = np.transpose(grid_with_features, (2, 0, 1))  # Convert grid to Torch format (channels first)
 
-                # Check if the grid is valid (no NaN or Inf)
-                if np.isnan(grid_with_features).any() or np.isinf(grid_with_features).any():
-                    skipped_nan_grids += 1
-                    all_grids_valid = False
-                    break  # If any grid is invalid, skip this point for all scales
+                    # Check if the grid is valid (no NaN or Inf)
+                    if np.isnan(grid_with_features).any() or np.isinf(grid_with_features).any():
+                        skipped_nan_grids += 1
+                        all_grids_valid = False
+                        break  # If any grid is invalid, skip this point for all scales
 
-                # Temporarily store the valid grid for this scale (for later saving if all are valid)
-                grids_to_save[size_label] = grid_with_features
+                    # Temporarily store the valid grid for this scale (for later saving if all are valid)
+                    grids_to_save[size_label] = grid_with_features
 
-            # If all grids are valid, save them and write the label
-            if all_grids_valid:
-                for size_label, grid in grids_to_save.items():
-                    file_name = f"{i}_{size_label}.npy"
-                    file_path = os.path.join(save_dir, size_label, file_name)
-                    os.makedirs(os.path.dirname(file_path), exist_ok=True)
-                    np.save(file_path, grid)
+                # If all grids are valid, save them and write the label
+                if all_grids_valid:
+                    for size_label, grid in grids_to_save.items():
+                        for size_label, grid in grids_to_save.items():
+                            # Save grids as bytes in a ZIP file
+                            grid_name = f"{i}_{size_label}.npy"
+                            np_bytes = np.save(grid_name, grid_with_features)
+                            zip_file.writestr(grid_name, np_bytes)
 
-                # Write the label for this point to the single CSV
-                label_writer.writerow([i, label])
+                        # Write label to CSV
+                        label_writer.writerow([i, label])
 
-    print('Multiscale grid generation and single label file saving completed successfully.')
-    print(f'{skipped_nan_grids} were skipped because of nan or inf values, {skipped_out_of_bounds} were skipped because out of bounds')
+                    # Write the label for this point to the single CSV
+                    label_writer.writerow([i, label])
+
+        print('Multiscale grid generation and single label file saving completed successfully.')
+        print(f'{skipped_nan_grids} were skipped because of nan or inf values, {skipped_out_of_bounds} were skipped because out of bounds')
 
 
 def load_saved_grids(grid_save_dir):
     """
-    Loads saved grid file paths and corresponding labels from a single CSV file.
-    It assumes that the grids saved are already consistent across scales due to the saving process.
+    Loads saved grid file paths and corresponding labels from files. For grids we have a zip file.
 
     Args:
     - grid_save_dir (str): Directory where the grids are saved.
@@ -219,19 +226,22 @@ def load_saved_grids(grid_save_dir):
     grids_dict = {'small': [], 'medium': [], 'large': []}
     labels = []
 
-    # Load all filenames for each scale
-    grids_dict['small'] = [os.path.join(grid_save_dir, 'small', f) for f in sorted(os.listdir(os.path.join(grid_save_dir, 'small')))]
-    grids_dict['medium'] = [os.path.join(grid_save_dir, 'medium', f) for f in sorted(os.listdir(os.path.join(grid_save_dir, 'medium')))]
-    grids_dict['large'] = [os.path.join(grid_save_dir, 'large', f) for f in sorted(os.listdir(os.path.join(grid_save_dir, 'large')))]
+    # Open the ZIP file to load grids
+    zip_file_path = os.path.join(grid_save_dir, "grids.zip")
+    with zipfile.ZipFile(zip_file_path, 'r') as zip_file:
+        # Load the labels CSV
+        labels_file = os.path.join(grid_save_dir, 'labels.csv')
+        labels_df = pd.read_csv(labels_file)
+        labels = labels_df['label'].tolist()
 
-    # Load the labels from the unified 'labels.csv' file
-    labels_file = os.path.join(grid_save_dir, 'labels.csv')
-    labels_df = pd.read_csv(labels_file)
-    
-    # Extract the labels
-    labels = labels_df['label'].tolist()
+        # Load grids by reading from the ZIP
+        for grid_name in zip_file.namelist():
+            scale = grid_name.split('_')[-1].replace('.npy', '')
+            with zip_file.open(grid_name) as grid_file:
+                grid_data = np.load(grid_file)
+                grids_dict[scale].append(grid_data)
 
-    # Ensure we have the same number of grids and labels
+    # Ensure consistency between grids and labels
     num_small = len(grids_dict['small'])
     num_medium = len(grids_dict['medium'])
     num_large = len(grids_dict['large'])
@@ -239,10 +249,8 @@ def load_saved_grids(grid_save_dir):
 
     if not (num_small == num_medium == num_large):
         raise ValueError(f"Inconsistent number of grids across scales: small={num_small}, medium={num_medium}, large={num_large}")
-
     if not (num_small == num_labels):
         raise ValueError(f"Inconsistent number of grids and labels: small={num_small}, labels={num_labels}")
 
     print(f"Loaded {num_small} grids for each scale with {num_labels} labels.")
-
     return grids_dict, labels
