@@ -3,10 +3,11 @@ from torch.utils.data import Dataset, DataLoader, random_split, TensorDataset
 import os
 import numpy as np
 from utils.point_cloud_data_utils import read_file_to_numpy
-from scripts.point_cloud_to_image import generate_multiscale_grids, load_saved_grids
+from scripts.point_cloud_to_image import generate_multiscale_grids, load_saved_grids, compute_point_cloud_bounds
 from datetime import datetime
 import pandas as pd
 import torch.nn as nn
+from scipy.spatial import cKDTree
 
 
 def initialize_weights(model):
@@ -21,45 +22,55 @@ def initialize_weights(model):
                 nn.init.zeros_(m.bias)
 
 
-class GridDataset(Dataset):
-    def __init__(self, grids_dict, labels):
+class PointCloudDataset(Dataset):
+    def __init__(self, data_array, window_sizes, grid_resolution, features_to_use, known_features):
         """
-        Initializes the dataset by storing the file paths to the grids and loading the provided labels.
+        Dataset class for streaming multiscale grid generation from point cloud data.
 
         Args:
-        - grids_dict (dict): Dictionary containing file paths to the grids for each scale.
-        - labels (list): List of labels corresponding to the grid files.
+        - data_array (numpy.ndarray): The entire point cloud data array.
+        - window_sizes (list): List of tuples for grid window sizes (e.g., [('small', 2.5), ('medium', 5.0), ('large', 10.0)]).
+        - grid_resolution (int): Grid resolution (e.g., 128x128).
+        - features_to_use (list): List of feature names for generating grids.
+        - known_features (list): All known feature names in the data array.
         """
-        self.grids_dict = grids_dict
-        self.labels = labels
+        self.data_array = data_array
+        self.window_sizes = window_sizes
+        self.grid_resolution = grid_resolution
+        self.features_to_use = features_to_use
+        self.known_features = known_features
+        
+        # Build KDTree once for the entire dataset
+        self.kdtree = cKDTree(data_array[:, :3])  # Use coordinates for KDTree
+        self.feature_indices = [known_features.index(feature) for feature in features_to_use]
+        
+        self.point_cloud_bounds = compute_point_cloud_bounds(data_array)
 
     def __len__(self):
-        return len(self.labels)
+        return len(self.data_array)
 
     def __getitem__(self, idx):
         """
-        Retrieves a grid and its corresponding label based on the index.
-
-        Args:
-        - idx (int): The index of the data point to retrieve.
-
-        Returns:
-        - small_grid, medium_grid, large_grid (torch.Tensor): Grids loaded lazily from .npy files.
-        - label (torch.Tensor): Corresponding label for the grid.
+        Generates multiscale grids for the point at index `idx` and returns them as PyTorch tensors.
         """
-        # Load grids lazily using the file paths stored in grids_dict
-        small_grid_path = self.grids_dict['small'][idx]
-        medium_grid_path = self.grids_dict['medium'][idx]
-        large_grid_path = self.grids_dict['large'][idx]
+        # Extract the single point's data using `idx`
+        center_point = self.data_array[idx, :3]  # Get the x, y, z coordinates
+        label = self.data_array[idx, -1]  # Get the label for this point
 
-        small_grid = torch.tensor(np.load(small_grid_path), dtype=torch.float32)
-        medium_grid = torch.tensor(np.load(medium_grid_path), dtype=torch.float32)
-        large_grid = torch.tensor(np.load(large_grid_path), dtype=torch.float32)
+        # Generate multiscale grids for this point
+        grids_dict = self.generate_multiscale_grids(center_point, data_array=self.data_array, window_sizes=self.window_sizes, grid_resolution=self.grid_resolution, feature_indices=self.feature_indices, kdtree=self.kdtree, point_cloud_bounds=self.point_cloud_bounds)
 
-        # Get the corresponding label
-        label = torch.tensor(self.labels[idx], dtype=torch.long)
+        # Convert grids to PyTorch tensors
+        small_grid = torch.tensor(grids_dict['small'], dtype=torch.float32)
+        medium_grid = torch.tensor(grids_dict['medium'], dtype=torch.float32)
+        large_grid = torch.tensor(grids_dict['large'], dtype=torch.float32)
 
+        # Convert label to tensor
+        label = torch.tensor(label, dtype=torch.long)
+
+        # Return the grids and label
         return small_grid, medium_grid, large_grid, label
+    
 
 
 def prepare_dataloader(batch_size, pre_process_data, data_dir='data/raw/labeled_FSL.las', grid_save_dir='data/pre_processed_data',

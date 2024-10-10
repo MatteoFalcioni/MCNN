@@ -27,7 +27,6 @@ def train(model, dataloader, criterion, optimizer, device):
         # Compute loss
         loss = criterion(outputs, labels)
 
-        # Check for NaN in loss
         # Check for NaN or Inf loss
         if torch.isnan(loss) or torch.isinf(loss):
             raise ValueError("NaN or Inf loss encountered during training. Stopping training.")
