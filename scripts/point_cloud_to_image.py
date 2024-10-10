@@ -178,6 +178,7 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, feature
 
                 # Check if the grid is valid (no NaN or Inf)
                 if np.isnan(grid_with_features).any() or np.isinf(grid_with_features).any():
+                    print(f'Skipped grid at idx {i} because it contained inf or nan values.')
                     all_grids_valid = False
                     break  # If any grid is invalid, skip this point for all scales
 

@@ -310,7 +310,7 @@ def compare_feature_assignments(tree, data_array, x_coords, y_coords, constant_z
     visualize_grid(grid_bulk, channel=2, title="Grid with Bulk Querying", feature_names=feature_names)
 
 
-def assign_features_to_grid_gpu(data_array, grid_coords, feature_indices, device):
+def assign_features_to_grid_gpu(data_array, tree, grid_coords, feature_indices, device):
     """
     Assigns features to the grid on the GPU using the KDTree querying method.
 
@@ -323,11 +323,6 @@ def assign_features_to_grid_gpu(data_array, grid_coords, feature_indices, device
     Returns:
     - feature_grids (torch.Tensor): Tensor of shape [batch_size, num_features, grid_resolution, grid_resolution].
     """
-    # Move data_array to the appropriate precision and device
-    data_array = data_array
-    
-    # Create KDTree on CPU
-    tree = KDTree(data_array[:, :3])
 
     batch_size = grid_coords.shape[0]
     grid_resolution = grid_coords.shape[2]
@@ -439,50 +434,58 @@ def debug_gpu_multiscale_grids(data_loader, window_sizes, grid_resolution, featu
     with open(label_file_path, mode='w', newline='') as label_file:
         label_writer = csv.writer(label_file)
         label_writer.writerow(['point_idx', 'label'])  # Write header
+        
+        global_idx = 0  # Initialize global index for saving grids/labels
 
         # Iterate over DataLoader batches
-        for batch_idx, batch_data in enumerate(data_loader):
-            print(f"Processing batch {batch_idx + 1}/{len(data_loader)}...")
+        with tqdm(total=len(data_loader), desc="Processing batches", unit="batch") as pbar:
+            for batch_idx, batch_data in enumerate(data_loader):
+                # print(f"Processing batch {batch_idx + 1}/{len(data_loader)}...")
 
-            # Extract coordinates and labels from the batch
-            batch_data = batch_data.to(device, dtype=torch.float32)
-            coordinates = batch_data[:, :3]
-            labels = batch_data[:, 3]
+                # Extract coordinates and labels from the batch
+                batch_data = batch_data.to(device, dtype=torch.float32)
+                coordinates = batch_data[:, :3]
+                labels = batch_data[:, 3]
 
-            all_grids_valid = True
-            grids_to_save = {}
+                all_grids_valid = True
+                grids_to_save = {}
 
-            for size_label, window_size in window_sizes:
-                print(f"Processing scale: {size_label}...")
+                for size_label, window_size in window_sizes:
+                    # print(f"Processing scale: {size_label}...")
 
-                # Generate grids
-                _, _, grid_coords = debug_gpu_create_feature_grid(coordinates, window_size, grid_resolution, channels, device)
+                    # Generate grids
+                    _, _, grid_coords = debug_gpu_create_feature_grid(coordinates, window_size, grid_resolution, channels, device)
 
-                # Assign features to grids
-                feature_grids = assign_features_to_grid_gpu(full_data, grid_coords, feature_indices, device)
+                    # Assign features to grids
+                    feature_grids = assign_features_to_grid_gpu(full_data, tree, grid_coords, feature_indices, device)
 
-                if torch.isnan(feature_grids).any() or torch.isinf(feature_grids).any():
-                    all_grids_valid = False
-                    break  # Skip this batch if any grid contains NaN or Inf values
+                    if torch.isnan(feature_grids).any() or torch.isinf(feature_grids).any():
+                        print(f'Skipped grid because it contained inf or nan values.')
+                        all_grids_valid = False
+                        break  # Skip this batch if any grid contains NaN or Inf values
 
-                grids_to_save[size_label] = feature_grids.cpu().numpy()
+                    grids_to_save[size_label] = feature_grids.cpu().numpy()
 
-            if all_grids_valid:
-                for size_label, grid in grids_to_save.items():
-                    for i, single_grid in enumerate(grid):
-                        file_name = f"{batch_idx * len(grid) + i}_{size_label}.npy"
+                if all_grids_valid:
+                    for i, (size_label, grid) in enumerate(grids_to_save.items()):
+                        # Save grids for each point in the batch
+                        file_name = f"{global_idx}_{size_label}.npy"
                         file_path = os.path.join(save_dir, size_label, file_name)
                         os.makedirs(os.path.dirname(file_path), exist_ok=True)
-                        np.save(file_path, single_grid)
+                        np.save(file_path, grid)
 
-                for i, label in enumerate(labels.cpu().numpy()):
-                    label_writer.writerow([batch_idx * len(labels) + i, label])
+                        # Save the corresponding label
+                        label_writer.writerow([global_idx, labels[i].item()])  # Convert tensor label to scalar
+                        global_idx += 1  # Increment global index after each point's grids and label are saved
+                
+                # Update the progress bar
+                pbar.update(1)
+                        
+                # Stop early for debugging
+                if stop_after_batches is not None and batch_idx >= stop_after_batches:
+                    break
 
-            # Stop early for debugging
-            if stop_after_batches is not None and batch_idx >= stop_after_batches:
-                break
-
-            del batch_data, labels, feature_grids
+                del batch_data, labels, feature_grids
 
     print("Multiscale grid generation and label saving completed.")
 
@@ -549,6 +552,7 @@ def debug_cpu_bulk_multiscale_grids(data_array, window_sizes, grid_resolution, f
                 grid_with_features = np.transpose(grid_with_features, (2, 0, 1))  # Convert grid to channels first (PyTorch format)
 
                 if np.isnan(grid_with_features).any() or np.isinf(grid_with_features).any():
+                    print(f'Skipped grid at idx {i} because it contained inf or nan values.')
                     all_grids_valid = False
                     break  # Skip if any grid contains NaN or Inf values
 
@@ -586,11 +590,12 @@ def compare_ms(data_loader, data_array, window_sizes, grid_resolution, features_
     """
     
     # Step 1: Generate grids for both CPU and GPU
-    print("Generating CPU grids...")
-    debug_cpu_bulk_multiscale_grids(data_array, window_sizes, grid_resolution, features_to_use, known_features, save_dir_cpu)
     
     print("Generating GPU grids...")
     debug_gpu_multiscale_grids(data_loader, window_sizes, grid_resolution, features_to_use, known_features, channels, device, full_data, save_dir_gpu, stop_after_batches=None)
+    
+    print("Generating CPU grids...")
+    debug_cpu_bulk_multiscale_grids(data_array, window_sizes, grid_resolution, features_to_use, known_features, save_dir_cpu)
 
     # Step 2: Load the grids for both CPU and GPU using the load_saved_grids function
     print("Loading CPU grids...")
@@ -671,7 +676,7 @@ single_point_data_loader = DataLoader(single_point_dataset, batch_size=1, num_wo
 torch.set_printoptions(precision=8)
 
 # create actual dataloader for multiscale
-data_loader = prepare_grids_dataloader(data_array=sampled_data, batch_size=16, num_workers=0)
+data_loader = prepare_grids_dataloader(data_array=sampled_data, batch_size=64, num_workers=4)
 
 
 '''# check before starting
