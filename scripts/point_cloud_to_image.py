@@ -148,6 +148,9 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, feature
     with open(label_file_path, mode='w', newline='') as label_file:
         label_writer = csv.writer(label_file)
         label_writer.writerow(['point_idx', 'label'])  # Write header
+        
+        skipped_nan_grids = 0
+        skipped_out_of_bounds = 0
 
         for i in tqdm(range(num_points), desc="Generating multiscale grids", unit="grid"):
 
@@ -167,6 +170,7 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, feature
                     center_point[1] - half_window < point_cloud_bounds['y_min'] or
                     center_point[1] + half_window > point_cloud_bounds['y_max']):
                     all_grids_valid = False
+                    skipped_out_of_bounds += 1
                     break  # If the grid is out-of-bounds, skip this point for all scales
 
                 # Generate the grid for the current scale
@@ -178,7 +182,7 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, feature
 
                 # Check if the grid is valid (no NaN or Inf)
                 if np.isnan(grid_with_features).any() or np.isinf(grid_with_features).any():
-                    print(f'Skipped grid at idx {i} because it contained inf or nan values.')
+                    skipped_nan_grids += 1
                     all_grids_valid = False
                     break  # If any grid is invalid, skip this point for all scales
 
@@ -197,6 +201,7 @@ def generate_multiscale_grids(data_array, window_sizes, grid_resolution, feature
                 label_writer.writerow([i, label])
 
     print('Multiscale grid generation and single label file saving completed successfully.')
+    print(f'{skipped_nan_grids} were skipped because of nan or inf values, {skipped_out_of_bounds} were skipped because out of bounds')
 
 
 def load_saved_grids(grid_save_dir):

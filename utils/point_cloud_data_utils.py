@@ -249,7 +249,7 @@ def combine_and_save_csv_files(csv_files, save=False, save_dir='data/combined_da
     return combined_array
 
 
-def sample_data(input_file, sample_size, file_type='csv', save=False, save_dir='data/sampled_data', feature_names=None):
+def sample_data(input_file, sample_size, save=False, save_dir='data/sampled_data', feature_to_use=None, features_file_path=None):
     """
     Samples a subset of the data from a CSV, NumPy, or LAS file and saves it as a CSV with metadata.
 
@@ -259,31 +259,14 @@ def sample_data(input_file, sample_size, file_type='csv', save=False, save_dir='
     - file_type (str): The type of the input file ('csv', 'npy', or 'las').
     - save (bool): Whether to save the sampled data to a file. Default is False.
     - save_dir (str): Directory where the sampled data will be saved. Default is 'data/sampled_data'.
-    - feature_names (list): List of feature names for the data (required if input is NumPy).
+    - feature_to_use (list): List of feature names to select from the data.
+    - features_file_path (str): File path to known features of the .npy data (required only if input is NumPy).
 
     Returns:
     - np.ndarray: The sampled subset of the data.
     """
-    # Load the data based on file type
-    if file_type == 'csv':
-        print("Reading data from CSV file...")
-        data = []
-        for file in tqdm(input_file, desc="Loading CSV files", unit="file"):
-            df = pd.read_csv(file)
-            data.append(df)
-        data = pd.concat(data)
-        feature_names = data.columns.tolist()  # Extract feature names from CSV
-        data_array = data.values  # Convert to NumPy array for sampling
-    elif file_type == 'npy':
-        print("Reading data from NumPy file...")
-        data_array = np.load(input_file)
-        if feature_names is None:
-            raise ValueError("Feature names must be provided when using a NumPy file.")
-    elif file_type == 'las':
-        print("Reading data from LAS file...")
-        data_array, feature_names = read_las_file_to_numpy(input_file)
-    else:
-        raise ValueError("Unsupported file type. Please specify 'csv', 'npy', or 'las'.")
+    # Load the data 
+    data_array, feature_names = read_file_to_numpy(data_dir=input_file, features_to_use=feature_to_use, features_file_path=features_file_path)
 
     # Check if sample_size is greater than the dataset size
     if sample_size > data_array.shape[0]:
