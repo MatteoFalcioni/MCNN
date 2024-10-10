@@ -4099,3 +4099,4 @@ tests/debug/CPU_grids/small/1226_small.npy
 tests/debug/CPU_grids/small/1227_small.npy
 tests/debug/CPU_grids/small/1228_small.npy
 tests/debug/CPU_grids/small/1229_small.npy
+models/saved/mcnn_model_20241008_093320.pth

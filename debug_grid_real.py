@@ -2,9 +2,9 @@ import numpy as np
 import torch
 from torch.utils.data import DataLoader, TensorDataset
 import pandas as pd  # Import pandas for DataFrame
-from scripts.optimized_pc_to_img import gpu_generate_multiscale_grids, prepare_grids_dataloader, gpu_assign_features_to_grid, gpu_create_feature_grid
+from scripts.optimized_pc_to_img import prepare_grids_dataloader
 from scripts.point_cloud_to_image import generate_multiscale_grids, assign_features_to_grid, create_feature_grid, compute_point_cloud_bounds, load_saved_grids
-from utils.point_cloud_data_utils import read_las_file_to_numpy, remap_labels
+from utils.point_cloud_data_utils import read_file_to_numpy, remap_labels
 from scipy.spatial import cKDTree as KDTree
 from utils.plot_utils import visualize_grid_with_comparison, visualize_grid
 from tqdm import tqdm
@@ -445,9 +445,9 @@ def debug_gpu_multiscale_grids(data_loader, window_sizes, grid_resolution, featu
             print(f"Processing batch {batch_idx + 1}/{len(data_loader)}...")
 
             # Extract coordinates and labels from the batch
-            batch_tensor = batch_data[0].to(device, dtype=torch.float32)
-            coordinates = batch_tensor[:, :3]
-            labels = batch_tensor[:, 3]
+            batch_data = batch_data.to(device, dtype=torch.float32)
+            coordinates = batch_data[:, :3]
+            labels = batch_data[:, 3]
 
             all_grids_valid = True
             grids_to_save = {}
@@ -590,7 +590,7 @@ def compare_ms(data_loader, data_array, window_sizes, grid_resolution, features_
     debug_cpu_bulk_multiscale_grids(data_array, window_sizes, grid_resolution, features_to_use, known_features, save_dir_cpu)
     
     print("Generating GPU grids...")
-    debug_gpu_multiscale_grids(data_loader, data_array, window_sizes, grid_resolution, features_to_use, known_features, len(features_to_use), torch.device('cuda'), data_array, save_dir_gpu)
+    debug_gpu_multiscale_grids(data_loader, window_sizes, grid_resolution, features_to_use, known_features, channels, device, full_data, save_dir_gpu, stop_after_batches=None)
 
     # Step 2: Load the grids for both CPU and GPU using the load_saved_grids function
     print("Loading CPU grids...")
@@ -631,7 +631,8 @@ def compare_ms(data_loader, data_array, window_sizes, grid_resolution, features_
 
 # Load real data from LAS file
 las_file_path = 'data/raw/features_F.las'
-full_data, feature_names = read_las_file_to_numpy(las_file_path)
+csv_file_path = 'data/training_data/train_21.csv'
+full_data, feature_names = read_file_to_numpy(las_file_path)
 
 features_to_use = ['intensity', 'red', 'green', 'blue']
 channels=len(features_to_use)
@@ -665,11 +666,15 @@ center_point_labeled = data_array_with_labels[index, [0, 1, 2, -1]]
 # Create a TensorDataset and DataLoader for a single point
 center_point_tensor_labeled = torch.tensor(center_point_labeled , dtype=torch.float32).unsqueeze(0)
 single_point_dataset = TensorDataset(center_point_tensor_labeled)
-data_loader = DataLoader(single_point_dataset, batch_size=1, num_workers=0)
+single_point_data_loader = DataLoader(single_point_dataset, batch_size=1, num_workers=0)
 
 torch.set_printoptions(precision=8)
 
-# check before starting
+# create actual dataloader for multiscale
+data_loader = prepare_grids_dataloader(data_array=sampled_data, batch_size=16, num_workers=0)
+
+
+'''# check before starting
 print(f'center point data: {center_point_labeled}')
 print(f'center point tensor data: {center_point_tensor_labeled}')
 
@@ -714,7 +719,7 @@ else:
 
 print('----------------------------KD TREE CHECKS ENDED------------------------------------')
 
-compare_feature_assignments(tree, full_data, x_coords_cpu, y_coords_cpu, constant_z_cpu, feature_indices, grid_resolution)
+compare_feature_assignments(tree, full_data, x_coords_cpu, y_coords_cpu, constant_z_cpu, feature_indices, grid_resolution)'''
 
-compare_ms(data_array=sampled_data, window_sizes=window_sizes, grid_resolution=grid_resolution, features_to_use=features_to_use, known_features=feature_names, save_dir_gpu='tests/debug/GPU_grids', save_dir_cpu='tests/debug/CPU_grids')
+compare_ms(data_loader=data_loader, data_array=sampled_data, window_sizes=window_sizes, grid_resolution=grid_resolution, features_to_use=features_to_use, known_features=feature_names, save_dir_gpu='tests/debug/GPU_grids', save_dir_cpu='tests/debug/CPU_grids')
 
