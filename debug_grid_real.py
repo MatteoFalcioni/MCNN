@@ -632,7 +632,7 @@ def compare_ms(data_loader, data_array, window_sizes, grid_resolution, features_
 # Load real data from LAS file
 las_file_path = 'data/raw/features_F.las'
 csv_file_path = 'data/training_data/train_21.csv'
-full_data, feature_names = read_file_to_numpy(las_file_path)
+full_data, feature_names = read_file_to_numpy(csv_file_path)
 
 features_to_use = ['intensity', 'red', 'green', 'blue']
 channels=len(features_to_use)
@@ -643,7 +643,7 @@ feature_indices = [feature_names.index(feature) for feature in features_to_use]
 window_sizes = [('small', 2.5), ('medium', 5.0), ('large', 10.0)]
 window_size = 10
 grid_resolution=128
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
 tree = KDTree(full_data[:, :3])
 
